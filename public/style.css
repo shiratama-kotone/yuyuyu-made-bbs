@@ -1,0 +1,150 @@
+.example1 {
+    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
+    animation: 0.5s example4 linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.example2 {
+    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
+    animation: 2s example4 linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.example3 {
+    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
+    animation: 3s example4 linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.example4 {
+    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
+    animation: 5s example4 linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes example4 {
+    100% { background-position: 200%; }
+}
+
+.admin{
+  color: red;
+}
+
+h1{
+  font-size: 50px;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+
+textarea, {
+  margin: 5px 0;
+  padding: 10px;
+  width: calc(100% - 24px);
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px;
+  background-color: #9370db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #8167c1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #9370db;
+  color: white;
+}
+
+#clock {
+    position: fixed; /* 固定配置 */
+    top: 10px;       /* 画面の上端から10px */
+    right: 10px;   
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+}
+
+.comic-relief-bold {
+  font-family: "Comic Relief", system-ui;
+  font-weight: 700;
+  font-style: normal;
+}
+
+@import url("compass/css3");
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#bar-clock .hour,
+#bar-clock .minutes,
+#bar-clock .seconds {
+  background: #f6f6f6;
+  width: 40px;
+  height: 180px;
+  float: left;
+  margin-right: 0.5em;
+  position: relative;
+}
+
+#bar-clock .seconds {
+  margin-right: 0;
+}
+
+#bar-clock .time {
+  display: block;
+  background: #ccc;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  transition: height 0.1s linear;
+}
+
+#bar-clock #human-time {
+  clear: left;
+  text-align: center;
+  font-size: 2.2em;
+  padding-top: 0.3em;
+  color: #ccc;
+}
+
+    .rainbow-text {
+      font-weight: bold;
+      background: linear-gradient(90deg, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
