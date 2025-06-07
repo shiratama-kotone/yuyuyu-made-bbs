@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文字列を簡単に生成！！</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Cookieを確認し、未設定なら認証ページへ移動
+    if (!document.cookie.split("; ").find(row => row.startsWith("keijiban=true"))) {
+      window.location.href = "/what.html";
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@700&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://cdn.glitch.global/054c0de1-18c2-4e86-a898-38c0ca4cc12f/47c3d530-4151-4eba-8f03-a49e6e5e7d65.%E6%96%87.png?v=1747825397105">
+</head>
+<body>
+  <!--shinobi1--><script type="text/javascript" src="//xa.shinobi.jp/ufo/191984100"></script><noscript><a href="//xa.shinobi.jp/bin/gg?191984100" target="_blank"><img src="//xa.shinobi.jp/bin/ll?191984100" border="0"></a><br><span style="font-size:9px"><img style="margin:0;vertical-align:text-bottom;" src="//img.shinobi.jp/tadaima/fj.gif" width="19" height="11"> </span></noscript><!--shinobi2-->
+  <h1 class="example4">掲示板</h1>
+  <p>新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものでパスワードのようなものじゃなくてパスワードです。<br>
+  今の話題に勇気を出して参加してみましょう！！！<br>
+  猫派だけ下ネタOKだよ<br>
+    全数字垢がほしいならパスワードを7かなんかにしとけください(<font class="example1">@7902699</font>)<br>
+    IDが<font color="red">赤い</font>人はゆゆゆが選んだ人(運営)です。<br>
+    運営だからだと言ってなにか特別なことができるわけじゃありません。
+    <marquee behavior="scroll" direction="left" scrollamount="5" style="color: orange;;">
+  最近パスワードを忘れる人が増えています。　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　
+  </marquee><marquee behavior="scroll" direction="left" scrollamount="5" style="color: orange;;">
+  　　　　　　　　　　　　　　　　　　　　なんでもいいからメモしましょう。　　　　　　　　　　　　　　　　　　　　　　
+  </marquee><marquee behavior="scroll" direction="left" scrollamount="5" style="color: orange;;">
+ 　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　（なんのためのパスワードマネージャーなんだろ）
+  </marquee>
+  </p>
+  <a href="how.html">使い方</a>
+  <a href="topic.html">トピック変更</a>
+  <a href="del.html">投稿削除</a>
+  <div id="clock" class="comic-relief-bold"></div>
+  <form id="postForm">
+    <textarea id="content" placeholder="内容" required></textarea><br>
+    <input type="text" id="name" placeholder="名前" required>
+    <input type="password" id="password" placeholder="パスワード" required>
+    <button type="submit">送信</button>
+  </form>
+
+  <h2>投稿</h2>
+  <h3 id="currentTopic"></h3>
+
+  <table id="postsTable" border="1">
+    <thead>
+      <tr>
+        <th>番号</th>
+        <th>名前</th>
+        <th>ID</th>
+        <th>内容</th>
+        <th>日時</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script src="script.js"></script>
+<button id="toggleBtn" class="black"></button>
+
+<style>
+  html, body {
+    margin: 0; height: 100%;
+    /* overflowは自動でスクロールできるように */
+  }
+
+  #toggleBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    background-color: black;
+    transition: background-color 0.3s;
+  }
+
+  #toggleBtn.white {
+    background-color: white;
+    border: 2px solid black;
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none; /* これでクリックイベントはoverlayに通らない */
+    background: white;
+    mix-blend-mode: difference;
+    clip-path: circle(0 at 100% 100%);
+    transition: clip-path 0.7s ease;
+    z-index: 1000;
+  }
+</style>
+
+<div id="overlay"></div>
+
+<script>
+  // ページ読み込み時にCookieを確認して状態を設定
+  window.addEventListener('DOMContentLoaded', () => {
+    const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
+    if (darkModeCookie) {
+      const darkModeValue = darkModeCookie.split("=")[1];
+      if (darkModeValue === "true") {
+        enableDarkMode();
+      } else {
+        disableDarkMode();
+      }
+    }
+  });
+
+  const btn = document.getElementById('toggleBtn');
+  const overlay = document.getElementById('overlay');
+  let inverted = false;
+
+  const enableDarkMode = () => {
+    overlay.style.clipPath = 'circle(150% at 100% 100%)';
+    btn.classList.add('white');
+    btn.classList.remove('black');
+    inverted = true;
+    document.cookie = "darkmode=true; path=/";
+  };
+
+  const disableDarkMode = () => {
+    overlay.style.clipPath = 'circle(0 at 100% 100%)';
+    btn.classList.add('black');
+    btn.classList.remove('white');
+    inverted = false;
+    document.cookie = "darkmode=false; path=/";
+  };
+
+  btn.addEventListener('click', () => {
+    if (!inverted) {
+      enableDarkMode();
+    } else {
+      disableDarkMode();
+    }
+  });
+</script>
+
+
+  </body>
+</html>
