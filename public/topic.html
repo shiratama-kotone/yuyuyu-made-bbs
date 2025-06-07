@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>トピック設定</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>トピック設定</h1>
+  <a href="/">掲示板に戻る</a>
+  <form id="topicForm">
+    <label for="topic">新しいトピック:</label>
+    <input type="text" id="topic" name="topic" placeholder="トピックを入力" required>
+    <label for="password">運営用パスワード:</label>
+    <input type="" id="password" name="password" placeholder="パスワードを入力" required>
+    <button type="submit">設定</button>
+  </form>
+
+  <script>
+    document.getElementById("topicForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const topic = document.getElementById("topic").value.trim();
+      const adminPassword = document.getElementById("password").value.trim();
+
+      fetch("/topic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, adminPassword }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          alert(data.message || data.error);
+        })
+        .catch((err) => {
+          alert("トピックの設定に失敗しました。");
+          console.error(err);
+        });
+    });
+      const input = document.getElementById('multiline-input');
+  const output = document.getElementById('output');
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // フォーム送信を防ぐ
+      input.value += '\n'; // 改行を追加
+    }
+  });
+
+  document.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    output.textContent = input.value; // 出力
+  });
+  </script>
+
+  <button id="toggleBtn" class="black"></button><!--！！背景色が設定されてないと反転しないよ！！-->
+
+<style>
+  html, body {
+    margin: 0; height: 100%;
+    /* overflowは自動でスクロールできるように */
+  }
+
+  #toggleBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    background-color: black;
+    transition: background-color 0.3s;
+  }
+
+  #toggleBtn.white {
+    background-color: white;
+    border: 2px solid black;
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none; /* これでクリックイベントはoverlayに通らない */
+    background: white;
+    mix-blend-mode: difference;
+    clip-path: circle(0 at 100% 100%);
+    transition: clip-path 0.7s ease;
+    z-index: 1000;
+  }
+</style>
+
+<div id="overlay"></div>
+
+<script>
+  // ページ読み込み時にCookieを確認して状態を設定
+  window.addEventListener('DOMContentLoaded', () => {
+    const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
+    if (darkModeCookie) {
+      const darkModeValue = darkModeCookie.split("=")[1];
+      if (darkModeValue === "true") {
+        enableDarkMode();
+      } else {
+        disableDarkMode();
+      }
+    }
+  });
+
+  const btn = document.getElementById('toggleBtn');
+  const overlay = document.getElementById('overlay');
+  let inverted = false;
+
+  const enableDarkMode = () => {
+    overlay.style.clipPath = 'circle(150% at 100% 100%)';
+    btn.classList.add('white');
+    btn.classList.remove('black');
+    inverted = true;
+    document.cookie = "darkmode=true; path=/";
+  };
+
+  const disableDarkMode = () => {
+    overlay.style.clipPath = 'circle(0 at 100% 100%)';
+    btn.classList.add('black');
+    btn.classList.remove('white');
+    inverted = false;
+    document.cookie = "darkmode=false; path=/";
+  };
+
+  btn.addEventListener('click', () => {
+    if (!inverted) {
+      enableDarkMode();
+    } else {
+      disableDarkMode();
+    }
+  });
+</script>
+</body>
+</html>
