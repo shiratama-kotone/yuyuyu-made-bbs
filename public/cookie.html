@@ -1,0 +1,48 @@
+<style>
+  #cookie-box {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #fff;
+    border: 2px solid #9370db; /* 好きな色で調整してOK */
+    padding: 15px 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    font-family: 'azuki.ttf', sans-serif;
+    z-index: 9999;
+    max-width: 300px;
+  }
+
+  #cookie-box button {
+    margin-right: 10px;
+    background: #9370db;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #cookie-box button:last-child {
+    background: #ccc;
+    color: #333;
+  }
+</style>
+
+<div id="cookie-box">
+  <p>このサイトはCookieを使用しています。</p>
+  <button id="allow">許可</button>
+  <button id="deny">やだね</button>
+</div>
+
+<script>
+  document.getElementById("allow").addEventListener("click", () => {
+    document.cookie = "keijiban=true; path=/; max-age=" + 60 * 60 * 24 * 30; // 30日有効
+    window.location.href = "/";
+  });
+
+  document.getElementById("deny").addEventListener("click", () => {
+    alert("Cookieを許可しないとこのサイトを利用できません。");
+  });
+</script>
