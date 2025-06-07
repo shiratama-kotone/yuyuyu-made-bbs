@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完全なカーソル一覧</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+        }
+        .box {
+            width: 180px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #f9f9f9;
+            cursor: default;
+            margin-bottom: 10px;
+        }
+        .box:hover {
+            background-color: #e9e9e9;
+        }
+
+        /* 一般的なカーソル */
+        .default { cursor: default; }
+        .pointer { cursor: pointer; }
+        .text { cursor: text; }
+        .wait { cursor: wait; }
+        .progress { cursor: progress; }
+        .move { cursor: move; }
+        .not-allowed { cursor: not-allowed; }
+        .help { cursor: help; }
+        .crosshair { cursor: crosshair; }
+        .grab { cursor: grab; }
+        .grabbing { cursor: grabbing; }
+
+        /* サイズ変更用カーソル */
+        .ns-resize { cursor: ns-resize; }
+        .ew-resize { cursor: ew-resize; }
+        .nesw-resize { cursor: nesw-resize; }
+        .nwse-resize { cursor: nwse-resize; }
+        .col-resize { cursor: col-resize; }
+        .row-resize { cursor: row-resize; }
+        .all-scroll { cursor: all-scroll; }
+
+        /* スプレッドシート/ドラッグ操作 */
+        .cell { cursor: cell; }
+        .copy { cursor: copy; }
+        .alias { cursor: alias; }
+        .context-menu { cursor: context-menu; }
+
+        /* 特殊用途カーソル */
+        .zoom-in { cursor: zoom-in; }
+        .zoom-out { cursor: zoom-out; }
+        .no-drop { cursor: no-drop; }
+        .vertical-text { cursor: vertical-text; }
+        .auto { cursor: auto; }
+
+        /* OS特有カーソル */
+        .wait-ring { cursor: progress; } /* Windows特有の処理中カーソル */
+        .busy { cursor: wait; } /* 古い砂時計 */
+        .dragging { cursor: grabbing; } /* ドラッグ中カーソル */
+        .eyedropper { cursor: url('eyedropper.cur'), auto; } /* カスタムスポイトカーソル */
+
+        /* カスタムカーソル */
+        .custom-hand { cursor: url('custom-hand.cur'), pointer; }
+    </style>
+</head>
+<body>
+    <div class="box default">Default</div>
+    <div class="box pointer">Pointer</div>
+    <div class="box text">Text</div>
+    <div class="box wait">Wait</div>
+    <div class="box progress">Progress</div>
+    <div class="box move">Move</div>
+    <div class="box not-allowed">Not Allowed</div>
+    <div class="box help">Help</div>
+    <div class="box crosshair">Crosshair</div>
+    <div class="box grab">Grab</div>
+    <div class="box grabbing">Grabbing</div>
+    <div class="box ns-resize">NS Resize</div>
+    <div class="box ew-resize">EW Resize</div>
+    <div class="box nesw-resize">NESW Resize</div>
+    <div class="box nwse-resize">NWSE Resize</div>
+    <div class="box col-resize">Col Resize</div>
+    <div class="box row-resize">Row Resize</div>
+    <div class="box all-scroll">All Scroll</div>
+    <div class="box cell">Cell</div>
+    <div class="box copy">Copy</div>
+    <div class="box alias">Alias</div>
+    <div class="box context-menu">Context Menu</div>
+    <div class="box zoom-in">Zoom In</div>
+    <div class="box zoom-out">Zoom Out</div>
+    <div class="box no-drop">No Drop</div>
+    <div class="box vertical-text">Vertical Text</div>
+    <div class="box auto">Auto</div>
+    <div class="box wait-ring">Wait Ring (Windows)</div>
+    <div class="box busy">Busy</div>
+    <div class="box dragging">Dragging</div>
+    <div class="box eyedropper">Eyedropper (Custom)</div>
+    <div class="box custom-hand">Custom Hand (Custom)</div>
+</body>
+</html>
