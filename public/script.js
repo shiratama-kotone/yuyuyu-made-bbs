@@ -47,7 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then((data) => {
         renderPosts(data.posts);
-        document.getElementById("currentTopic").textContent = data.topic;
+        // topic内の<br>をそのまま改行にして表示
+        document.getElementById("currentTopic").innerHTML = data.topic.replace(/<br\s*\/?>/gi, "<br>");
       })
       .catch((e) => {
         console.error("投稿の取得に失敗しました:", e);
@@ -85,7 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const name = document.getElementById("name").value.trim();
     const pass = document.getElementById("password").value.trim();
-    const content = document.getElementById("content").value.trim();
+    // ここで改行を<br>に変換！
+    const content = document.getElementById("content").value.trim().replace(/\n/g, "<br>");
 
     if (!name || !pass || !content) {
       statusMessage.style.color = "red";
@@ -124,18 +126,18 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function updateClock() {
-    var now = new Date();
-    var hours = now.getHours();
-    var minutes = now.getMinutes();
-    var seconds = now.getSeconds();
-    var ampm = hours >= 12 ? '午後' : '午前';
+  var now = new Date();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var seconds = now.getSeconds();
+  var ampm = hours >= 12 ? "午後" : "午前";
 
-    hours = hours % 12 || 12; // 12時間形式
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    seconds = seconds < 10 ? '0' + seconds : seconds;
+  hours = hours % 12 || 12; // 12時間形式
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
 
-    var timeString = hours + ':' + minutes + ':' + seconds + ' ' + ampm;
-    document.getElementById('clock').textContent = timeString;
+  var timeString = hours + ":" + minutes + ":" + seconds + " " + ampm;
+  document.getElementById("clock").textContent = timeString;
 }
 
 // 毎秒更新
@@ -145,11 +147,11 @@ setInterval(updateClock, 1000);
 updateClock();
 
 // DOM要素の取得
-var $seconds = $('.seconds .time');
-var $minutes = $('.minutes .time');
-var $hour = $('.hour .time');
-var $humanTime = $('#human-time');
-var clockHeight = $('#bar-clock .hour').height();
+var $seconds = $(".seconds .time");
+var $minutes = $(".minutes .time");
+var $hour = $(".hour .time");
+var $humanTime = $("#human-time");
+var clockHeight = $("#bar-clock .hour").height();
 
 // 現在の時刻を返す関数
 function getTime() {
@@ -158,7 +160,7 @@ function getTime() {
   return {
     hour: dateTime.getHours(),
     minutes: dateTime.getMinutes(),
-    seconds: dateTime.getSeconds()
+    seconds: dateTime.getSeconds(),
   };
 }
 
@@ -166,7 +168,7 @@ function getTime() {
 function renderTime($el, time, duration) {
   var percentage = (clockHeight * time) / duration;
   $el.height(percentage);
-  $el.css('background-color', "hsl(" + percentage + ", 50%, 50%)");
+  $el.css("background-color", "hsl(" + percentage + ", 50%, 50%)");
 }
 
 // 時間を2桁形式にフォーマット
@@ -181,15 +183,13 @@ function updateTime(time) {
   renderTime($hour, time.hour, 23);
 
   // 読みやすい時間を設定
-  $humanTime.text(function() {
-    var separator = ' ';
-    return formatTime(time.hour) + separator +
-           formatTime(time.minutes) + separator +
-           formatTime(time.seconds);
+  $humanTime.text(function () {
+    var separator = " ";
+    return formatTime(time.hour) + separator + formatTime(time.minutes) + separator + formatTime(time.seconds);
   });
 }
 
 // インターバルで更新
-var t = setInterval(function() {
+var t = setInterval(function () {
   updateTime(getTime());
 }, 1000);
