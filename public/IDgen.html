@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID生成</title>
+    <style>
+        #results div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 90px; /* ラベルの幅を統一 */
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        .value {
+            width: 150px; /* 値の幅を統一 */
+            text-align: left;
+        }
+
+        button.copy-btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <label for="count">生成数:</label>
+        <input id="count" type="number" min="1" max="100" value="10">
+        <button id="generate-btn">生成！</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const generateRandomString = () => {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 12; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        };
+
+        const sha256 = async (str) => {
+            const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+            return Array.from(new Uint8Array(buffer))
+                .map(b => b.toString(16).padStart(2, "0"))
+                .join("");
+        };
+
+        const generateID = async () => {
+            const randomString = generateRandomString();
+            const hashed = await sha256(randomString);
+            const shortened = `@${hashed.slice(0, 7)}`; // 7文字に切り詰める
+            return { randomString, shortened };
+        };
+
+        const copyToClipboard = (text) => {
+            navigator.clipboard.writeText(text).then(
+                () => alert("コピーしました！"),
+                () => alert("コピーに失敗しました。")
+            );
+        };
+
+        document.getElementById("generate-btn").addEventListener("click", async () => {
+            const resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = ""; // 初期化
+
+            const count = Math.min(Math.max(parseInt(document.getElementById("count").value, 10) || 1, 1), 100);
+
+            for (let i = 0; i < count; i++) {
+                const { randomString, shortened } = await generateID();
+
+                const div = document.createElement("div");
+
+                // パスワードラベルと値
+                const passwordLabel = document.createElement("span");
+                passwordLabel.className = "label";
+                passwordLabel.textContent = "パスワード:";
+                const passwordValue = document.createElement("span");
+                passwordValue.className = "value";
+                passwordValue.textContent = randomString;
+
+                // コピー用ボタン
+                const copyButton = document.createElement("button");
+                copyButton.className = "copy-btn";
+                copyButton.textContent = "コピー";
+                copyButton.addEventListener("click", () => copyToClipboard(randomString));
+
+                // IDラベルと値
+                const idLabel = document.createElement("span");
+                idLabel.className = "label";
+                idLabel.textContent = "ID:";
+                const idValue = document.createElement("span");
+                idValue.className = "value";
+                idValue.textContent = shortened;
+
+                // 要素の追加
+                div.appendChild(passwordLabel);
+                div.appendChild(passwordValue);
+                div.appendChild(copyButton); // コピー用ボタンをIDの左に配置
+                div.appendChild(idLabel);
+                div.appendChild(idValue);
+
+                resultsContainer.appendChild(div);
+            }
+        });
+    </script>
+</body>
+</html>
