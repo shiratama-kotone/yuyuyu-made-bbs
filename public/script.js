@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ID.jsonを読み込む
   function loadIds() {
-    return fetch("/ID.json")
+    return fetch("../ID.json")
       .then((res) => {
         if (!res.ok) throw new Error("ID.jsonの読み込みに失敗しました");
         return res.json();
