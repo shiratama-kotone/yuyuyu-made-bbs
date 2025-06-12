@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ID.jsonを読み込む
   function loadIds() {
-    return fetch("../ID.json")
+    return fetch("https://yuyuyubbs-server-5v5x.onrender.com/ID.json")
       .then((res) => {
         if (!res.ok) throw new Error("ID.jsonの読み込みに失敗しました");
         return res.json();
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 投稿取得＆表示
   function fetchPosts() {
-    fetch("/api")
+    fetch("https://yuyuyubbs-server-5v5x.onrender.com/api")
       .then((res) => {
         if (!res.ok) throw new Error("サーバーエラー");
         return res.json();
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    fetch(`/api?name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}&content=${encodeURIComponent(content)}`, {
+    fetch(`https://yuyuyubbs-server-5v5x.onrender.com/api?name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}&content=${encodeURIComponent(content)}`, {
       method: "POST",
     })
       .then((res) => {
