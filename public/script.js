@@ -83,6 +83,37 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPosts(posts) {
     postsTableBody.innerHTML = "";
     const total = posts.length;
+    
+    // カスタム絵文字のマップを定義
+    // ここにChatwork絵文字のテキスト表現と、対応する画像のURLを追加してください。
+    // 例: "(happy)": "https://example.com/happy_emoji.png"
+    const emojiMap = {
+      "[toall]": "https://github.com/shiratama-kotone/yuyuyu-made-bbs/blob/main/public/TO%20ALL.png?raw=true",
+      ":)": "https://assets.chatwork.com/images/emoticon2x/emo_smile.gif",
+      ":(": "https://assets.chatwork.com/images/emoticon2x/emo_sad.gif",
+      ":D": "https://assets.chatwork.com/images/emoticon2x/emo_more_smile.gif",
+      "8-)": "https://assets.chatwork.com/images/emoticon2x/emo_lucky.gif",
+      ":o": "https://assets.chatwork.com/images/emoticon2x/emo_surprise.gif",
+      ";)": "https://assets.chatwork.com/images/emoticon2x/emo_wink.gif",
+      ";(": "https://assets.chatwork.com/images/emoticon2x/emo_tears.gif",
+    "(sweat)": "https://assets.chatwork.com/images/emoticon2x/emo_sweat.gif",
+      ":|": "https://assets.chatwork.com/images/emoticon2x/emo_mumu.gif",
+      ":*": "https://assets.chatwork.com/images/emoticon2x/emo_kiss.gif",
+      ":p": "https://assets.chatwork.com/images/emoticon2x/emo_tongueout.gif",
+      "(blush)": "https://assets.chatwork.com/images/emoticon2x/emo_blush.gif",
+      ":^)": "https://assets.chatwork.com/images/emoticon2x/emo_wonder.gif",
+      "|-)": "https://assets.chatwork.com/images/emoticon2x/emo_snooze.gif",
+      "(inlove)": "https://assets.chatwork.com/images/emoticon2x/emo_love.gif",
+      
+    };
+
+    // 絵文字マップのキーから正規表現を生成
+    // 正規表現で特別な意味を持つ文字をエスケープし、全てのキーをORで結合
+    const emojiPatterns = Object.keys(emojiMap)
+      .map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    const emojiRegex = new RegExp(emojiPatterns, 'g');
+
     posts.forEach((post, index) => {
       // 表示番号を計算 (一番上が最大番号)
       const displayNum = total - index - 1;
@@ -94,13 +125,16 @@ document.addEventListener("DOMContentLoaded", () => {
       // 時間を12時間表示＋日付＋午前午前に変換
       const formattedTime = formatTo12HourWithDate(post.time);
 
-      // [toall]を画像に変換
-      // 画像のURLとスタイルを設定して、テキストと同じ高さで中央に配置
-      const toallImageUrl = "https://github.com/shiratama-kotone/yuyuyu-made-bbs/blob/main/public/TO%20ALL.png?raw=true";
-      const formattedContent = post.content.replace(
-        /\[toall\]/g,
-        `<img src="${toallImageUrl}" alt="toall" style="height: 1em; vertical-align: middle;">`
-      );
+      // 投稿内容に含まれる絵文字パターンを画像に変換
+      // `replace()`の第二引数に変換関数を渡し、マッチしたテキストに応じて適切な画像URLを使用
+      const formattedContent = post.content.replace(emojiRegex, (match) => {
+        const imageUrl = emojiMap[match];
+        if (imageUrl) {
+          // 画像のURLとスタイルを設定して、テキストと同じ高さで中央に配置
+          return `<img src="${imageUrl}" alt="${match}" style="height: 1em; vertical-align: middle;">`;
+        }
+        return match; // マップにない場合は元のテキストを返す (通常は発生しない)
+      });
 
       row.innerHTML = `
         <td>${displayNum}</td>
