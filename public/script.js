@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /**
    * 取得した投稿データをテーブルに表示する。
-   * 新しい投稿が上に来るように並べ替え、[toall]を画像に置換する。
+   * 新しい投稿が上に来るように並べ替え、絵文字を画像に置換する。
    * @param {Array<Object>} posts - 投稿データの配列。
    */
   function renderPosts(posts) {
@@ -85,31 +85,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const total = posts.length;
     
     // カスタム絵文字のマップを定義
-    // ここにChatwork絵文字のテキスト表現と、対応する画像のURLを追加してください。
-    // 例: "(happy)": "https://example.com/happy_emoji.png"
+    // キー: 絵文字テキスト表現 (例: "(happy)")
+    // 値: { url: 絵文字画像のURL, alt: alt属性に設定するテキスト }
     const emojiMap = {
-      "[toall]": "https://github.com/shiratama-kotone/yuyuyu-made-bbs/blob/main/public/TO%20ALL.png?raw=true",
-      ":)": "https://assets.chatwork.com/images/emoticon2x/emo_smile.gif",
-      ":(": "https://assets.chatwork.com/images/emoticon2x/emo_sad.gif",
-      ":D": "https://assets.chatwork.com/images/emoticon2x/emo_more_smile.gif",
-      "8-)": "https://assets.chatwork.com/images/emoticon2x/emo_lucky.gif",
-      ":o": "https://assets.chatwork.com/images/emoticon2x/emo_surprise.gif",
-      ";)": "https://assets.chatwork.com/images/emoticon2x/emo_wink.gif",
-      ";(": "https://assets.chatwork.com/images/emoticon2x/emo_tears.gif",
-    "(sweat)": "https://assets.chatwork.com/images/emoticon2x/emo_sweat.gif",
-      ":|": "https://assets.chatwork.com/images/emoticon2x/emo_mumu.gif",
-      ":*": "https://assets.chatwork.com/images/emoticon2x/emo_kiss.gif",
-      ":p": "https://assets.chatwork.com/images/emoticon2x/emo_tongueout.gif",
-      "(blush)": "https://assets.chatwork.com/images/emoticon2x/emo_blush.gif",
-      ":^)": "https://assets.chatwork.com/images/emoticon2x/emo_wonder.gif",
-      "|-)": "https://assets.chatwork.com/images/emoticon2x/emo_snooze.gif",
-      "(inlove)": "https://assets.chatwork.com/images/emoticon2x/emo_love.gif",
-      
+      "[toall]": { url: "https://github.com/shiratama-kotone/yuyuyu-made-bbs/blob/main/public/TO%20ALL.png?raw=true", alt: "[toall]" },
+      // ご提供いただいたURLリストから生成された絵文字マップ
+      "(anger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_anger.gif", alt: "(anger)" },
+      "(beer)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_beer.gif", alt: "(beer)" },
+      "(blush)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_blush.gif", alt: "(blush)" },
+      "(bow)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_bow.gif", alt: "(bow)" },
+      "(cake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cake.gif", alt: "(cake)" },
+      "(clap)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_clap.gif", alt: "(clap)" },
+      "(coffee)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_coffee.gif", alt: "(coffee)" },
+      "(cracker)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cracker.gif", alt: "(cracker)" },
+      "(dance)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_dance.gif", alt: "(dance)" },
+      "(devil)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_devil.gif", alt: "(devil)" },
+      "(eat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_eat.gif", alt: "(eat)" },
+      "(flower)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_flower.gif", alt: "(flower)" },
+      "(gogo)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_gogo.gif", alt: "(gogo)" },
+      "(grin)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_grin.gif", alt: "(grin)" },
+      "(handshake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_handshake.gif", alt: "(handshake)" },
+      "(heart)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_heart.gif", alt: "(heart)" },
+      "(ikemen)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ikemen.gif", alt: "(ikemen)" },
+      "(kiss)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_kiss.gif", alt: "(kiss)" },
+      "(komanechi)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_komanechi.gif", alt: "(komanechi)" },
+      "(lightbulb)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lightbulb.gif", alt: "(lightbulb)" },
+      "(love)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_love.gif", alt: "(love)" },
+      "(lucky)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lucky.gif", alt: "(lucky)" },
+      "(more_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_more_smile.gif", alt: "(more_smile)" },
+      "(mumu)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_mumu.gif", alt: "(mumu)" },
+      "(muscle)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_muscle.gif", alt: "(muscle)" },
+      "(ninmari)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ninmari.gif", alt: "(ninmari)" },
+      "(nod)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_nod.gif", alt: "(nod)" },
+      "(otaku)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_otaku.gif", alt: "(otaku)" },
+      "(please)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_please.gif", alt: "(please)" },
+      "(puke)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_puke.gif", alt: "(puke)" },
+      "(quick)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_quick.gif", alt: "(quick)" },
+      "(roger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_roger.gif", alt: "(roger)" },
+      "(sad)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sad.gif", alt: "(sad)" },
+      "(shake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_shake.gif", alt: "(shake)" },
+      "(smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_smile.gif", alt: "(smile)" },
+      "(snooze)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_snooze.gif", alt: "(snooze)" },
+      "(star)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_star.gif", alt: "(star)" },
+      "(surprise)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_surprise.gif", alt: "(surprise)" },
+      "(sweat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sweat.gif", alt: "(sweat)" },
+      "(talk)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_talk.gif", alt: "(talk)" },
+      "(tears)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tears.gif", alt: "(tears)" },
+      "(think)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_think.gif", alt: "(think)" },
+      "(tongueout)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tongueout.gif", alt: "(tongueout)" },
+      "(whew)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_whew.gif", alt: "(whew)" },
+      "(wink)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wink.gif", alt: "(wink)" },
+      "(wonder)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wonder.gif", alt: "(wonder)" },
+      "(wry_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wry_smile.gif", alt: "(wry_smile)" },
+      "(yawn)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yawn.gif", alt: "(yawn)" },
+      "(yes)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yes.gif", alt: "(yes)" }
     };
+
+    // 以前の指示により、(silent) のalt属性を ":|" に強制
+    // https://emoji-list.jp/images/emoji/chatwork/silent.png は元のChatwork絵文字リストからのURLであり、
+    // ご提供いただいたリストには emo_silent.gif がないため、このURLを維持します。
+    emojiMap["(silent)"] = { url: "https://emoji-list.jp/images/emoji/chatwork/silent.png", alt: ":|" };
+
 
     // 絵文字マップのキーから正規表現を生成
     // 正規表現で特別な意味を持つ文字をエスケープし、全てのキーをORで結合
+    // 最も長いパターンが先にマッチするようにソート (例: "(thinking_face)" を "(thinking)" より先にマッチさせる)
     const emojiPatterns = Object.keys(emojiMap)
+      .sort((a, b) => b.length - a.length) // 長いパターンを先にソート
       .map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('|');
     const emojiRegex = new RegExp(emojiPatterns, 'g');
@@ -126,12 +168,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const formattedTime = formatTo12HourWithDate(post.time);
 
       // 投稿内容に含まれる絵文字パターンを画像に変換
-      // `replace()`の第二引数に変換関数を渡し、マッチしたテキストに応じて適切な画像URLを使用
+      // `replace()`の第二引数に変換関数を渡し、マッチしたテキストに応じて適切な画像URLとaltテキストを使用
       const formattedContent = post.content.replace(emojiRegex, (match) => {
-        const imageUrl = emojiMap[match];
-        if (imageUrl) {
+        const emojiData = emojiMap[match];
+        if (emojiData && emojiData.url) { // emojiDataが存在し、urlプロパティがあるか確認
+          const altText = emojiData.alt !== undefined ? emojiData.alt : match; // カスタムaltがあればそれを使用、なければマッチしたテキスト
           // 画像のURLとスタイルを設定して、テキストと同じ高さで中央に配置
-          return `<img src="${imageUrl}" alt="${match}" style="height: 1em; vertical-align: middle;">`;
+          return `<img src="${emojiData.url}" alt="${altText}" style="height: 1em; vertical-align: middle;">`;
         }
         return match; // マップにない場合は元のテキストを返す (通常は発生しない)
       });
