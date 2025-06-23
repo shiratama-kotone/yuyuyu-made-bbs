@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>絵文字コードコピー</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    .emoji-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .emoji-code {
+      min-width: 80px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    button.copy-btn {
+      cursor: pointer;
+      padding: 5px 12px;
+      border: none;
+      background-color: #9370db;
+      color: white;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+    button.copy-btn:hover {
+      background-color: #7a57c2;
+    }
+    .copied-msg {
+      color: green;
+      font-size: 12px;
+      margin-left: 10px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .copied-msg.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>絵文字コードコピー</h1>
+  <div id="container"></div>
+
+  <script>
+    const emojis = [
+      "anger", "beer", "blush", "bow", "cake", "clap", "coffee", "cracker",
+      "dance", "devil", "eat", "flower", "gogo", "grin", "handshake", "heart",
+      "ikemen", "kiss", "komanechi", "lightbulb", "love", "lucky", "more_smile",
+      "mumu", "muscle", "ninmari", "nod", "otaku", "please", "puke", "quick",
+      "roger", "sad", "shake", "smile", "snooze", "star", "surprise", "sweat",
+      "talk", "tears", "think", "tongueout", "whew", "wink", "wonder", "wry_smile",
+      "yawn", "yes"
+    ];
+
+    const container = document.getElementById("container");
+
+    emojis.forEach(code => {
+      const row = document.createElement("div");
+      row.className = "emoji-row";
+
+      const codeText = document.createElement("div");
+      codeText.className = "emoji-code";
+      codeText.textContent = `(${code})`;
+
+      const btn = document.createElement("button");
+      btn.className = "copy-btn";
+      btn.textContent = "コピー";
+
+      const msg = document.createElement("span");
+      msg.className = "copied-msg";
+      msg.textContent = "コピーした！";
+
+      btn.addEventListener("click", () => {
+        navigator.clipboard.writeText(`(${code})`).then(() => {
+          msg.classList.add("visible");
+          setTimeout(() => {
+            msg.classList.remove("visible");
+          }, 1200);
+        });
+      });
+
+      row.appendChild(codeText);
+      row.appendChild(btn);
+      row.appendChild(msg);
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>
