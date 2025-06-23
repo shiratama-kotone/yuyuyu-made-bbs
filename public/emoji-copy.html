@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>絵文字コードコピー</title>
+  <title>絵文字コード一覧</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,13 +13,21 @@
     .emoji-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 10px;
     }
     .emoji-code {
       min-width: 80px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 16px;
+      user-select: none;
+    }
+    img.emoji-img {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      user-select: none;
+      margin-right: 8px;
     }
     button.copy-btn {
       cursor: pointer;
@@ -39,6 +47,7 @@
       margin-left: 10px;
       opacity: 0;
       transition: opacity 0.3s;
+      user-select: none;
     }
     .copied-msg.visible {
       opacity: 1;
@@ -46,7 +55,7 @@
   </style>
 </head>
 <body>
-  <h1>絵文字コードコピー</h1>
+  <h1>絵文字コード一覧</h1>
   <div id="container"></div>
 
   <script>
@@ -60,20 +69,31 @@
       "yawn", "yes"
     ];
 
+    const baseURL = "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/";
+
     const container = document.getElementById("container");
 
     emojis.forEach(code => {
       const row = document.createElement("div");
       row.className = "emoji-row";
 
+      // 画像タグ
+      const img = document.createElement("img");
+      img.className = "emoji-img";
+      img.src = baseURL + "emo_" + code + ".gif";
+      img.alt = code;
+
+      // 絵文字コードテキスト
       const codeText = document.createElement("div");
       codeText.className = "emoji-code";
       codeText.textContent = `(${code})`;
 
+      // コピー用ボタン
       const btn = document.createElement("button");
       btn.className = "copy-btn";
       btn.textContent = "コピー";
 
+      // コピー成功メッセージ
       const msg = document.createElement("span");
       msg.className = "copied-msg";
       msg.textContent = "コピーした！";
@@ -81,12 +101,11 @@
       btn.addEventListener("click", () => {
         navigator.clipboard.writeText(`(${code})`).then(() => {
           msg.classList.add("visible");
-          setTimeout(() => {
-            msg.classList.remove("visible");
-          }, 1200);
+          setTimeout(() => msg.classList.remove("visible"), 1200);
         });
       });
 
+      row.appendChild(img);
       row.appendChild(codeText);
       row.appendChild(btn);
       row.appendChild(msg);
