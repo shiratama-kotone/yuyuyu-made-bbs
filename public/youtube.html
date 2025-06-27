@@ -3,16 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invidious 動画取得ツール</title>
+  <title>URL埋め込みツール</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 20px;
-    }
-    .content {
-      max-width: 800px;
-      margin: auto;
     }
     input, button {
       padding: 10px;
@@ -25,65 +21,18 @@
   </style>
 </head>
 <body>
-  <div class="content">
-    <h1>Invidious 動画情報取得ツール</h1>
-    <input type="text" id="videoUrl" placeholder="YouTube動画URLを入力">
-    <button onclick="fetchVideoInfo()">取得</button>
-    <div id="videoInfo"></div>
-  </div>
+  <h1>URL埋め込みツール</h1>
+  <input type="text" id="videoUrl" placeholder="埋め込みたいURLを入力">
+  <button onclick="embedVideo()">埋め込み</button>
+  <div id="videoEmbed"></div>
 
   <script>
-    async function fetchVideoInfo() {
+    function embedVideo() {
       const urlInput = document.getElementById('videoUrl').value;
-      const videoId = extractVideoId(urlInput);
-
-      if (!videoId) {
-        alert('有効なYouTube URLを入力してください');
-        return;
-      }
-
-      const instanceUrl = 'https://yewtu.be';
-      const apiUrl = `${instanceUrl}/api/v1/videos/${videoId}`;
-
-      try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        if (!data.title) {
-          document.getElementById('videoInfo').innerHTML = '<p>動画が見つかりません。</p>';
-          return;
-        }
-
-        const embedHtml = `<iframe width="560" height="315" src="${instanceUrl}/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-        const downloadLink = data.adaptiveFormats.find(format => format.type.includes('video/mp4'));
-
-        const commentsHtml = data.comments.length
-          ? data.comments.slice(0, 5).map(comment => `<p><strong>${comment.author}:</strong> ${comment.content}</p>`).join('')
-          : '<p>コメントはありません。</p>';
-
-        const infoHtml = `
-          <div>
-            ${embedHtml}
-            <h2>${data.title}</h2>
-            <p>投稿日: ${data.published}</p>
-            <p>概要: ${data.description}</p>
-            ${downloadLink ? `<a href="${downloadLink.url}" download="video.mp4"><button>動画をダウンロード</button></a>` : ''}
-            <h3>コメント</h3>
-            ${commentsHtml}
-          </div>
-        `;
-
-        document.getElementById('videoInfo').innerHTML = infoHtml;
-      } catch (error) {
-        document.getElementById('videoInfo').innerHTML = `<p>エラーが発生しました: ${error.message}</p>`;
-      }
-    }
-
-    function extractVideoId(url) {
-      const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|embed)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-      const match = url.match(regex);
-      return match ? match[1] : null;
+      const iframe = `<iframe width="560" height="315" src="${urlInput}" frameborder="0" allowfullscreen></iframe>`;
+      document.getElementById('videoEmbed').innerHTML = iframe;
     }
   </script>
 </body>
 </html>
+
