@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>URL埋め込みツール</title>
+  <title>YouTube埋め込みツール</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -21,15 +21,19 @@
   </style>
 </head>
 <body>
-  <h1>URL埋め込みツール</h1>
-  <input type="text" id="videoUrl" placeholder="埋め込みたいURLを入力">
+  <h1>YouTube埋め込みツール</h1>
+  <input type="text" id="videoUrl" placeholder="YouTube動画URLを入力">
   <button onclick="embedVideo()">埋め込み</button>
   <div id="videoEmbed"></div>
 
   <script>
     function embedVideo() {
       const urlInput = document.getElementById('videoUrl').value;
-      const iframe = `<iframe width="560" height="315" src="${urlInput}" frameborder="0" allowfullscreen></iframe>`;
+      const embedUrl = urlInput
+        .replace("watch?v=", "embed/")
+        .replace("youtu.be/", "www.youtube.com/embed/");
+
+      const iframe = `<iframe width="560" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
       document.getElementById('videoEmbed').innerHTML = iframe;
     }
   </script>
