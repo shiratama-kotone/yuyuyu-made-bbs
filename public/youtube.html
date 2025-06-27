@@ -3,186 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>動画情報取得</title>
+  <title>Invidious 動画取得ツール</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-    }
-    #results {
-      display: none;
-      margin-top: 20px;
-    }
-    #video-player {
-      max-width: 100%;
-      margin-top: 10px;
-      display: none;
-    }
-    #overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      z-index: 9999;
-    }
-    #loading-popup {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: white;
-      color: black;
-      padding: 20px;
-      border-radius: 8px;
-      font-size: 16px;
       text-align: center;
+      margin: 20px;
+    }
+    .content {
+      max-width: 800px;
+      margin: auto;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 80%;
+    }
+    iframe {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h2>動画情報取得ツール</h2>
-  <form id="video-form">
-    <label for="video-id">動画IDまたはURL:</label>
-    <input type="text" id="video-id" required>
-    <button type="submit">取得</button>
-  </form>
-
-  <div id="overlay">
-    <div id="loading-popup">取得中...</div>
-  </div>
-
-  <div id="results">
-    <h2>動画情報</h2>
-    <p><strong>タイトル:</strong> <span id="title"></span></p>
-    <p><strong>URL:</strong> <a id="stream-url" href="#" target="_blank">ダウンロードリンク</a></p>
-    <video id="video-player" controls>
-      <source id="video-source" type="video/mp4">
-      お使いのブラウザは動画の再生をサポートしていません。
-    </video>
-    <p><strong>再生回数:</strong> <span id="views"></span></p>
-    <p><strong>高評価数:</strong> <span id="likes"></span></p>
-    <p><strong>公開日時:</strong> <span id="published"></span></p>
-    <p><strong>概要:</strong></p>
-    <pre id="description"></pre>
-    <h3>コメント</h3>
-    <ul id="comments"></ul>
+  <div class="content">
+    <h1>Invidious 動画情報取得ツール</h1>
+    <input type="text" id="videoUrl" placeholder="YouTube動画URLを入力">
+    <button onclick="fetchVideoInfo()">取得</button>
+    <div id="videoInfo"></div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const videoId = urlParams.get("videoId");
+    async function fetchVideoInfo() {
+      const urlInput = document.getElementById('videoUrl').value;
+      const videoId = extractVideoId(urlInput);
 
-      if (videoId) {
-        fetchVideoData(videoId);
+      if (!videoId) {
+        alert('有効なYouTube URLを入力してください');
+        return;
       }
-    });
 
-    const form = document.getElementById("video-form");
-    const overlay = document.getElementById("overlay");
-    const results = document.getElementById("results");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const videoIdInput = document.getElementById("video-id");
-      const input = videoIdInput.value.trim();
-      
-      const videoId = extractVideoId(input);
-      if (videoId) {
-        updateUrlWithVideoId(videoId);
-        await fetchVideoData(videoId);
-      } else {
-        alert("正しい動画IDまたはURLを入力してください。");
-      }
-    });
-
-    async function fetchVideoData(videoId) {
-      const apiUrl = `https://script.google.com/macros/s/AKfycbxYjOWULjin5kpp-NcjjjGujVX3wy1TEJVUR2AZtR6-5c_q7GBr1Nctl2_Kat4lSboD/exec?videoId=api/v1/videos/${videoId}`;
-      overlay.style.display = "block";
+      const instanceUrl = 'https://yewtu.be';
+      const apiUrl = `${instanceUrl}/api/v1/videos/${videoId}`;
 
       try {
         const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error("APIリクエストに失敗しました");
-        }
         const data = await response.json();
-        displayResults(data);
+
+        if (!data.title) {
+          document.getElementById('videoInfo').innerHTML = '<p>動画が見つかりません。</p>';
+          return;
+        }
+
+        const embedHtml = `<iframe width="560" height="315" src="${instanceUrl}/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        const downloadLink = data.adaptiveFormats.find(format => format.type.includes('video/mp4'));
+
+        const commentsHtml = data.comments.length
+          ? data.comments.slice(0, 5).map(comment => `<p><strong>${comment.author}:</strong> ${comment.content}</p>`).join('')
+          : '<p>コメントはありません。</p>';
+
+        const infoHtml = `
+          <div>
+            ${embedHtml}
+            <h2>${data.title}</h2>
+            <p>投稿日: ${data.published}</p>
+            <p>概要: ${data.description}</p>
+            ${downloadLink ? `<a href="${downloadLink.url}" download="video.mp4"><button>動画をダウンロード</button></a>` : ''}
+            <h3>コメント</h3>
+            ${commentsHtml}
+          </div>
+        `;
+
+        document.getElementById('videoInfo').innerHTML = infoHtml;
       } catch (error) {
-        alert(`エラー: ${error.message}`);
-      } finally {
-        overlay.style.display = "none";
+        document.getElementById('videoInfo').innerHTML = `<p>エラーが発生しました: ${error.message}</p>`;
       }
     }
 
-    function extractVideoId(input) {
-      const videoIdPattern = /^[a-zA-Z0-9_-]{11}$/;
-      const urlPattern = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})|youtu\.be\/([a-zA-Z0-9_-]{11})/;
-
-      if (videoIdPattern.test(input)) {
-        return input;
-      }
-
-      const urlMatch = input.match(urlPattern);
-      if (urlMatch) {
-        return urlMatch[1] || urlMatch[2];
-      }
-
-      return null;
-    }
-
-    function updateUrlWithVideoId(videoId) {
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set("videoId", videoId);
-      window.history.pushState(null, "", currentUrl);
-    }
-
-    function displayResults(data) {
-      document.getElementById("title").textContent = data.title;
-
-      const formatStreams = data.formatStreams || [];
-      const streamUrl = formatStreams.length > 0 ? formatStreams[0].url : null;
-
-      const streamLink = document.getElementById("stream-url");
-      const videoPlayer = document.getElementById("video-player");
-      const videoSource = document.getElementById("video-source");
-
-      if (streamUrl) {
-        streamLink.href = streamUrl;
-        streamLink.textContent = "ダウンロードURL";
-
-        videoSource.src = streamUrl;
-        videoPlayer.style.display = "block";
-        videoPlayer.load();
-      } else {
-        streamLink.textContent = "映像付きストリームが見つかりません";
-        streamLink.href = "#";
-        videoPlayer.style.display = "none";
-      }
-
-      document.getElementById("views").textContent = data.viewCount || "不明";
-      document.getElementById("likes").textContent = data.likeCount || "不明";
-      document.getElementById("published").textContent = data.publishedText || "不明";
-      
-      // 概要欄の改行を適用
-      document.getElementById("description").textContent = data.description || "なし";
-
-      const commentsContainer = document.getElementById("comments");
-      commentsContainer.innerHTML = "";
-      if (data.comments && data.comments.length > 0) {
-        data.comments.forEach((comment) => {
-          const li = document.createElement("li");
-          li.textContent = `${comment.author}: ${comment.text}`;
-          commentsContainer.appendChild(li);
-        });
-      } else {
-        const li = document.createElement("li");
-        li.textContent = "未実装";
-        commentsContainer.appendChild(li);
-      }
-
-      results.style.display = "block";
+    function extractVideoId(url) {
+      const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|embed)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(regex);
+      return match ? match[1] : null;
     }
   </script>
 </body>
