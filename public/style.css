@@ -22,13 +22,31 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+.summit{
+    color: darkcyan;
+}
+
+.moderator{
+    color: purple;
+}
+
+.manager{
+    color: red;
+}
+
+.speaker{
+    color:darkorange;
+}code {
+    background-color: #f5f5f5;
+    color: #333;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+    white-space: pre;
+}
 
 @keyframes example4 {
     100% { background-position: 200%; }
-}
-
-.admin{
-  color: red;
 }
 
 h1{
@@ -83,8 +101,8 @@ th {
 }
 
 #clock {
-    position: fixed; /* 固定配置 */
-    top: 10px;       /* 画面の上端から10px */
+    position: fixed;
+    top: 10px;
     right: 10px;   
     top: 10px;
     right: 10px;
@@ -142,7 +160,7 @@ th {
   color: #ccc;
 }
 
-    .rainbow-text {
+    .admin {
       font-weight: bold;
       background: linear-gradient(90deg, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000);
       -webkit-background-clip: text;
