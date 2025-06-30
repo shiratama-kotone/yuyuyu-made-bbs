@@ -2,7 +2,7 @@
   "name": "keijiban",
   "version": "1.0.0",
   "engines": {
-    "node": "16.x"
+    "node": "20.x"
   },
   "scripts": {
     "start": "node server.js"
