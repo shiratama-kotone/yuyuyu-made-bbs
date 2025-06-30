@@ -36,22 +36,22 @@ if (!fs.existsSync(ID_FILE)) {
 }
 
 /**
- * 投稿配列を整理し、最初の3件のみを残します。
+ * 投稿配列を整理し、最後の3件のみを残します。
  * この関数は、実際のデータ変更とファイルへの書き込みを処理します。
  * @param {object} jsonData - DATA_FILEからパースされたJSONデータ。
  * @returns {Promise<object>} - 更新されたjsonDataで解決されるPromise。
  */
 function prunePosts(jsonData) {
   return new Promise((resolve, reject) => {
-    // 最初の3件の投稿のみを保持 (インデックス 0, 1, 2)
-    jsonData.posts = jsonData.posts.slice(0, 3);
+    // 最後の3件の投稿のみを保持 (最も古い3件)
+    jsonData.posts = jsonData.posts.slice(-3); // ここを修正しました
 
     fs.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
         console.error("投稿の整理に失敗しました:", err);
         return reject(new Error("整理されたデータの保存に失敗しました。"));
       }
-      console.log("投稿は正常に整理され、最初の3件のみが保持されました。");
+      console.log("投稿は正常に整理され、最後の3件のみが保持されました。");
       resolve(jsonData);
     });
   });
