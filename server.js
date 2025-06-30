@@ -35,6 +35,28 @@ if (!fs.existsSync(ID_FILE)) {
   fs.writeFileSync(ID_FILE, JSON.stringify(defaultIdData, null, 2));
 }
 
+/**
+ * Prunes the posts array, keeping only the first three posts.
+ * This function handles the actual data modification and file writing.
+ * @param {object} jsonData - The parsed JSON data from DATA_FILE.
+ * @returns {Promise<object>} - A promise that resolves with the updated jsonData.
+ */
+function prunePosts(jsonData) {
+  return new Promise((resolve, reject) => {
+    // Keep only the first 3 posts (indices 0, 1, 2)
+    jsonData.posts = jsonData.posts.slice(0, 3);
+
+    fs.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2), (err) => {
+      if (err) {
+        console.error("Failed to prune posts:", err);
+        return reject(new Error("Failed to save pruned data."));
+      }
+      console.log("Posts pruned successfully, keeping only the first 3.");
+      resolve(jsonData);
+    });
+  });
+}
+
 // GET /api 投稿一覧返す
 app.get("/api", (req, res) => {
   fs.readFile(DATA_FILE, "utf8", (err, data) => {
@@ -47,7 +69,7 @@ app.get("/api", (req, res) => {
 });
 
 // POST /api?name=&pass=&content= 新規投稿
-app.post("/api", (req, res) => {
+app.post("/api", async (req, res) => { // async を追加
   const { name, pass, content } = req.query;
 
   if (!name || !pass || !content) {
@@ -76,30 +98,36 @@ app.post("/api", (req, res) => {
     time: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }), // JST固定
   };
 
-  fs.readFile(DATA_FILE, "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "データの読み込みに失敗しました。" });
+  try { // try ブロックを追加
+    let data = await fs.promises.readFile(DATA_FILE, "utf8"); // fs.promises を使用
+    let jsonData = JSON.parse(data);
+
+    // Manual clear command check
+    if (content === "/clear") {
+      await prunePosts(jsonData);
+      return res.status(200).json({ message: "掲示板がクリアされました。" });
     }
 
-    const jsonData = JSON.parse(data);
     jsonData.posts.unshift(newPost); // 新しい投稿は上に
 
-    if (jsonData.posts.length > 1000) {
-      jsonData.posts = jsonData.posts.slice(0, 1000);
+    // Automatic pruning if post count exceeds 200
+    if (jsonData.posts.length > 200) {
+      console.log("Post count exceeded 200. Pruning posts.");
+      await prunePosts(jsonData); // This will update jsonData.posts and save the file
+      // No need for a separate slice(0, 1000) anymore, prunePosts handles it
+    } else {
+      // If no pruning, just save the new post
+      await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2)); // fs.promises を使用
     }
 
     // タイムスタンプを記録
     requestTimestamps[pass] = now;
 
-    fs.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "データの保存に失敗しました。" });
-      }
-      res.status(200).json({ message: "投稿が成功しました。", post: newPost });
-    });
-  });
+    res.status(200).json({ message: "投稿が成功しました。", post: newPost });
+  } catch (err) { // catch ブロックを追加
+    console.error(err);
+    res.status(500).json({ error: "データの処理に失敗しました。" });
+  }
 });
 
 // POST /topic トピック変更API
@@ -150,16 +178,18 @@ app.post("/delete", (req, res) => {
     const jsonData = JSON.parse(data);
 
     // 投稿番号に対応するインデックスを正しく計算
-    const index = jsonData.posts.length - postNumber;
+    // `postNumber` 1 corresponds to the most recent post (index 0 after unshift)
+    // So, `postNumber` 1 is `jsonData.posts[0]`, `postNumber` 2 is `jsonData.posts[1]`, etc.
+    const indexToDelete = postNumber - 1; // ここを修正
 
-    if (index < 0 || index >= jsonData.posts.length) {
+    if (indexToDelete < 0 || indexToDelete >= jsonData.posts.length) {
       return res.status(404).json({ error: "該当する投稿が見つかりません。" });
     }
 
     // 削除処理 → 内容・名前を「削除されました」にして、IDは空にする
-    jsonData.posts[index].name = "削除されました";
-    jsonData.posts[index].content = "削除されました";
-    jsonData.posts[index].id = "";
+    jsonData.posts[indexToDelete].name = "削除されました";
+    jsonData.posts[indexToDelete].content = "削除されました";
+    jsonData.posts[indexToDelete].id = "";
 
     fs.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
