@@ -36,22 +36,22 @@ if (!fs.existsSync(ID_FILE)) {
 }
 
 /**
- * Prunes the posts array, keeping only the first three posts.
- * This function handles the actual data modification and file writing.
- * @param {object} jsonData - The parsed JSON data from DATA_FILE.
- * @returns {Promise<object>} - A promise that resolves with the updated jsonData.
+ * 投稿配列を整理し、最初の3件のみを残します。
+ * この関数は、実際のデータ変更とファイルへの書き込みを処理します。
+ * @param {object} jsonData - DATA_FILEからパースされたJSONデータ。
+ * @returns {Promise<object>} - 更新されたjsonDataで解決されるPromise。
  */
 function prunePosts(jsonData) {
   return new Promise((resolve, reject) => {
-    // Keep only the first 3 posts (indices 0, 1, 2)
+    // 最初の3件の投稿のみを保持 (インデックス 0, 1, 2)
     jsonData.posts = jsonData.posts.slice(0, 3);
 
     fs.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
-        console.error("Failed to prune posts:", err);
-        return reject(new Error("Failed to save pruned data."));
+        console.error("投稿の整理に失敗しました:", err);
+        return reject(new Error("整理されたデータの保存に失敗しました。"));
       }
-      console.log("Posts pruned successfully, keeping only the first 3.");
+      console.log("投稿は正常に整理され、最初の3件のみが保持されました。");
       resolve(jsonData);
     });
   });
@@ -69,7 +69,7 @@ app.get("/api", (req, res) => {
 });
 
 // POST /api?name=&pass=&content= 新規投稿
-app.post("/api", async (req, res) => { // async を追加
+app.post("/api", async (req, res) => {
   const { name, pass, content } = req.query;
 
   if (!name || !pass || !content) {
@@ -98,14 +98,29 @@ app.post("/api", async (req, res) => { // async を追加
     time: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }), // JST固定
   };
 
-  try { // try ブロックを追加
-    let data = await fs.promises.readFile(DATA_FILE, "utf8"); // fs.promises を使用
+  try {
+    let data = await fs.promises.readFile(DATA_FILE, "utf8");
     let jsonData = JSON.parse(data);
 
     // Manual clear command check
     if (content === "/clear") {
-      await prunePosts(jsonData);
-      return res.status(200).json({ message: "掲示板がクリアされました。" });
+      // ID.jsonを読み込み、投稿者のIDが管理者IDリストに含まれるか確認
+      const idDataRaw = await fs.promises.readFile(ID_FILE, "utf8");
+      const idJsonData = JSON.parse(idDataRaw);
+
+      // idJsonData の値（管理者ID）が hashedId と一致するかを確認
+      const isAdminId = Object.values(idJsonData).includes(hashedId);
+
+      if (isAdminId) {
+        await prunePosts(jsonData);
+        return res.status(200).json({ message: "掲示板がクリアされました。" });
+      } else {
+        // ID.jsonに含まれない場合は、通常の投稿として処理を続行
+        // このelseブロックに入ったということは、/clearを通常のメッセージとして扱うため、
+        // 下記の「jsonData.posts.unshift(newPost);」以降の処理に流します。
+        // ここではreturnせずに、そのまま下の通常の投稿処理へ進ませます。
+        console.log("'/clear'が投稿されましたが、投稿者のIDがID.jsonに含まれていません。通常の投稿として扱います。");
+      }
     }
 
     jsonData.posts.unshift(newPost); // 新しい投稿は上に
@@ -114,17 +129,16 @@ app.post("/api", async (req, res) => { // async を追加
     if (jsonData.posts.length > 200) {
       console.log("Post count exceeded 200. Pruning posts.");
       await prunePosts(jsonData); // This will update jsonData.posts and save the file
-      // No need for a separate slice(0, 1000) anymore, prunePosts handles it
     } else {
       // If no pruning, just save the new post
-      await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2)); // fs.promises を使用
+      await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2));
     }
 
     // タイムスタンプを記録
     requestTimestamps[pass] = now;
 
     res.status(200).json({ message: "投稿が成功しました。", post: newPost });
-  } catch (err) { // catch ブロックを追加
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: "データの処理に失敗しました。" });
   }
@@ -180,7 +194,7 @@ app.post("/delete", (req, res) => {
     // 投稿番号に対応するインデックスを正しく計算
     // `postNumber` 1 corresponds to the most recent post (index 0 after unshift)
     // So, `postNumber` 1 is `jsonData.posts[0]`, `postNumber` 2 is `jsonData.posts[1]`, etc.
-    const indexToDelete = postNumber - 1; // ここを修正
+    const indexToDelete = postNumber - 1;
 
     if (indexToDelete < 0 || indexToDelete >= jsonData.posts.length) {
       return res.status(404).json({ error: "該当する投稿が見つかりません。" });
@@ -200,12 +214,6 @@ app.post("/delete", (req, res) => {
     });
   });
 });
-
-
-
-
-
-
 
 
 // GET /id ID取得API
