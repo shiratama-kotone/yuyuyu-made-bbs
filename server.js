@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
+const cors = require("cors");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,6 +14,7 @@ const ID_FILE = path.join(__dirname, "ID.json");
 // 環境変数から運営用パスワードを取得
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
+app.use(cors()); // どこからでもアクセスOKにする
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
