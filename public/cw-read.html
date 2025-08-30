@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ChatWork 既読ツール</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h1 {
+    font-size: 40px;
+    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  input { padding: 8px; width: 300px; margin-right: 10px; }
+  button { padding: 8px 16px; background-color: #9370db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background-color: #8167c1; }
+  #progress-container { width: 100%; background: #eee; border-radius: 5px; margin-top: 20px; overflow: hidden; }
+  #progress-bar { height: 25px; width: 0%; background: #4caf50; text-align: center; line-height: 25px; color: white; }
+  #status { margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>ChatWork 既読一括処理ツール</h1>
+
+<label for="apikey">APIキー:</label>
+<input type="text" id="apikey" placeholder="ChatWork APIキー">
+<button onclick="startRead()">既読開始</button>
+
+<div id="progress-container">
+  <div id="progress-bar">0%</div>
+</div>
+
+<p id="status"></p>
+
+<script>
+let jobId = null;
+let checkInterval = null;
+
+async function startRead() {
+  const apiKey = document.getElementById("apikey").value.trim();
+  const status = document.getElementById("status");
+  const bar = document.getElementById("progress-bar");
+  if (!apiKey) { alert("APIキーを入力してください"); return; }
+
+  // ジョブ開始
+  try {
+    const res = await fetch("/cw-read/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey })
+    });
+    const data = await res.json();
+    if (!data.jobId) { status.textContent = "ジョブ開始失敗"; return; }
+
+    jobId = data.jobId;
+    status.textContent = "既読処理中…";
+
+    // 進捗確認
+    if (checkInterval) clearInterval(checkInterval);
+    checkInterval = setInterval(updateProgress, 1000);
+
+  } catch (err) {
+    console.error(err);
+    status.textContent = "通信エラーが発生しました";
+  }
+}
+
+async function updateProgress() {
+  if (!jobId) return;
+  try {
+    const res = await fetch(`/cw-read/progress?jobId=${jobId}`);
+    const data = await res.json();
+    const bar = document.getElementById("progress-bar");
+    const status = document.getElementById("status");
+
+    if (data.total === 0) return;
+
+    const percent = Math.floor((data.done / data.total) * 100);
+    bar.style.width = percent + "%";
+    bar.textContent = percent + "%";
+
+    if (data.finished) {
+      status.textContent = `全${data.total}ルームを既読完了`;
+      clearInterval(checkInterval);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+</html>
