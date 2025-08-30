@@ -22,13 +22,7 @@ app.use(bodyParser.json());
 // 投稿制限用
 const requestTimestamps = {};
 
-// 初期データ作成
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ topic: "初見さんいらっしゃい", posts: [] }, null, 2));
-}
-if (!fs.existsSync(ID_FILE)) {
-  fs.writeFileSync(ID_FILE, JSON.stringify({ example4: "defaultID" }, null, 2));
-}
+
 
 // 投稿整理
 function prunePosts(jsonData) {
@@ -52,7 +46,9 @@ app.get("/api", (req, res) => {
 });
 
 app.post("/api", async (req, res) => {
-  const { name, pass, content } = req.query;
+  // クエリパラメーターとJSONボディの両方をサポート
+  const { name, pass, content } = req.query.name ? req.query : req.body;
+  
   if (!name || !pass || !content) return res.status(400).json({ error: "全フィールド必須" });
 
   const now = Date.now();
@@ -60,21 +56,38 @@ app.post("/api", async (req, res) => {
     return res.status(429).json({ error: "同じパスワードで1秒に1回まで" });
 
   const hashedId = "@" + crypto.createHash("sha256").update(pass).digest("hex").substr(0, 7);
-  const newPost = { name, content, id: hashedId, time: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }) };
 
   try {
     let jsonData = JSON.parse(await fs.promises.readFile(DATA_FILE, "utf8"));
+
+    // nextPostNumberが存在しない場合は初期化
+    if (typeof jsonData.nextPostNumber !== 'number') {
+      jsonData.nextPostNumber = 1;
+    }
 
     if (content === "/clear") {
       const idJsonData = JSON.parse(await fs.promises.readFile(ID_FILE, "utf8"));
       const isAdminId = Object.values(idJsonData).includes(hashedId);
       if (isAdminId) {
-        await prunePosts(jsonData);
+        jsonData.posts = [];
+        jsonData.nextPostNumber = 1; // 投稿番号もリセット
+        await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2));
         return res.status(200).json({ message: "掲示板クリアされました" });
       }
     }
 
+    // 新しい投稿に番号を付与
+    const newPost = { 
+      number: jsonData.nextPostNumber,
+      name, 
+      content, 
+      id: hashedId, 
+      time: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }) 
+    };
+
     jsonData.posts.unshift(newPost);
+    jsonData.nextPostNumber++; // 次の投稿番号をインクリメント
+
     if (jsonData.posts.length > 200) await prunePosts(jsonData);
     else await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2));
 
