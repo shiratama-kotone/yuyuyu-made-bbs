@@ -9,8 +9,36 @@
 <body>
   <h1>APIの使い方！</h1>
   <a href="/">掲示板に戻る</a>
-<a href="https://yuyuyu-made-bbs.onrender.com/api">https://yuyuyu-made-bbs.onrender.com/api</a>で投稿とtopicが取得できます。(json形式)
-<p>https://yuyuyu-made-bbs.onrender.com/api?name=[名前]&pass=[パスワード]&content=[内容]</p>に<b>POST</b>リクエストで送信できます。<font size="5">(POSTリクエストでないと送信できません。)</font><br>
-  送信できるのは1秒1回です。
+  
+  <h2>データ取得</h2>
+  <p><a href="https://yuyuyu-made-bbs.onrender.com/api">https://yuyuyu-made-bbs.onrender.com/api</a>で投稿とtopicが取得できます。(json形式)</p>
+  
+  <h2>投稿送信</h2>
+  <p><font size="5">(POSTリクエストでないと送信できません。)</font></p>
+  <p>送信できるのは1秒1回です。</p>
+  
+  <h3>方法1: クエリパラメーター</h3>
+  <p>https://yuyuyu-made-bbs.onrender.com/api?name=[名前]&pass=[パスワード]&content=[内容]</p>
+  <p>に<b>POST</b>リクエストで送信</p>
+  
+  <h3>方法2: JSON</h3>
+  <p>https://yuyuyu-made-bbs.onrender.com/api</p>
+  <p>に<b>POST</b>リクエストで以下のJSONを送信：</p>
+  <pre>{
+  "name": "名前",
+  "pass": "パスワード", 
+  "content": "内容"
+}</pre>
+  <p>Content-Type: application/json を設定してください。</p>
+  
+  <h2>投稿データ形式</h2>
+  <p>投稿には自動で番号が付与されます：</p>
+  <pre>{
+  "no": 3,
+  "name": "ユーザー名",
+  "content": "投稿内容",
+  "id": "@abc1234",
+  "time": "2025/8/31 15:30:00"
+}</pre>
 </body>
 </html>
