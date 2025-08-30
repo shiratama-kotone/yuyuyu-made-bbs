@@ -60,9 +60,10 @@ app.post("/api", async (req, res) => {
   try {
     let jsonData = JSON.parse(await fs.promises.readFile(DATA_FILE, "utf8"));
 
-    // nextPostNumberが存在しない場合は初期化
+    // nextPostNumberが存在しない場合は既存の投稿から最大番号を取得して初期化
     if (typeof jsonData.nextPostNumber !== 'number') {
-      jsonData.nextPostNumber = 1;
+      const maxNo = jsonData.posts.length > 0 ? Math.max(...jsonData.posts.map(post => post.no || 0)) : 0;
+      jsonData.nextPostNumber = maxNo + 1;
     }
 
     if (content === "/clear") {
@@ -78,7 +79,7 @@ app.post("/api", async (req, res) => {
 
     // 新しい投稿に番号を付与
     const newPost = { 
-      number: jsonData.nextPostNumber,
+      no: jsonData.nextPostNumber,
       name, 
       content, 
       id: hashedId, 
