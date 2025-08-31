@@ -25,6 +25,7 @@
   <a href="/">掲示板に戻る</a>
 <label for="apikey">APIキー:</label>
 <input type="text" id="apikey" placeholder="ChatWork APIキー">
+<p><a href="https://www.chatwork.com/service/packages/chatwork/subpackages/api/token.php" target="_blank">APIキーはこちら</a></p>
 <button onclick="startRead()">既読開始</button>
 
 <div id="progress-container">
@@ -45,7 +46,7 @@ async function startRead() {
 
   // ジョブ開始
   try {
-    const res = await fetch("/cw-read/start", {
+    const res = await fetch("https://yuyuyu-made-bbs-server.onrender.com/cw-read/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ apiKey })
@@ -69,7 +70,7 @@ async function startRead() {
 async function updateProgress() {
   if (!jobId) return;
   try {
-    const res = await fetch(`/cw-read/progress?jobId=${jobId}`);
+    const res = await fetch(`https://yuyuyu-made-bbs-server.onrender.com/cw-read/progress?jobId=${jobId}`);
     const data = await res.json();
     const bar = document.getElementById("progress-bar");
     const status = document.getElementById("status");
