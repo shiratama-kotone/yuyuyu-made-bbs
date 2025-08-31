@@ -1,10 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const postsTableBody = document.querySelector("#postsTable tbody");
   const postForm = document.querySelector("#postForm");
-  const boardSelect = document.querySelector("#boardSelect"); // 追加
   let idList = []; // ID.jsonから読み込んだIDリスト
   let notificationSentForToAll = false; // Add a flag to track if notification has been sent
-  let currentBoard = boardSelect.value; // 現在選択されている掲示板
 
   const statusMessage = document.createElement("span");
   statusMessage.id = "statusMessage";
@@ -63,44 +61,15 @@ document.addEventListener("DOMContentLoaded", () => {
    * サーバーから投稿を取得し、表示を更新する。
    */
   function fetchPosts() {
-    let apiUrl = "";
-    let isYuzuBoard = false;
-
-    if (currentBoard === "yuyuyu") {
-      apiUrl = "/api";
-      isYuzuBoard = false;
-    } else if (currentBoard === "yuzu") {
-      apiUrl = "https://bbs-yuzu.onrender.com/get_posts";
-      isYuzuBoard = true;
-    }
-
-    fetch(apiUrl)
+    fetch("https://yuyuyu-made-bbs-server.onrender.com/api")
       .then((res) => {
         if (!res.ok) throw new Error("サーバーエラー");
         return res.json();
       })
       .then((data) => {
-        let postsToRender = [];
-        let topicToDisplay = "";
-
-        if (isYuzuBoard) {
-          postsToRender = data.posts.map(post => ({
-            name: post.name,
-            id: post.id,
-            content: post.message,
-            time: post.created_at,
-            id_color: post.id_color,
-            name_color: post.name_color
-          }));
-          topicToDisplay = data.current_topic;
-        } else { // yuyuyu board
-          postsToRender = data.posts;
-          topicToDisplay = data.topic;
-        }
-
-        renderPosts(postsToRender, isYuzuBoard);
+        renderPosts(data.posts);
         // topic内の<br>をそのまま改行にして表示
-        document.getElementById("currentTopic").innerHTML = topicToDisplay.replace(
+        document.getElementById("currentTopic").innerHTML = data.topic.replace(
           /<br\s*\/?>/gi,
           "<br>"
         );
@@ -114,9 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
    * 取得した投稿データをテーブルに表示する。
    * 新しい投稿が上に来るように並べ替え、絵文字を画像に置換する。
    * @param {Array<Object>} posts - 投稿データの配列。
-   * @param {boolean} isYuzuBoard - ゆず掲示板のデータかどうか。
    */
-  function renderPosts(posts, isYuzuBoard) {
+  function renderPosts(posts) {
     postsTableBody.innerHTML = "";
     const total = posts.length;
 
@@ -192,10 +160,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const displayNum = total - index - 1;
       const row = document.createElement("tr");
 
-      // IDがID.jsonに含まれているか確認し、クラスを追加 (ゆゆゆ掲示板のみ)
-      const idClass = !isYuzuBoard && idList.includes(post.id) ? 'class="admin"' : "";
+      // IDがID.jsonに含まれているか確認し、クラスを追加
+      const idClass = idList.includes(post.id) ? 'class="admin"' : "";
 
-      // 時間を12時間表示＋日付＋午前午前に変換
+      // 時間を12時間表示＋日付＋午前午後に変換
       const formattedTime = formatTo12HourWithDate(post.time);
 
       // 投稿内容に含まれる絵文字パターンを画像に変換
@@ -208,23 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return match;
       });
 
-      // IDと名前のスタイルを適用
-      let idDisplay = post.id;
-      let nameDisplay = post.name;
-
-      // ゆず掲示板の場合、IDに@を付け、色を適用
-      if (isYuzuBoard) {
-        idDisplay = `<font color="${post.id_color || 'inherit'}">@${post.id}</font>`;
-        nameDisplay = `<font color="${post.name_color || 'inherit'}">${post.name}</font>`;
-      } else {
-        // ゆゆゆ掲示板の場合のID表示はそのまま、色はadminクラスで対応
-        idDisplay = post.id; // ゆゆゆ掲示板は@なし
-      }
-
       row.innerHTML = `
         <td>${displayNum}</td>
-        <td>${nameDisplay}</td>
-        <td ${idClass}>${idDisplay}</td>
+        <td>${post.name}</td>
+        <td ${idClass}>${post.id}</td>
         <td>${formattedContent}</td>
         <td>${formattedTime}</td>
       `;
@@ -258,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Notification.permission === "default") {
         Notification.requestPermission().then((permission) => {
           if (permission === "granted") {
-            // ゆず掲示板の場合はIDはpost.idから取得されるため、ここではnameとpassをそのまま渡す
             showToAllNotification(name, pass);
             notificationSentForToAll = true; // Set the flag to true after sending
           }
@@ -271,20 +225,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     // --- Notification Logic Ends Here ---
 
-    // 投稿先APIの決定
-    let postApiUrl = "";
-    if (currentBoard === "yuyuyu") {
-      postApiUrl = `/api?name=${encodeURIComponent(name)}&pass=${encodeURIComponent(
-        pass
-      )}&content=${encodeURIComponent(content)}`;
-    } else if (currentBoard === "yuzu") {
-      // ゆず掲示板への投稿は実装されていないため、ここではエラーメッセージを出すか、投稿処理をスキップ
-      statusMessage.style.color = "red";
-      statusMessage.textContent = "ゆず掲示板への投稿は現在サポートされていません。";
-      setTimeout(() => (statusMessage.textContent = ""), 3000);
-      return; // 投稿処理を中断
-    }
-
+    const postApiUrl = `https://yuyuyu-made-bbs-server.onrender.com/api?name=${encodeURIComponent(name)}&pass=${encodeURIComponent(
+      pass
+    )}&content=${encodeURIComponent(content)}`;
 
     fetch(postApiUrl, {
         method: "POST",
@@ -316,17 +259,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function showToAllNotification(name, id) {
     if ("Notification" in window) {
       new Notification("皆さんへのお知らせ", {
-        body: `${name}@${id}さんがTO ALLで皆さんのことを呼んでいます`, // ゆず掲示板の場合を考慮し、@を追加
+        body: `${name}@${id}さんがTO ALLで皆さんのことを呼んでいます`,
       });
     }
   }
-
-  // 掲示板選択が変更された時のイベントリスナー
-  boardSelect.addEventListener("change", () => {
-    currentBoard = boardSelect.value;
-    fetchPosts(); // 選択が変更されたら投稿を再取得
-  });
-
 
   // 初期化処理: IDを読み込み後、投稿を取得し、1秒ごとに更新を開始
   loadIds().then(() => {
