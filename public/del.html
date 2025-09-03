@@ -27,7 +27,7 @@
      const postNumber = Number(document.getElementById("postNumber").value.trim());
      const adminPassword = document.getElementById("adminPassword").value.trim();
 
-fetch("/delete", {
+fetch("https://yuyuyu-made-bbs-server.onrender.com/delete", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ postNumber, adminPassword }),
