@@ -24,7 +24,7 @@
       const topic = document.getElementById("topic").value.trim();
       const adminPassword = document.getElementById("password").value.trim();
 
-      fetch("/topic", {
+      fetch("https://yuyuyu-made-bbs-server.onrender.com/topic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, adminPassword }),
