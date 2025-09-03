@@ -37,7 +37,7 @@
       const postId = document.getElementById("postId").value.trim();
       const adminPassword = document.getElementById("adminPassword").value.trim();
 
-      fetch("/delete", {
+      fetch("https://yuyuyu-made-bbs-server.onrender.com//delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: postId, adminPassword }),
@@ -53,7 +53,7 @@
 
       const topic = document.getElementById("topic").value.trim();
 
-      fetch("/topic", {
+      fetch("https://yuyuyu-made-bbs-server.onrender.com//topic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic }),
