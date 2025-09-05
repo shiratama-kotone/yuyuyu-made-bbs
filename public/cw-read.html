@@ -82,7 +82,7 @@ async function updateProgress() {
     bar.textContent = percent + "%";
 
     if (data.finished) {
-      status.textContent = `全${data.total}ルームを既読完了`;
+      status.textContent = `通知あり${data.total}ルームを既読完了`;
       clearInterval(checkInterval);
     }
   } catch (err) {
