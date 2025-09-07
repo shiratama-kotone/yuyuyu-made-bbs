@@ -244,11 +244,10 @@ function initializeServerSelect() {
 const postForm = document.getElementById('postForm');
 
 window.addEventListener('DOMContentLoaded', async () => {
+  console.log('ページ読み込み開始');
+  
   // 通知システムの初期化
   NotificationManager.init();
-  
-  // サーバー選択の初期化
-  initializeServerSelect();
   
   // 保存されたサーバー設定を読み込み
   const serverCookie = document.cookie.split("; ").find(row => row.startsWith("selectedServer="));
@@ -256,9 +255,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const savedServer = serverCookie.split("=")[1];
     if (SERVERS[savedServer]) {
       currentServer = savedServer;
-      document.getElementById('serverSelect').value = savedServer;
+      console.log('保存されたサーバー設定を復元:', savedServer);
     }
   }
+  
+  // サーバー選択UIの初期化
+  initializeServerSelect();
   
   // ダークモード設定の読み込み
   const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
@@ -272,11 +274,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   setInterval(updateClock, 1000);
   updateClock();
   
-  // 投稿一覧とトピックの読み込み
+  // 初回の投稿一覧読み込み
+  console.log('初回投稿読み込み開始');
   await updatePostsList();
   
-  // 定期的に投稿一覧を更新（1秒ごと）
-  setInterval(updatePostsList, 1000);
+  // 定期的に投稿一覧を更新（5秒ごとに変更して負荷軽減）
+  setInterval(updatePostsList, 5000);
+  
+  console.log('初期化完了');
 });
 
 btn.addEventListener('click', () => {
