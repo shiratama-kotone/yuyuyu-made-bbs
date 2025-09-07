@@ -1,5 +1,16 @@
 // API設定
-const API_BASE_URL = 'https://yuyuyu-made-bbs-server.onrender.com';
+const SERVERS = {
+  'chat': {
+    name: '雑談',
+    url: 'https://yuyuyu-made-bbs-server.onrender.com'
+  },
+  'lawless': {
+    name: '無法地帯', 
+    url: 'https://yuyuyu-made-bbs.onrender.com'
+  }
+};
+
+let currentServer = 'chat';
 
 // ダークモード
 const btn = document.getElementById('toggleBtn');
@@ -39,7 +50,7 @@ function decodeHtml(encoded) {
   return textArea.value;
 }
 
-// XSS対策のためのHTMLエスケープ関数（新規投稿用）
+// XSS対策のためのHTMLエスケープ関数（表示用）
 function escapeHtml(unsafe) {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -49,10 +60,15 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+// 現在のサーバーURLを取得
+function getCurrentServerUrl() {
+  return SERVERS[currentServer].url;
+}
+
 // API通信関数
 async function apiRequest(endpoint, options = {}) {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${getCurrentServerUrl()}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
@@ -71,10 +87,23 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
+// サーバー切り替え関数
+function switchServer(serverId) {
+  if (SERVERS[serverId]) {
+    currentServer = serverId;
+    const serverSelect = document.getElementById('serverSelect');
+    serverSelect.value = serverId;
+    showMessage(`${SERVERS[serverId].name}に切り替えました`);
+    updatePostsList(); // 新しいサーバーの投稿を読み込み
+    // サーバー選択をCookieに保存
+    document.cookie = `selectedServer=${serverId}; path=/`;
+  }
+}
+
 // 投稿データとトピックを取得
 async function loadData() {
   try {
-    const data = await apiRequest('');  // ルートエンドポイント
+    const data = await apiRequest('/api');
     return {
       posts: data.posts || [],
       topic: data.topic || 'フリートーク',
@@ -86,12 +115,16 @@ async function loadData() {
   }
 }
 
-// 新規投稿を送信
+// 新規投稿を送信（既存サーバーAPI対応）
 async function createPost(postData) {
   try {
-    const response = await apiRequest('/post', {
+    const response = await apiRequest('/api', {
       method: 'POST',
-      body: JSON.stringify(postData)
+      body: JSON.stringify({
+        name: postData.name,
+        pass: postData.password,  // サーバーは'pass'を期待
+        content: postData.content
+      })
     });
     return response;
   } catch (error) {
@@ -114,13 +147,20 @@ function displayPost(post) {
   
   // サーバーのデータ構造に対応
   const postNumber = post.no;
-  const name = decodeHtml(post.name);
+  const name = post.name; // 既にHTMLエスケープ済みの場合はそのまま使用
   const displayId = post.id;
   const content = post.content;
   const timestamp = post.time;
   
-  // 管理者（赤いID）の判定
-  const isAdmin = name.includes('class="summit"') || displayId.includes('ざーこざーこ');
+  // 管理者IDリストに基づく判定
+  const ADMIN_IDS = [
+    "@42d3e89",
+    "@9b0919e", 
+    "ざーこざーこばーかばーか",
+    "@9303157",
+    "@07fcc1a"
+  ];
+  const isAdmin = ADMIN_IDS.includes(displayId) || name.includes('class="summit"');
   
   tr.innerHTML = `
     <td>${postNumber}</td>
@@ -151,12 +191,10 @@ async function updatePostsList() {
       return;
     }
     
-    // 投稿を新しい順（番号の大きい順）で表示
-    data.posts
-      .sort((a, b) => b.no - a.no)
-      .forEach(post => {
-        postsTableBody.appendChild(displayPost(post));
-      });
+    // 投稿を表示（サーバーから既に適切な順序で返される）
+    data.posts.forEach(post => {
+      postsTableBody.appendChild(displayPost(post));
+    });
       
   } catch (error) {
     postsTableBody.innerHTML = '<tr><td colspan="5">投稿の読み込みに失敗しました</td></tr>';
@@ -183,27 +221,32 @@ function showMessage(text, type = 'success') {
   setTimeout(() => message.remove(), 3000);
 }
 
-// IDを生成する関数（パスワードをハッシュ化したような表示用ID）
-function generateId(password) {
-  let hash = 0;
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // 32bit整数に変換
+// サーバー選択UIの初期化
+function initializeServerSelect() {
+  const serverSelect = document.getElementById('serverSelect');
+  if (serverSelect) {
+    // セレクトボックスのオプションを生成
+    Object.entries(SERVERS).forEach(([id, server]) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = server.name;
+      serverSelect.appendChild(option);
+    });
+    
+    // 変更イベントリスナーを追加
+    serverSelect.addEventListener('change', (e) => {
+      switchServer(e.target.value);
+    });
   }
-  return '@' + Math.abs(hash).toString(16).slice(0, 7);
-}
-
-// 管理者かどうかを判定（簡易版）
-function isAdmin(password) {
-  const adminPasswords = ['admin', 'yuyuyu', '運営'];
-  return adminPasswords.includes(password);
 }
 
 // 投稿フォーム
 const postForm = document.getElementById('postForm');
 
 window.addEventListener('DOMContentLoaded', async () => {
+  // 通知システムの初期化
+  NotificationManager.init();
+  
   // サーバー選択の初期化
   initializeServerSelect();
   
@@ -235,25 +278,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   // 定期的に投稿一覧を更新（1秒ごと）
   setInterval(updatePostsList, 1000);
 });
-
-// サーバー選択UIの初期化
-function initializeServerSelect() {
-  const serverSelect = document.getElementById('serverSelect');
-  if (serverSelect) {
-    // セレクトボックスのオプションを生成
-    Object.entries(SERVERS).forEach(([id, server]) => {
-      const option = document.createElement('option');
-      option.value = id;
-      option.textContent = server.name;
-      serverSelect.appendChild(option);
-    });
-    
-    // 変更イベントリスナーを追加
-    serverSelect.addEventListener('change', (e) => {
-      switchServer(e.target.value);
-    });
-  }
-}
 
 btn.addEventListener('click', () => {
   if (!inverted) enableDarkMode();
@@ -289,22 +313,39 @@ postForm.addEventListener('submit', async (e) => {
     submitBtn.disabled = true;
     submitBtn.textContent = '送信中...';
     
-    // サーバーのAPI形式に合わせて投稿データを作成
+    // 既存サーバーのAPI形式に合わせて投稿データを作成
     const postData = {
       name: name,
       content: content,
       password: password
     };
     
-    await createPost(postData);
-    postForm.reset();
-    showMessage('投稿が完了しました');
+    const response = await createPost(postData);
     
-    // 少し待ってから投稿一覧を更新（サーバー処理時間を考慮）
-    setTimeout(updatePostsList, 1000);
+    // レスポンスに応じて処理
+    if (response.message) {
+      postForm.reset();
+      showMessage(response.message);
+      
+      // 少し待ってから投稿一覧を更新（サーバー処理時間を考慮）
+      setTimeout(updatePostsList, 500);
+    } else {
+      showMessage('投稿が完了しました');
+      postForm.reset();
+      setTimeout(updatePostsList, 500);
+    }
     
   } catch (error) {
-    showMessage('投稿の送信に失敗しました', 'error');
+    // エラーメッセージの詳細表示
+    let errorMsg = '投稿の送信に失敗しました';
+    
+    if (error.message.includes('429')) {
+      errorMsg = '投稿間隔が短すぎます。少し待ってから再度お試しください';
+    } else if (error.message.includes('400')) {
+      errorMsg = '入力内容に問題があります';
+    }
+    
+    showMessage(errorMsg, 'error');
     console.error('投稿エラー:', error);
   } finally {
     // 送信ボタンを復元
