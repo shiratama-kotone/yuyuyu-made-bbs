@@ -11,8 +11,16 @@ const { v4: uuidv4 } = require("uuid");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, "data.json");
-const ID_FILE = path.join(__dirname, "ID.json");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// 管理者IDリスト（コード内に直接記述）
+const ADMIN_IDS = [
+  "@42d3e89",
+  "@9b0919e", 
+  "ざーこざーこばーかばーか",
+  "@9303157",
+  "@07fcc1a"
+];
 
 app.use(cors());
 app.use(express.static("public"));
@@ -21,6 +29,32 @@ app.use(bodyParser.json());
 
 // 投稿制限用
 const requestTimestamps = {};
+
+// 初期ファイル作成
+function initializeFiles() {
+  // data.jsonが存在しない場合は作成
+  if (!fs.existsSync(DATA_FILE)) {
+    const initialData = {
+      topic: "掲示板",
+      posts: [],
+      nextPostNumber: 1
+    };
+    fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
+    console.log("data.json を作成しました");
+  }
+}
+
+// 起動時にファイルを初期化
+initializeFiles();
+
+// ヘルスチェック用エンドポイント
+app.get("/", (req, res) => {
+  res.send("掲示板サーバーが正常に動作しています");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+});
 
 
 
@@ -48,7 +82,7 @@ app.get("/api", (req, res) => {
 app.post("/api", async (req, res) => {
   // クエリパラメーターとJSONボディの両方をサポート
   const { name, pass, content } = req.query.name ? req.query : req.body;
-  
+
   if (!name || !pass || !content) return res.status(400).json({ error: "全フィールド必須" });
 
   const now = Date.now();
@@ -66,14 +100,51 @@ app.post("/api", async (req, res) => {
       jsonData.nextPostNumber = maxNo + 1;
     }
 
+    // 全削除コマンド
     if (content === "/clear") {
-      const idJsonData = JSON.parse(await fs.promises.readFile(ID_FILE, "utf8"));
-      const isAdminId = Object.values(idJsonData).includes(hashedId);
+      const isAdminId = ADMIN_IDS.includes(hashedId);
       if (isAdminId) {
         jsonData.posts = [];
         jsonData.nextPostNumber = 1; // 投稿番号もリセット
         await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2));
         return res.status(200).json({ message: "掲示板クリアされました" });
+      }
+    }
+
+    // 個別削除コマンド（/del 番号）
+    const deleteMatch = content.match(/^\/del\s+(\d+)$/);
+    if (deleteMatch) {
+      const postNumber = parseInt(deleteMatch[1]);
+      const isAdminId = ADMIN_IDS.includes(hashedId);
+
+      if (isAdminId) {
+        const postIndex = jsonData.posts.findIndex(post => post.no === postNumber);
+        if (postIndex !== -1) {
+          jsonData.posts[postIndex].name = "削除されました";
+          jsonData.posts[postIndex].content = "削除されました";
+          jsonData.posts[postIndex].id = "";
+          await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2));
+          return res.status(200).json({ message: `投稿番号${postNumber}を削除しました` });
+        } else {
+          return res.status(404).json({ error: `投稿番号${postNumber}が見つかりません` });
+        }
+      } else {
+        return res.status(403).json({ error: "削除権限がありません" });
+      }
+    }
+
+    // トピック変更コマンド（/topic 新しいトピック）
+    const topicMatch = content.match(/^\/topic\s+(.+)$/);
+    if (topicMatch) {
+      const newTopic = topicMatch[1];
+      const isAdminId = ADMIN_IDS.includes(hashedId);
+
+      if (isAdminId) {
+        jsonData.topic = newTopic;
+        await fs.promises.writeFile(DATA_FILE, JSON.stringify(jsonData, null, 2));
+        return res.status(200).json({ message: `トピックを「${newTopic}」に変更しました` });
+      } else {
+        return res.status(403).json({ error: "トピック変更権限がありません" });
       }
     }
 
@@ -137,14 +208,11 @@ app.post("/delete", (req, res) => {
 });
 
 app.get("/id", (req, res) => {
-  fs.readFile(ID_FILE, "utf8", (err, data) => {
-    if (err) return res.status(500).json({ error: "ID読み込み失敗" });
-    res.json(JSON.parse(data));
-  });
+  res.json(ADMIN_IDS);
 });
 
 // ----------------------
-// ChatWork 全ルーム既読機能
+// ChatWork 未読チャット既読機能
 // ----------------------
 const cwJobs = {};
 
@@ -153,29 +221,96 @@ app.post("/cw-read/start", async (req, res) => {
   if (!apiKey) return res.status(400).json({ error: "APIキー必須" });
 
   const jobId = uuidv4();
-  cwJobs[jobId] = { total: 0, done: 0, finished: false };
+  cwJobs[jobId] = { 
+    total: 0, 
+    done: 0, 
+    finished: false, 
+    unreadRooms: [],
+    processedRooms: [],
+    errors: []
+  };
 
   (async () => {
     try {
+      console.log("ChatWork ルーム一覧を取得中...");
+
+      // ルーム一覧を取得
       const roomsRes = await axios.get("https://api.chatwork.com/v2/rooms", {
         headers: { "X-ChatWorkToken": apiKey },
       });
-      const rooms = roomsRes.data;
-      cwJobs[jobId].total = rooms.length;
+      const allRooms = roomsRes.data;
+      console.log(`全ルーム数: ${allRooms.length}`);
+
+      // 未読メッセージがあるルームのみをフィルタリング
+      const unreadRooms = allRooms.filter(room => {
+        // unread_numが存在し、0より大きい場合は未読メッセージがある
+        return room.unread_num && room.unread_num > 0;
+      });
+
+      console.log(`未読メッセージがあるルーム数: ${unreadRooms.length}`);
+
+      cwJobs[jobId].total = unreadRooms.length;
+      cwJobs[jobId].unreadRooms = unreadRooms.map(room => ({
+        room_id: room.room_id,
+        name: room.name,
+        unread_num: room.unread_num
+      }));
+
+      // 未読ルームがない場合は即座に終了
+      if (unreadRooms.length === 0) {
+        cwJobs[jobId].finished = true;
+        console.log("未読メッセージのあるルームはありません");
+        return;
+      }
 
       let index = 0;
       const interval = setInterval(async () => {
-        if (index >= rooms.length) { clearInterval(interval); cwJobs[jobId].finished = true; return; }
-        const room = rooms[index];
+        if (index >= unreadRooms.length) { 
+          clearInterval(interval); 
+          cwJobs[jobId].finished = true; 
+          console.log(`既読処理完了: ${cwJobs[jobId].done}/${cwJobs[jobId].total} ルーム`);
+          return; 
+        }
+
+        const room = unreadRooms[index];
         try {
+          console.log(`既読処理中: ${room.name} (未読数: ${room.unread_num})`);
+
           await axios.put(`https://api.chatwork.com/v2/rooms/${room.room_id}/messages/read`, {}, {
             headers: { "X-ChatWorkToken": apiKey }
           });
+
           cwJobs[jobId].done++;
-        } catch (err) { console.error(`既読失敗: ${room.name}`, err.response?.data || err.message); }
+          cwJobs[jobId].processedRooms.push({
+            room_id: room.room_id,
+            name: room.name,
+            unread_num: room.unread_num,
+            status: "success"
+          });
+
+          console.log(`既読完了: ${room.name}`);
+        } catch (err) { 
+          const errorMsg = err.response?.data?.errors?.[0] || err.response?.data || err.message;
+          console.error(`既読失敗: ${room.name} - ${errorMsg}`);
+
+          cwJobs[jobId].errors.push({
+            room_id: room.room_id,
+            name: room.name,
+            error: errorMsg
+          });
+        }
         index++;
-      }, 1000);
-    } catch (err) { console.error("ルーム一覧取得失敗:", err.message); cwJobs[jobId].finished = true; }
+      }, 1500); // API制限を考慮して1.5秒間隔
+
+    } catch (err) { 
+      const errorMsg = err.response?.data?.errors?.[0] || err.response?.data || err.message;
+      console.error("ルーム一覧取得失敗:", errorMsg); 
+      cwJobs[jobId].finished = true;
+      cwJobs[jobId].errors.push({
+        type: "api_error",
+        error: errorMsg
+      });
+    }
   })();
 
   res.json({ jobId });
@@ -187,9 +322,36 @@ app.get("/cw-read/progress", (req, res) => {
   res.json(cwJobs[jobId]);
 });
 
+// 未読ルーム一覧を取得するエンドポイント（既読処理前の確認用）
+app.post("/cw-read/check", async (req, res) => {
+  const { apiKey } = req.body;
+  if (!apiKey) return res.status(400).json({ error: "APIキー必須" });
+
+  try {
+    const roomsRes = await axios.get("https://api.chatwork.com/v2/rooms", {
+      headers: { "X-ChatWorkToken": apiKey },
+    });
+    const allRooms = roomsRes.data;
+
+    const unreadRooms = allRooms.filter(room => room.unread_num && room.unread_num > 0);
+
+    res.json({
+      totalRooms: allRooms.length,
+      unreadRooms: unreadRooms.map(room => ({
+        room_id: room.room_id,
+        name: room.name,
+        unread_num: room.unread_num
+      }))
+    });
+  } catch (err) {
+    const errorMsg = err.response?.data?.errors?.[0] || err.response?.data || err.message;
+    res.status(500).json({ error: errorMsg });
+  }
+});
+
 // ----------------------
 // サーバー起動
 // ----------------------
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`サーバーがポート ${PORT} で起動しました。`);
 });
