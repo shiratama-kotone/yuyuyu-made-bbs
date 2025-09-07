@@ -3,29 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>掲示板</title>
+  <title>文字列を簡単に生成！！</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://cdn.glitch.global/054c0de1-18c2-4e86-a898-38c0ca4cc12f/47c3d530-4151-4eba-8f03-a49e6e5e7d65.%E6%96%87.png?v=1747825397105">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script>
-    // Cookieチェック
-    if (!document.cookie.split("; ").find(row => row.startsWith("keijiban=true"))) {
-      window.location.href = "/what.html";
-    }
-  </script>
 </head>
 <body>
-
   <h1 class="example4">掲示板</h1>
-
   <p>
     新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものでパスワードのようなものじゃなくてパスワードです。<br>
     今の話題に勇気を出して参加してみましょう！！！<br>
     猫派だけ下ネタOKだよ<br>
-    全数字垢がほしいならパスワードを7かなんかにしとけください(<font class="example1">@7902699</font>)<br>
+    全数字垢がほしいならパスワードを7かなんかにしとけください(<span class="example1">@7902699</span>)<br>
     IDが<font color="red">赤い</font>人はゆゆゆが選んだ人(運営)です。<br>
     運営だからだと言ってなにか特別なことができるわけじゃありません。
   </p>
@@ -40,10 +32,6 @@
   <div id="clock" class="comic-relief-bold"></div>
 
   <form id="postForm">
-    <select id="boardSelect">
-      <option value="yuyuyu" selected>雑談</option>
-      <option value="muhouchitai">無法地帯</option>
-    </select><br>
     <textarea id="content" placeholder="内容" required></textarea><br>
     <input type="text" id="name" placeholder="名前" required>
     <input type="password" id="password" placeholder="パスワード" required>
@@ -69,12 +57,6 @@
   <button id="toggleBtn" class="black"></button>
   <div id="overlay"></div>
 
-  <script src="script.js"></script>
-</body>
-</html>
-
-
-  <!-- JS読み込み -->
   <script src="script.js"></script>
 </body>
 </html>
