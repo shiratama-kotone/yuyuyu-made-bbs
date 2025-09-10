@@ -23,6 +23,7 @@
     <a href="//xa.shinobi.jp/bin/gg?191984100" target="_blank"><img src="//xa.shinobi.jp/bin/ll?191984100" border="0"></a>
     <br><span style="font-size:9px"><img style="margin:0;vertical-align:text-bottom;" src="//img.shinobi.jp/tadaima/fj.gif" width="19" height="11"></span>
   </noscript>
+  
   <h1 class="example4">掲示板</h1>
   <p>新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものでパスワードのようなものじゃなくてパスワードです。<br>
   今の話題に勇気を出して参加してみましょう！！！<br>
@@ -31,23 +32,15 @@
   IDが<font color="red">赤い</font>人はゆゆゆが選んだ人(運営)です。<br>
   運営だからだと言ってなにか特別なことができるわけじゃありません。
   </p>
+  
   <a href="how.html" target="_blank">使い方</a>
   <a href="topic.html" target="_blank">トピック変更</a>
   <a href="del.html" target="_blank">投稿削除</a>
   <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
   <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
   <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
-  <div id="clock" class="comic-relief-bold"></div>
   
-  <!-- サーバー選択UI -->
-  <div id="serverSelector" style="margin: 20px 0; padding: 15px; border: 2px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-    <label for="serverSelect" style="font-weight: bold; margin-right: 10px;">掲示板を選択:</label>
-    <select id="serverSelect" style="padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;">
-      <option value="chat">雑談</option>
-      <option value="lawless">無法地帯</option>
-    </select>
-    <span style="margin-left: 15px; font-size: 14px; color: #666;">※雑談は一般的な会話、無法地帯はより自由な投稿が可能です</span>
-  </div>
+  <div id="clock" class="comic-relief-bold"></div>
   
   <form id="postForm">
     <textarea id="content" placeholder="内容" required></textarea><br>
@@ -55,6 +48,7 @@
     <input type="password" id="password" placeholder="パスワード" required>
     <button type="submit">送信</button>
   </form>
+  
   <h2>投稿</h2>
   <h3 id="currentTopic">今の話題：</h3>
   <table id="postsTable" border="1">
@@ -69,6 +63,7 @@
     </thead>
     <tbody></tbody>
   </table>
+  
   <button id="toggleBtn" class="black"></button>
   <div id="overlay"></div>
   <script src="script.js"></script>
