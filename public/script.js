@@ -1,16 +1,5 @@
 // API設定
-const SERVERS = {
-  'chat': {
-    name: '雑談',
-    url: 'https://yuyuyu-made-bbs-server.onrender.com'
-  },
-  'lawless': {
-    name: '無法地帯', 
-    url: 'https://yuyuyu-made-bbs.onrender.com'
-  }
-};
-
-let currentServer = 'chat';
+const API_BASE_URL = 'https://yuyuyu-made-bbs-server.onrender.com';
 
 // ダークモード
 const btn = document.getElementById('toggleBtn');
@@ -60,21 +49,182 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
-// 現在のサーバーURLを取得
-function getCurrentServerUrl() {
-  return SERVERS[currentServer].url;
+// 通知システム
+const NotificationManager = {
+  notifications: [],
+  container: null,
+  
+  init() {
+    // 通知コンテナを作成
+    this.container = document.createElement('div');
+    this.container.id = 'notification-container';
+    this.container.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      pointer-events: none;
+    `;
+    document.body.appendChild(this.container);
+  },
+  
+  show(text, type = 'success') {
+    const notification = this.createNotification(text, type);
+    this.notifications.push(notification);
+    this.container.appendChild(notification.element);
+    
+    // 既存の通知を上に移動
+    this.updatePositions();
+    
+    // アニメーション開始
+    requestAnimationFrame(() => {
+      notification.element.style.transform = 'translateX(0)';
+      notification.element.style.opacity = '1';
+    });
+    
+    // 10秒後に自動削除
+    notification.autoHideTimer = setTimeout(() => {
+      this.hide(notification);
+    }, 10000);
+  },
+  
+  createNotification(text, type) {
+    const element = document.createElement('div');
+    const id = Date.now() + Math.random();
+    
+    element.style.cssText = `
+      background: ${type === 'error' ? '#f44336' : '#4CAF50'};
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      position: relative;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: auto;
+      word-wrap: break-word;
+    `;
+    
+    // メッセージ部分
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = text;
+    messageSpan.style.cssText = `
+      display: block;
+      padding-right: 20px;
+    `;
+    
+    // 閉じるボタン
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '×';
+    closeButton.style.cssText = `
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    `;
+    
+    closeButton.addEventListener('mouseenter', () => {
+      closeButton.style.opacity = '1';
+    });
+    
+    closeButton.addEventListener('mouseleave', () => {
+      closeButton.style.opacity = '0.7';
+    });
+    
+    element.appendChild(messageSpan);
+    element.appendChild(closeButton);
+    
+    const notification = {
+      id,
+      element,
+      autoHideTimer: null
+    };
+    
+    closeButton.addEventListener('click', () => {
+      this.hide(notification);
+    });
+    
+    return notification;
+  },
+  
+  hide(notification) {
+    if (notification.autoHideTimer) {
+      clearTimeout(notification.autoHideTimer);
+    }
+    
+    // アニメーションで消去
+    notification.element.style.transform = 'translateX(100%)';
+    notification.element.style.opacity = '0';
+    
+    setTimeout(() => {
+      if (notification.element.parentNode) {
+        notification.element.remove();
+      }
+      
+      // 配列から削除
+      const index = this.notifications.findIndex(n => n.id === notification.id);
+      if (index !== -1) {
+        this.notifications.splice(index, 1);
+      }
+      
+      // 残りの通知の位置を更新
+      this.updatePositions();
+    }, 300);
+  },
+  
+  updatePositions() {
+    // 通知を下から上に向かって配置
+    this.notifications.forEach((notification, index) => {
+      const bottomOffset = index * 70; // 各通知の高さ + マージン
+      notification.element.style.marginBottom = `${10 + bottomOffset}px`;
+    });
+  }
+};
+
+// メッセージ表示関数（新しい通知システムを使用）
+function showMessage(text, type = 'success') {
+  if (!NotificationManager.container) {
+    NotificationManager.init();
+  }
+  NotificationManager.show(text, type);
 }
 
-// API通信関数
+// API通信関数（タイムアウト付き）
 async function apiRequest(endpoint, options = {}) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒でタイムアウト
+  
   try {
-    const response = await fetch(`${getCurrentServerUrl()}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       },
+      signal: controller.signal,
       ...options
     });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -82,21 +232,11 @@ async function apiRequest(endpoint, options = {}) {
     
     return await response.json();
   } catch (error) {
-    console.error('API request failed:', error);
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('リクエストがタイムアウトしました');
+    }
     throw error;
-  }
-}
-
-// サーバー切り替え関数
-function switchServer(serverId) {
-  if (SERVERS[serverId]) {
-    currentServer = serverId;
-    const serverSelect = document.getElementById('serverSelect');
-    serverSelect.value = serverId;
-    showMessage(`${SERVERS[serverId].name}に切り替えました`);
-    updatePostsList(); // 新しいサーバーの投稿を読み込み
-    // サーバー選択をCookieに保存
-    document.cookie = `selectedServer=${serverId}; path=/`;
   }
 }
 
@@ -172,13 +312,20 @@ function displayPost(post) {
   return tr;
 }
 
-// 投稿一覧を更新する関数
+// 投稿一覧を更新する関数（エラーハンドリング改善）
+let isUpdating = false;
 async function updatePostsList() {
+  if (isUpdating) return; // 重複実行防止
+  
   const postsTableBody = document.querySelector("#postsTable tbody");
   
   try {
-    // ローディング表示
-    postsTableBody.innerHTML = '<tr><td colspan="5">読み込み中...</td></tr>';
+    isUpdating = true;
+    
+    // 初回読み込み時のみローディング表示
+    if (postsTableBody.children.length === 0) {
+      postsTableBody.innerHTML = '<tr><td colspan="5">読み込み中...</td></tr>';
+    }
     
     const data = await loadData();
     postsTableBody.innerHTML = '';
@@ -197,46 +344,19 @@ async function updatePostsList() {
     });
       
   } catch (error) {
-    postsTableBody.innerHTML = '<tr><td colspan="5">投稿の読み込みに失敗しました</td></tr>';
-    showMessage('投稿の読み込みに失敗しました', 'error');
-  }
-}
-
-// メッセージ表示関数
-function showMessage(text, type = 'success') {
-  const message = document.createElement('div');
-  message.textContent = text;
-  message.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 15px;
-    border-radius: 5px;
-    color: white;
-    z-index: 1000;
-    font-weight: bold;
-    ${type === 'error' ? 'background: #f44336;' : 'background: #4CAF50;'}
-  `;
-  document.body.appendChild(message);
-  setTimeout(() => message.remove(), 3000);
-}
-
-// サーバー選択UIの初期化
-function initializeServerSelect() {
-  const serverSelect = document.getElementById('serverSelect');
-  if (serverSelect) {
-    // セレクトボックスのオプションを生成
-    Object.entries(SERVERS).forEach(([id, server]) => {
-      const option = document.createElement('option');
-      option.value = id;
-      option.textContent = server.name;
-      serverSelect.appendChild(option);
-    });
+    console.error('投稿取得エラー:', error);
     
-    // 変更イベントリスナーを追加
-    serverSelect.addEventListener('change', (e) => {
-      switchServer(e.target.value);
-    });
+    // 初回読み込み時のみエラー表示
+    if (postsTableBody.children.length === 0 || postsTableBody.innerHTML.includes('読み込み中')) {
+      postsTableBody.innerHTML = '<tr><td colspan="5" style="color: red;">投稿の読み込みに失敗しました</td></tr>';
+    }
+    
+    // ネットワークエラーやタイムアウトの場合のみ通知
+    if (error.message.includes('タイムアウト') || error.message.includes('Failed to fetch')) {
+      showMessage('サーバーとの接続に失敗しました', 'error');
+    }
+  } finally {
+    isUpdating = false;
   }
 }
 
@@ -244,23 +364,8 @@ function initializeServerSelect() {
 const postForm = document.getElementById('postForm');
 
 window.addEventListener('DOMContentLoaded', async () => {
-  console.log('ページ読み込み開始');
-  
   // 通知システムの初期化
   NotificationManager.init();
-  
-  // 保存されたサーバー設定を読み込み
-  const serverCookie = document.cookie.split("; ").find(row => row.startsWith("selectedServer="));
-  if (serverCookie) {
-    const savedServer = serverCookie.split("=")[1];
-    if (SERVERS[savedServer]) {
-      currentServer = savedServer;
-      console.log('保存されたサーバー設定を復元:', savedServer);
-    }
-  }
-  
-  // サーバー選択UIの初期化
-  initializeServerSelect();
   
   // ダークモード設定の読み込み
   const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
@@ -275,13 +380,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   updateClock();
   
   // 初回の投稿一覧読み込み
-  console.log('初回投稿読み込み開始');
   await updatePostsList();
   
-  // 定期的に投稿一覧を更新（5秒ごとに変更して負荷軽減）
-  setInterval(updatePostsList, 5000);
-  
-  console.log('初期化完了');
+  // 定期的に投稿一覧を更新（3秒ごと）
+  setInterval(updatePostsList, 3000);
 });
 
 btn.addEventListener('click', () => {
