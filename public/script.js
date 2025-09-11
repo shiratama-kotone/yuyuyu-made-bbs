@@ -1,6 +1,59 @@
 // API設定
 const API_BASE_URL = 'https://yuyuyu-made-bbs-server.onrender.com';
 
+// 絵文字定義
+const EMOJI_MAP = {
+  "(anger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_anger.gif", alt: "(anger)", },
+  "(beer)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_beer.gif", alt: "(beer)", },
+  "(blush)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_blush.gif", alt: "(blush)", },
+  "(bow)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_bow.gif", alt: "(bow)", },
+  "(cake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cake.gif", alt: "(cake)", },
+  "(clap)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_clap.gif", alt: "(clap)", },
+  "(coffee)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_coffee.gif", alt: "(coffee)", },
+  "(cracker)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cracker.gif", alt: "(cracker)", },
+  "(dance)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_dance.gif", alt: "(dance)", },
+  "(devil)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_devil.gif", alt: "(devil)", },
+  "(eat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_eat.gif", alt: "(eat)", },
+  "(flower)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_flower.gif", alt: "(flower)", },
+  "(gogo)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_gogo.gif", alt: "(gogo)", },
+  "(grin)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_grin.gif", alt: "(grin)", },
+  "(handshake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_handshake.gif", alt: "(handshake)", },
+  "(heart)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_heart.gif", alt: "(heart)", },
+  "(ikemen)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ikemen.gif", alt: "(ikemen)", },
+  "(kiss)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_kiss.gif", alt: "(kiss)", },
+  "(komanechi)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_komanechi.gif", alt: "(komanechi)", },
+  "(lightbulb)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lightbulb.gif", alt: "(lightbulb)", },
+  "(love)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_love.gif", alt: "(love)", },
+  "(lucky)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lucky.gif", alt: "(lucky)", },
+  "(more_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_more_smile.gif", alt: "(more_smile)", },
+  "(mumu)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_mumu.gif", alt: "(mumu)", },
+  "(muscle)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_muscle.gif", alt: "(muscle)", },
+  "(ninmari)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ninmari.gif", alt: "(ninmari)", },
+  "(nod)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_nod.gif", alt: "(nod)", },
+  "(otaku)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_otaku.gif", alt: "(otaku)", },
+  "(please)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_please.gif", alt: "(please)", },
+  "(puke)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_puke.gif", alt: "(puke)", },
+  "(quick)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_quick.gif", alt: "(quick)", },
+  "(roger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_roger.gif", alt: "(roger)", },
+  "(sad)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sad.gif", alt: "(sad)", },
+  "(shake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_shake.gif", alt: "(shake)", },
+  "(smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_smile.gif", alt: "(smile)", },
+  "(snooze)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_snooze.gif", alt: "(snooze)", },
+  "(star)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_star.gif", alt: "(star)", },
+  "(surprise)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_surprise.gif", alt: "(surprise)", },
+  "(sweat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sweat.gif", alt: "(sweat)", },
+  "(talk)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_talk.gif", alt: "(talk)", },
+  "(tears)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tears.gif", alt: "(tears)", },
+  "(think)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_think.gif", alt: "(think)", },
+  "(tongueout)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tongueout.gif", alt: "(tongueout)", },
+  "(whew)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_whew.gif", alt: "(whew)", },
+  "(wink)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wink.gif", alt: "(wink)", },
+  "(wonder)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wonder.gif", alt: "(wonder)", },
+  "(wry_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wry_smile.gif", alt: "(wry_smile)", },
+  "(yawn)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yawn.gif", alt: "(yawn)", },
+  "(yes)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yes.gif", alt: "(yes)", },
+};
+
 // ダークモード
 const btn = document.getElementById('toggleBtn');
 const overlay = document.getElementById('overlay');
@@ -39,14 +92,47 @@ function decodeHtml(encoded) {
   return textArea.value;
 }
 
-// XSS対策のためのHTMLエスケープ関数（表示用）
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+// 危険なHTMLタグをサニタイズする関数
+function sanitizeHtml(html) {
+  // 危険なタグを除外
+  const dangerousTags = ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'meta', 'link', 'style'];
+  let sanitized = html;
+  
+  dangerousTags.forEach(tag => {
+    const regex = new RegExp(`<\\/?${tag}[^>]*>`, 'gi');
+    sanitized = sanitized.replace(regex, '');
+  });
+  
+  // javascript: プロトコルを除去
+  sanitized = sanitized.replace(/javascript:/gi, '');
+  
+  // on* イベントハンドラーを除去
+  sanitized = sanitized.replace(/\son\w+\s*=\s*[^>]*/gi, '');
+  
+  return sanitized;
+}
+
+// 絵文字を画像に変換する関数
+function convertEmojis(text) {
+  let result = text;
+  
+  Object.entries(EMOJI_MAP).forEach(([emojiCode, emojiData]) => {
+    const regex = new RegExp(emojiCode.replace(/[()]/g, '\\$&'), 'g');
+    result = result.replace(regex, `<img src="${emojiData.url}" alt="${emojiData.alt}" class="emoji" style="width: 20px; height: 20px; vertical-align: middle;">`);
+  });
+  
+  return result;
+}
+
+// コンテンツを処理する関数（HTML許可 + 絵文字変換）
+function processContent(content) {
+  // まず絵文字を変換
+  let processed = convertEmojis(content);
+  
+  // HTMLはそのまま通す（サニタイズしない）
+  processed = sanitizeHtml(processed);
+  
+  return processed;
 }
 
 // 通知システム
@@ -281,7 +367,7 @@ function updateTopic(topicHtml) {
   currentTopic.innerHTML = `今の話題：${decodedTopic}`;
 }
 
-// 投稿を表示する関数
+// 投稿を表示する関数（HTML対応版）
 function displayPost(post) {
   const tr = document.createElement('tr');
   
@@ -302,14 +388,78 @@ function displayPost(post) {
   ];
   const isAdmin = ADMIN_IDS.includes(displayId) || name.includes('class="summit"');
   
+  // コンテンツを処理（絵文字変換 + HTMLサニタイズ）
+  const processedContent = processContent(content);
+  
   tr.innerHTML = `
     <td>${postNumber}</td>
     <td>${name}</td>
     <td style="color: ${isAdmin ? 'red' : 'black'}">${displayId}</td>
-    <td>${escapeHtml(content)}</td>
+    <td>${processedContent}</td>
     <td>${timestamp}</td>
   `;
   return tr;
+}
+
+// 絵文字入力パネルの作成
+function createEmojiPanel() {
+  const panel = document.createElement('div');
+  panel.id = 'emoji-panel';
+  panel.style.cssText = `
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    max-width: 400px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    gap: 5px;
+  `;
+  
+  // 絵文字ボタンを作成
+  Object.entries(EMOJI_MAP).forEach(([emojiCode, emojiData]) => {
+    const emojiBtn = document.createElement('button');
+    emojiBtn.innerHTML = `<img src="${emojiData.url}" alt="${emojiData.alt}" style="width: 20px; height: 20px;">`;
+    emojiBtn.title = emojiCode;
+    emojiBtn.style.cssText = `
+      border: none;
+      background: none;
+      padding: 5px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    `;
+    
+    emojiBtn.addEventListener('mouseenter', () => {
+      emojiBtn.style.backgroundColor = '#f0f0f0';
+    });
+    
+    emojiBtn.addEventListener('mouseleave', () => {
+      emojiBtn.style.backgroundColor = 'transparent';
+    });
+    
+    emojiBtn.addEventListener('click', () => {
+      const contentInput = document.getElementById('content');
+      const cursorPos = contentInput.selectionStart;
+      const textBefore = contentInput.value.substring(0, cursorPos);
+      const textAfter = contentInput.value.substring(contentInput.selectionEnd);
+      
+      contentInput.value = textBefore + emojiCode + textAfter;
+      contentInput.focus();
+      contentInput.setSelectionRange(cursorPos + emojiCode.length, cursorPos + emojiCode.length);
+      
+      panel.style.display = 'none';
+    });
+    
+    panel.appendChild(emojiBtn);
+  });
+  
+  return panel;
 }
 
 // 投稿一覧を更新する関数（エラーハンドリング改善）
@@ -366,6 +516,44 @@ const postForm = document.getElementById('postForm');
 window.addEventListener('DOMContentLoaded', async () => {
   // 通知システムの初期化
   NotificationManager.init();
+  
+  // 絵文字パネルの追加
+  const emojiPanel = createEmojiPanel();
+  document.body.appendChild(emojiPanel);
+  
+  // 絵文字ボタンの追加
+  const emojiButton = document.createElement('button');
+  emojiButton.type = 'button';
+  emojiButton.innerHTML = '😊';
+  emojiButton.style.cssText = `
+    margin-left: 10px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    cursor: pointer;
+    font-size: 16px;
+  `;
+  emojiButton.title = '絵文字を選択';
+  
+  // フォームの内容入力欄の後に絵文字ボタンを追加
+  const contentInput = document.getElementById('content');
+  contentInput.parentNode.insertBefore(emojiButton, contentInput.nextSibling);
+  
+  emojiButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const rect = emojiButton.getBoundingClientRect();
+    emojiPanel.style.display = emojiPanel.style.display === 'grid' ? 'none' : 'grid';
+    emojiPanel.style.left = rect.left + 'px';
+    emojiPanel.style.top = (rect.bottom + 5) + 'px';
+  });
+  
+  // パネル外クリックで閉じる
+  document.addEventListener('click', (e) => {
+    if (!emojiPanel.contains(e.target) && e.target !== emojiButton) {
+      emojiPanel.style.display = 'none';
+    }
+  });
   
   // ダークモード設定の読み込み
   const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
@@ -461,6 +649,14 @@ postForm.addEventListener('submit', async (e) => {
     submitBtn.textContent = '送信';
   }
 });
+
+// 絵文字一覧を表示する関数（デバッグ用）
+function showAvailableEmojis() {
+  console.log('利用可能な絵文字:');
+  Object.keys(EMOJI_MAP).forEach(emoji => {
+    console.log(emoji);
+  });
+}
 
 // ページの可視性が変わった時に更新（タブがアクティブになった時など）
 document.addEventListener('visibilitychange', () => {
