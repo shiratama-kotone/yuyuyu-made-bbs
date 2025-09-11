@@ -124,10 +124,27 @@ function convertEmojis(text) {
   return result;
 }
 
-// コンテンツを処理する関数（HTML許可 + 絵文字変換）
+// URLを自動的にリンク化する関数
+function autoLinkUrls(text) {
+  // URL正規表現（http/https対応）
+  const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+  
+  return text.replace(urlRegex, (url) => {
+    // URLの末尾の句読点を除外
+    const cleanUrl = url.replace(/[.,;!?]+$/, '');
+    const punctuation = url.slice(cleanUrl.length);
+    
+    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${cleanUrl}</a>${punctuation}`;
+  });
+}
+
+// コンテンツを処理する関数（HTML許可 + 絵文字変換 + URL自動リンク化）
 function processContent(content) {
-  // まず絵文字を変換
-  let processed = convertEmojis(content);
+  // まずURLを自動リンク化
+  let processed = autoLinkUrls(content);
+  
+  // 次に絵文字を変換
+  processed = convertEmojis(processed);
   
   // HTMLはそのまま通す（サニタイズしない）
   processed = sanitizeHtml(processed);
