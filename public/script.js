@@ -92,24 +92,9 @@ function decodeHtml(encoded) {
   return textArea.value;
 }
 
-// 危険なHTMLタグをサニタイズする関数
+// HTMLをそのまま通す関数（サニタイズなし）
 function sanitizeHtml(html) {
-  // 危険なタグを除外
-  const dangerousTags = ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'meta', 'link', 'style'];
-  let sanitized = html;
-  
-  dangerousTags.forEach(tag => {
-    const regex = new RegExp(`<\\/?${tag}[^>]*>`, 'gi');
-    sanitized = sanitized.replace(regex, '');
-  });
-  
-  // javascript: プロトコルを除去
-  sanitized = sanitized.replace(/javascript:/gi, '');
-  
-  // on* イベントハンドラーを除去
-  sanitized = sanitized.replace(/\son\w+\s*=\s*[^>]*/gi, '');
-  
-  return sanitized;
+  return html; // 何もしない、そのまま返す
 }
 
 // 絵文字を画像に変換する関数
