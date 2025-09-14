@@ -85,6 +85,22 @@ function updateClock() {
   clock.textContent = `${h}:${m}:${s}`;
 }
 
+// Cookie保存関数
+function setCookie(name, value, days = 30) {
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
+// Cookie取得関数
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return decodeURIComponent(parts.pop().split(';').shift());
+  }
+  return '';
+}
+
 // HTMLデコード関数
 function decodeHtml(encoded) {
   const textArea = document.createElement('textarea');
@@ -92,9 +108,31 @@ function decodeHtml(encoded) {
   return textArea.value;
 }
 
-// HTMLをそのまま通す関数（サニタイズなし）
-function sanitizeHtml(html) {
-  return html; // 何もしない、そのまま返す
+// URLを自動的にリンク化する関数（プロトコルなしも対応）
+function autoLinkUrls(text) {
+  // URL正規表現（http/https対応 + プロトコルなしも対応）
+  const urlRegex = /(https?:\/\/[^\s<>"']+|(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?)/gi;
+  
+  return text.replace(urlRegex, (match) => {
+    // マッチした文字列の末尾の句読点を除外
+    const cleanMatch = match.replace(/[.,;!?]+$/, '');
+    const punctuation = match.slice(cleanMatch.length);
+    
+    // プロトコルがない場合は https:// を追加
+    const url = cleanMatch.startsWith('http') ? cleanMatch : `https://${cleanMatch}`;
+    
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${cleanMatch}</a>${punctuation}`;
+  });
+}
+
+// >>番号 を自動的にアンカーリンクにする関数
+function autoLinkAnchors(text) {
+  // >>数字 の形式を検出してリンク化
+  const anchorRegex = />>(\d+)/g;
+  
+  return text.replace(anchorRegex, (match, postNumber) => {
+    return `<a href="#${postNumber}" style="color: #789922; text-decoration: none; font-weight: bold;">${match}</a>`;
+  });
 }
 
 // 絵文字を画像に変換する関数
@@ -109,31 +147,18 @@ function convertEmojis(text) {
   return result;
 }
 
-// URLを自動的にリンク化する関数
-function autoLinkUrls(text) {
-  // URL正規表現（http/https対応）
-  const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
-  
-  return text.replace(urlRegex, (url) => {
-    // URLの末尾の句読点を除外
-    const cleanUrl = url.replace(/[.,;!?]+$/, '');
-    const punctuation = url.slice(cleanUrl.length);
-    
-    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${cleanUrl}</a>${punctuation}`;
-  });
-}
-
-// コンテンツを処理する関数（HTML許可 + 絵文字変換 + URL自動リンク化）
+// コンテンツを処理する関数（HTML許可 + URL自動リンク化 + アンカーリンク + 絵文字変換）
 function processContent(content) {
   // まずURLを自動リンク化
   let processed = autoLinkUrls(content);
+  
+  // >>番号 をアンカーリンクに変換
+  processed = autoLinkAnchors(processed);
   
   // 次に絵文字を変換
   processed = convertEmojis(processed);
   
   // HTMLはそのまま通す（サニタイズしない）
-  processed = sanitizeHtml(processed);
-  
   return processed;
 }
 
@@ -369,16 +394,19 @@ function updateTopic(topicHtml) {
   currentTopic.innerHTML = `今の話題：${decodedTopic}`;
 }
 
-// 投稿を表示する関数（HTML対応版）
+// 投稿を表示する関数（HTML対応版 + アンカーID付き）
 function displayPost(post) {
   const tr = document.createElement('tr');
   
   // サーバーのデータ構造に対応
   const postNumber = post.no;
-  const name = post.name; // 既にHTMLエスケープ済みの場合はそのまま使用
+  const name = post.name;
   const displayId = post.id;
   const content = post.content;
   const timestamp = post.time;
+  
+  // 投稿番号にアンカーIDを設定
+  tr.id = postNumber;
   
   // 管理者IDリストに基づく判定
   const ADMIN_IDS = [
@@ -390,11 +418,11 @@ function displayPost(post) {
   ];
   const isAdmin = ADMIN_IDS.includes(displayId) || name.includes('class="summit"');
   
-  // コンテンツを処理（絵文字変換 + HTMLサニタイズ）
+  // コンテンツを処理（URL自動リンク + アンカーリンク + 絵文字変換）
   const processedContent = processContent(content);
   
   tr.innerHTML = `
-    <td>${postNumber}</td>
+    <td><a href="#${postNumber}" style="color: #666; text-decoration: none;">${postNumber}</a></td>
     <td>${name}</td>
     <td style="color: ${isAdmin ? 'red' : 'black'}">${displayId}</td>
     <td>${processedContent}</td>
@@ -519,6 +547,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   // 通知システムの初期化
   NotificationManager.init();
   
+  // 保存された名前とパスワードを復元
+  const savedName = getCookie('bbsUserName');
+  const savedPassword = getCookie('bbsUserPassword');
+  
+  if (savedName) {
+    document.getElementById('name').value = savedName;
+  }
+  if (savedPassword) {
+    document.getElementById('password').value = savedPassword;
+  }
+  
   // 絵文字パネルの追加
   const emojiPanel = createEmojiPanel();
   document.body.appendChild(emojiPanel);
@@ -621,14 +660,165 @@ postForm.addEventListener('submit', async (e) => {
     
     // レスポンスに応じて処理
     if (response.message) {
-      postForm.reset();
+      // 名前とパスワードをCookieに保存（内容欄のみリセット）
+      setCookie('bbsUserName', name);
+      setCookie('bbsUserPassword', password);
+      
+      // 内容欄のみクリア
+      document.getElementById('content').value = '';
+      
       showMessage(response.message);
       
       // 少し待ってから投稿一覧を更新（サーバー処理時間を考慮）
       setTimeout(updatePostsList, 500);
     } else {
+      // 名前とパスワードをCookieに保存（内容欄のみリセット）
+      setCookie('bbsUserName', name);
+      setCookie('bbsUserPassword', password);
+      
+      // 内容欄のみクリア
+      document.getElementById('content').value = '';
+      
       showMessage('投稿が完了しました');
-      postForm.reset();
+      setTimeout(updatePostsList, 500);
+    }
+    
+  } catch (error) {
+    // エラーメッセージの詳細表示
+    let errorMsg = '投稿の送信に失敗しました';
+    
+    if (error.message.includes('429')) {
+      errorMsg = '投稿間隔が短すぎます。少し待ってから再度お試しください';
+    } else if (error.message.includes('400')) {
+      errorMsg = '入力内容に問題があります';
+    }
+    
+    showMessage(errorMsg, 'error');
+    console.error('投稿エラー:', error);
+  } finally {
+    // 送信ボタンを復元
+    const submitBtn = postForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = false;
+    submitBtn.textContent = '送信';
+  }
+});
+
+// 絵文字一覧を表示する関数（デバッグ用）
+function showAvailableEmojis() {
+  console.log('利用可能な絵文字:');
+  Object.keys(EMOJI_MAP).forEach(emoji => {
+    console.log(emoji);
+  });
+}
+
+// ページの可視性が変わった時に更新（タブがアクティブになった時など）
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    updatePostsList();
+  }
+});
+
+// エラーハンドリング
+window.addEventListener('error', (e) => {
+  console.error('JavaScript Error:', e.error);
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('Unhandled Promise Rejection:', e.reason);
+}); 5) + 'px';
+  });
+  
+  // パネル外クリックで閉じる
+  document.addEventListener('click', (e) => {
+    if (!emojiPanel.contains(e.target) && e.target !== emojiButton) {
+      emojiPanel.style.display = 'none';
+    }
+  });
+  
+  // ダークモード設定の読み込み
+  const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
+  if (darkModeCookie) {
+    const darkModeValue = darkModeCookie.split("=")[1];
+    if (darkModeValue === "true") enableDarkMode();
+    else disableDarkMode();
+  }
+  
+  // 時計の開始
+  setInterval(updateClock, 1000);
+  updateClock();
+  
+  // 初回の投稿一覧読み込み
+  await updatePostsList();
+  
+  // 定期的に投稿一覧を更新（3秒ごと）
+  setInterval(updatePostsList, 3000);
+});
+
+btn.addEventListener('click', () => {
+  if (!inverted) enableDarkMode();
+  else disableDarkMode();
+});
+
+postForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const content = document.getElementById('content').value.trim();
+  const name = document.getElementById('name').value.trim();
+  const password = document.getElementById('password').value;
+  
+  // 入力値検証
+  if (!content || !name || !password) {
+    showMessage('全ての項目を入力してください', 'error');
+    return;
+  }
+  
+  if (content.length > 1000) {
+    showMessage('内容は1000文字以内で入力してください', 'error');
+    return;
+  }
+  
+  if (name.length > 50) {
+    showMessage('名前は50文字以内で入力してください', 'error');
+    return;
+  }
+  
+  try {
+    // 送信ボタンを無効化
+    const submitBtn = postForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '送信中...';
+    
+    // 既存サーバーのAPI形式に合わせて投稿データを作成
+    const postData = {
+      name: name,
+      content: content,
+      password: password
+    };
+    
+    const response = await createPost(postData);
+    
+    // レスポンスに応じて処理
+    if (response.message) {
+      // 名前とパスワードをCookieに保存（内容欄のみリセット）
+      setCookie('bbsUserName', name);
+      setCookie('bbsUserPassword', password);
+      
+      // 内容欄のみクリア
+      document.getElementById('content').value = '';
+      
+      showMessage(response.message);
+      
+      // 少し待ってから投稿一覧を更新（サーバー処理時間を考慮）
+      setTimeout(updatePostsList, 500);
+    } else {
+      // 名前とパスワードをCookieに保存（内容欄のみリセット）
+      setCookie('bbsUserName', name);
+      setCookie('bbsUserPassword', password);
+      
+      // 内容欄のみクリア
+      document.getElementById('content').value = '';
+      
+      showMessage('投稿が完了しました');
       setTimeout(updatePostsList, 500);
     }
     
