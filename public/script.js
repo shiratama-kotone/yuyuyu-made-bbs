@@ -1,538 +1,366 @@
 // API設定
-const API_BASE_URL = 'https://yuyuyu-made-bbs-server.onrender.com';
+var API_BASE_URL = 'https://yuyuyu-made-bbs-server.onrender.com';
 
 // 絵文字定義
-const EMOJI_MAP = {
-  "(anger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_anger.gif", alt: "(anger)", },
-  "(beer)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_beer.gif", alt: "(beer)", },
-  "(blush)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_blush.gif", alt: "(blush)", },
-  "(bow)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_bow.gif", alt: "(bow)", },
-  "(cake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cake.gif", alt: "(cake)", },
-  "(clap)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_clap.gif", alt: "(clap)", },
-  "(coffee)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_coffee.gif", alt: "(coffee)", },
-  "(cracker)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cracker.gif", alt: "(cracker)", },
-  "(dance)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_dance.gif", alt: "(dance)", },
-  "(devil)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_devil.gif", alt: "(devil)", },
-  "(eat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_eat.gif", alt: "(eat)", },
-  "(flower)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_flower.gif", alt: "(flower)", },
-  "(gogo)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_gogo.gif", alt: "(gogo)", },
-  "(grin)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_grin.gif", alt: "(grin)", },
-  "(handshake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_handshake.gif", alt: "(handshake)", },
-  "(heart)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_heart.gif", alt: "(heart)", },
-  "(ikemen)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ikemen.gif", alt: "(ikemen)", },
-  "(kiss)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_kiss.gif", alt: "(kiss)", },
-  "(komanechi)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_komanechi.gif", alt: "(komanechi)", },
-  "(lightbulb)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lightbulb.gif", alt: "(lightbulb)", },
-  "(love)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_love.gif", alt: "(love)", },
-  "(lucky)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lucky.gif", alt: "(lucky)", },
-  "(more_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_more_smile.gif", alt: "(more_smile)", },
-  "(mumu)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_mumu.gif", alt: "(mumu)", },
-  "(muscle)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_muscle.gif", alt: "(muscle)", },
-  "(ninmari)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ninmari.gif", alt: "(ninmari)", },
-  "(nod)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_nod.gif", alt: "(nod)", },
-  "(otaku)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_otaku.gif", alt: "(otaku)", },
-  "(please)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_please.gif", alt: "(please)", },
-  "(puke)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_puke.gif", alt: "(puke)", },
-  "(quick)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_quick.gif", alt: "(quick)", },
-  "(roger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_roger.gif", alt: "(roger)", },
-  "(sad)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sad.gif", alt: "(sad)", },
-  "(shake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_shake.gif", alt: "(shake)", },
-  "(smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_smile.gif", alt: "(smile)", },
-  "(snooze)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_snooze.gif", alt: "(snooze)", },
-  "(star)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_star.gif", alt: "(star)", },
-  "(surprise)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_surprise.gif", alt: "(surprise)", },
-  "(sweat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sweat.gif", alt: "(sweat)", },
-  "(talk)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_talk.gif", alt: "(talk)", },
-  "(tears)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tears.gif", alt: "(tears)", },
-  "(think)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_think.gif", alt: "(think)", },
-  "(tongueout)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tongueout.gif", alt: "(tongueout)", },
-  "(whew)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_whew.gif", alt: "(whew)", },
-  "(wink)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wink.gif", alt: "(wink)", },
-  "(wonder)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wonder.gif", alt: "(wonder)", },
-  "(wry_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wry_smile.gif", alt: "(wry_smile)", },
-  "(yawn)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yawn.gif", alt: "(yawn)", },
-  "(yes)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yes.gif", alt: "(yes)", },
+var EMOJI_MAP = {
+  "(anger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_anger.gif", alt: "(anger)" },
+  "(beer)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_beer.gif", alt: "(beer)" },
+  "(blush)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_blush.gif", alt: "(blush)" },
+  "(bow)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_bow.gif", alt: "(bow)" },
+  "(cake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cake.gif", alt: "(cake)" },
+  "(clap)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_clap.gif", alt: "(clap)" },
+  "(coffee)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_coffee.gif", alt: "(coffee)" },
+  "(cracker)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cracker.gif", alt: "(cracker)" },
+  "(dance)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_dance.gif", alt: "(dance)" },
+  "(devil)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_devil.gif", alt: "(devil)" },
+  "(eat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_eat.gif", alt: "(eat)" },
+  "(flower)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_flower.gif", alt: "(flower)" },
+  "(gogo)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_gogo.gif", alt: "(gogo)" },
+  "(grin)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_grin.gif", alt: "(grin)" },
+  "(handshake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_handshake.gif", alt: "(handshake)" },
+  "(heart)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_heart.gif", alt: "(heart)" },
+  "(ikemen)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ikemen.gif", alt: "(ikemen)" },
+  "(kiss)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_kiss.gif", alt: "(kiss)" },
+  "(komanechi)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_komanechi.gif", alt: "(komanechi)" },
+  "(lightbulb)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lightbulb.gif", alt: "(lightbulb)" },
+  "(love)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_love.gif", alt: "(love)" },
+  "(lucky)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lucky.gif", alt: "(lucky)" },
+  "(more_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_more_smile.gif", alt: "(more_smile)" },
+  "(mumu)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_mumu.gif", alt: "(mumu)" },
+  "(muscle)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_muscle.gif", alt: "(muscle)" },
+  "(ninmari)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ninmari.gif", alt: "(ninmari)" },
+  "(nod)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_nod.gif", alt: "(nod)" },
+  "(otaku)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_otaku.gif", alt: "(otaku)" },
+  "(please)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_please.gif", alt: "(please)" },
+  "(puke)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_puke.gif", alt: "(puke)" },
+  "(quick)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_quick.gif", alt: "(quick)" },
+  "(roger)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_roger.gif", alt: "(roger)" },
+  "(sad)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sad.gif", alt: "(sad)" },
+  "(shake)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_shake.gif", alt: "(shake)" },
+  "(smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_smile.gif", alt: "(smile)" },
+  "(snooze)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_snooze.gif", alt: "(snooze)" },
+  "(star)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_star.gif", alt: "(star)" },
+  "(surprise)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_surprise.gif", alt: "(surprise)" },
+  "(sweat)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sweat.gif", alt: "(sweat)" },
+  "(talk)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_talk.gif", alt: "(talk)" },
+  "(tears)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tears.gif", alt: "(tears)" },
+  "(think)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_think.gif", alt: "(think)" },
+  "(tongueout)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tongueout.gif", alt: "(tongueout)" },
+  "(whew)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_whew.gif", alt: "(whew)" },
+  "(wink)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wink.gif", alt: "(wink)" },
+  "(wonder)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wonder.gif", alt: "(wonder)" },
+  "(wry_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wry_smile.gif", alt: "(wry_smile)" },
+  "(yawn)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yawn.gif", alt: "(yawn)" },
+  "(yes)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yes.gif", alt: "(yes)" }
 };
 
-// ダークモード
-const btn = document.getElementById('toggleBtn');
-const overlay = document.getElementById('overlay');
-let inverted = false;
+// ダークモード管理（状態は cookie で保持）
+var inverted = false;
 
-const enableDarkMode = () => {
-  overlay.style.clipPath = 'circle(150% at 100% 100%)';
-  btn.classList.add('white');
-  btn.classList.remove('black');
-  inverted = true;
-  document.cookie = "darkmode=true; path=/";
-};
-
-const disableDarkMode = () => {
-  overlay.style.clipPath = 'circle(0 at 100% 100%)';
-  btn.classList.add('black');
-  btn.classList.remove('white');
-  inverted = false;
-  document.cookie = "darkmode=false; path=/";
-};
-
-// 時計
-const clock = document.getElementById('clock');
-function updateClock() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  const s = String(now.getSeconds()).padStart(2,'0');
-  clock.textContent = `${h}:${m}:${s}`;
+// 時計アップデート関数
+function updateClock(clockEl) {
+  var now = new Date();
+  var h = String(now.getHours()).padStart(2, '0');
+  var m = String(now.getMinutes()).padStart(2, '0');
+  var s = String(now.getSeconds()).padStart(2, '0');
+  if (clockEl) clockEl.textContent = h + ':' + m + ':' + s;
 }
 
-// Cookie保存関数
-function setCookie(name, value, days = 30) {
-  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+// Cookieヘルパー
+function setCookie(name, value, days) {
+  days = typeof days === 'number' ? days : 30;
+  var expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
 }
-
-// Cookie取得関数
 function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return decodeURIComponent(parts.pop().split(';').shift());
-  }
+  var value = '; ' + document.cookie;
+  var parts = value.split('; ' + name + '=');
+  if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
   return '';
 }
 
-// HTMLデコード関数
+// HTMLデコード
 function decodeHtml(encoded) {
-  const textArea = document.createElement('textarea');
-  textArea.innerHTML = encoded;
-  return textArea.value;
+  var ta = document.createElement('textarea');
+  ta.innerHTML = encoded;
+  return ta.value;
 }
 
-// URLを自動的にリンク化する関数（プロトコルなしも対応）
+// URL自動リンク化（末尾の句読点除く）
 function autoLinkUrls(text) {
-  // URL正規表現（http/https対応 + プロトコルなしも対応）
-  const urlRegex = /(https?:\/\/[^\s<>"']+|(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}(?:\/[^\s<>"']*)?)/gi;
-  
-  return text.replace(urlRegex, (match) => {
-    // マッチした文字列の末尾の句読点を除外
-    const cleanMatch = match.replace(/[.,;!?]+$/, '');
-    const punctuation = match.slice(cleanMatch.length);
-    
-    // プロトコルがない場合は https:// を追加
-    const url = cleanMatch.startsWith('http') ? cleanMatch : `https://${cleanMatch}`;
-    
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${cleanMatch}</a>${punctuation}`;
+  if (!text) return '';
+  // match url-like strings including protocol-less ones
+  return text.replace(/(https?:\/\/[^\s<>"'））]+|(?:www\.)?[A-Za-z0-9][A-Za-z0-9-]*(?:\.[A-Za-z]{2,})(?:\/[^\s<>"']*)?)([.,;!?））]*)/gi, function(full, urlPart, trailing) {
+    var clean = urlPart.replace(/[.,;!?]+$/, '');
+    var punct = trailing || '';
+    var href = clean.match(/^https?:\/\//i) ? clean : 'https://' + clean;
+    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">' + clean + '</a>' + punct;
   });
 }
 
-// >>番号 を自動的にアンカーリンクにする関数
+// >>番号をアンカー化
 function autoLinkAnchors(text) {
-  // >>数字 の形式を検出してリンク化
-  const anchorRegex = />>(\d+)/g;
-  
-  return text.replace(anchorRegex, (match, postNumber) => {
-    return `<a href="#${postNumber}" style="color: #789922; text-decoration: none; font-weight: bold;">${match}</a>`;
+  if (!text) return '';
+  return text.replace(/>>(\d+)/g, function(_, num) {
+    return '<a href="#' + num + '" style="color: #789922; text-decoration: none; font-weight: bold;">>>' + num + '</a>';
   });
 }
 
-// 絵文字を画像に変換する関数
+// 絵文字変換（正規表現エスケープ済み）
+function escapeForRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 function convertEmojis(text) {
-  let result = text;
-  
-  Object.entries(EMOJI_MAP).forEach(([emojiCode, emojiData]) => {
-    const regex = new RegExp(emojiCode.replace(/[()]/g, '\\$&'), 'g');
-    result = result.replace(regex, `<img src="${emojiData.url}" alt="${emojiData.alt}" class="emoji" style="width: 20px; height: 20px; vertical-align: middle;">`);
+  if (!text) return '';
+  var result = text;
+  Object.keys(EMOJI_MAP).forEach(function(code) {
+    var emojiData = EMOJI_MAP[code];
+    var regex = new RegExp(escapeForRegex(code), 'g');
+    result = result.replace(regex, '<img src="' + emojiData.url + '" alt="' + emojiData.alt + '" class="emoji" style="width: 20px; height: 20px; vertical-align: middle;">');
   });
-  
   return result;
 }
 
-// コンテンツを処理する関数（HTML許可 + URL自動リンク化 + アンカーリンク + 絵文字変換）
+// コンテンツ処理（URL→リンク、>>アンカー、絵文字変換）
+// 注：HTMLはそのまま通す（既存の仕様に合わせる）
 function processContent(content) {
-  // まずURLを自動リンク化
-  let processed = autoLinkUrls(content);
-  
-  // >>番号 をアンカーリンクに変換
+  var processed = content || '';
+  processed = autoLinkUrls(processed);
   processed = autoLinkAnchors(processed);
-  
-  // 次に絵文字を変換
   processed = convertEmojis(processed);
-  
-  // HTMLはそのまま通す（サニタイズしない）
   return processed;
 }
 
-// 通知システム
-const NotificationManager = {
+// 通知マネージャー
+var NotificationManager = {
   notifications: [],
   container: null,
-  
-  init() {
-    // 通知コンテナを作成
+  init: function() {
+    if (this.container) return;
     this.container = document.createElement('div');
     this.container.id = 'notification-container';
-    this.container.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 10000;
-      pointer-events: none;
-    `;
+    this.container.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 10000; pointer-events: none;';
     document.body.appendChild(this.container);
   },
-  
-  show(text, type = 'success') {
-    const notification = this.createNotification(text, type);
-    this.notifications.push(notification);
-    this.container.appendChild(notification.element);
-    
-    // 既存の通知を上に移動
-    this.updatePositions();
-    
-    // アニメーション開始
-    requestAnimationFrame(() => {
-      notification.element.style.transform = 'translateX(0)';
-      notification.element.style.opacity = '1';
-    });
-    
-    // 10秒後に自動削除
-    notification.autoHideTimer = setTimeout(() => {
-      this.hide(notification);
-    }, 10000);
-  },
-  
-  createNotification(text, type) {
-    const element = document.createElement('div');
-    const id = Date.now() + Math.random();
-    
-    element.style.cssText = `
-      background: ${type === 'error' ? '#f44336' : '#4CAF50'};
-      color: white;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      min-width: 300px;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      line-height: 1.4;
-      position: relative;
-      transform: translateX(100%);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: auto;
-      word-wrap: break-word;
-    `;
-    
-    // メッセージ部分
-    const messageSpan = document.createElement('span');
+  createNotificationElement: function(text, type) {
+    var element = document.createElement('div');
+    element.style.cssText = [
+      'background:' + (type === 'error' ? '#f44336' : '#4CAF50'),
+      'color: white',
+      'padding: 12px 16px',
+      'border-radius: 8px',
+      'margin-bottom: 10px',
+      'min-width: 300px',
+      'max-width: 400px',
+      'box-shadow: 0 4px 12px rgba(0,0,0,0.3)',
+      "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      'font-size: 14px',
+      'line-height: 1.4',
+      'position: relative',
+      'transform: translateX(100%)',
+      'opacity: 0',
+      'transition: all 0.3s cubic-bezier(0.4,0,0.2,1)',
+      'pointer-events: auto',
+      'word-wrap: break-word'
+    ].join('; ');
+    var messageSpan = document.createElement('span');
     messageSpan.textContent = text;
-    messageSpan.style.cssText = `
-      display: block;
-      padding-right: 20px;
-    `;
-    
-    // 閉じるボタン
-    const closeButton = document.createElement('button');
+    messageSpan.style.cssText = 'display:block; padding-right:20px;';
+    var closeButton = document.createElement('button');
     closeButton.innerHTML = '×';
-    closeButton.style.cssText = `
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      padding: 0;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    `;
-    
-    closeButton.addEventListener('mouseenter', () => {
-      closeButton.style.opacity = '1';
-    });
-    
-    closeButton.addEventListener('mouseleave', () => {
-      closeButton.style.opacity = '0.7';
-    });
-    
+    closeButton.style.cssText = 'position:absolute; top:8px; right:8px; background:none; border:none; color:white; font-size:18px; font-weight:bold; cursor:pointer; padding:0; width:20px; height:20px; display:flex; align-items:center; justify-content:center; opacity:0.7; transition:opacity 0.2s;';
+    closeButton.addEventListener('mouseenter', function(){ closeButton.style.opacity = '1'; });
+    closeButton.addEventListener('mouseleave', function(){ closeButton.style.opacity = '0.7'; });
     element.appendChild(messageSpan);
     element.appendChild(closeButton);
-    
-    const notification = {
-      id,
-      element,
-      autoHideTimer: null
-    };
-    
-    closeButton.addEventListener('click', () => {
-      this.hide(notification);
-    });
-    
-    return notification;
+    return { element: element, closeButton: closeButton };
   },
-  
-  hide(notification) {
-    if (notification.autoHideTimer) {
-      clearTimeout(notification.autoHideTimer);
+  show: function(text, type) {
+    this.init();
+    var obj = this.createNotificationElement(text, type);
+    var id = Date.now() + Math.random();
+    var item = { id: id, element: obj.element, autoHideTimer: null };
+    this.notifications.push(item);
+    this.container.appendChild(item.element);
+    this.updatePositions();
+    // アニメーションオン
+    requestAnimationFrame(function() {
+      item.element.style.transform = 'translateX(0)';
+      item.element.style.opacity = '1';
+    });
+    // 自動削除
+    item.autoHideTimer = setTimeout(function() { NotificationManager.hideById(id); }, 10000);
+    // 閉じるボタン
+    obj.closeButton.addEventListener('click', function() { NotificationManager.hideById(id); });
+  },
+  hideById: function(id) {
+    var idx = -1;
+    for (var i = 0; i < this.notifications.length; i++) {
+      if (this.notifications[i].id === id) { idx = i; break; }
     }
-    
-    // アニメーションで消去
+    if (idx === -1) return;
+    var notification = this.notifications[idx];
+    if (notification.autoHideTimer) clearTimeout(notification.autoHideTimer);
     notification.element.style.transform = 'translateX(100%)';
     notification.element.style.opacity = '0';
-    
-    setTimeout(() => {
-      if (notification.element.parentNode) {
-        notification.element.remove();
-      }
-      
-      // 配列から削除
-      const index = this.notifications.findIndex(n => n.id === notification.id);
-      if (index !== -1) {
-        this.notifications.splice(index, 1);
-      }
-      
-      // 残りの通知の位置を更新
-      this.updatePositions();
+    setTimeout(function() {
+      if (notification.element.parentNode) notification.element.remove();
+      NotificationManager.notifications.splice(idx, 1);
+      NotificationManager.updatePositions();
     }, 300);
   },
-  
-  updatePositions() {
-    // 通知を下から上に向かって配置
-    this.notifications.forEach((notification, index) => {
-      const bottomOffset = index * 70; // 各通知の高さ + マージン
-      notification.element.style.marginBottom = `${10 + bottomOffset}px`;
-    });
+  updatePositions: function() {
+    for (var i = 0; i < this.notifications.length; i++) {
+      var bottomOffset = i * 70;
+      this.notifications[i].element.style.marginBottom = (10 + bottomOffset) + 'px';
+    }
   }
 };
 
-// メッセージ表示関数（新しい通知システムを使用）
-function showMessage(text, type = 'success') {
-  if (!NotificationManager.container) {
-    NotificationManager.init();
-  }
-  NotificationManager.show(text, type);
+// showMessage 簡易ラッパー
+function showMessage(text, type) {
+  NotificationManager.show(text || '', type || 'success');
 }
 
-// API通信関数（タイムアウト付き）
-async function apiRequest(endpoint, options = {}) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒でタイムアウト
-  
+// API 通信（タイムアウト付き）
+async function apiRequest(endpoint, options) {
+  var controller = new AbortController();
+  var timeoutId = setTimeout(function() { controller.abort(); }, 5000);
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      },
-      signal: controller.signal,
-      ...options
-    });
-    
+    var resp = await fetch(API_BASE_URL + endpoint, Object.assign({
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal
+    }, options || {}));
     clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
+    if (!resp.ok) throw new Error('HTTP error! status: ' + resp.status);
+    return await resp.json();
+  } catch (err) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error('リクエストがタイムアウトしました');
-    }
-    throw error;
+    if (err.name === 'AbortError') throw new Error('リクエストがタイムアウトしました');
+    throw err;
   }
 }
 
-// 投稿データとトピックを取得
+// サーバーからデータ取得
 async function loadData() {
-  try {
-    const data = await apiRequest('/api');
-    return {
-      posts: data.posts || [],
-      topic: data.topic || 'フリートーク',
-      nextPostNumber: data.nextPostNumber || 1
-    };
-  } catch (error) {
-    console.error('データの読み込みに失敗しました:', error);
-    throw error;
-  }
+  var data = await apiRequest('/api');
+  return { posts: data.posts || [], topic: data.topic || 'フリートーク', nextPostNumber: data.nextPostNumber || 1 };
 }
 
-// 新規投稿を送信（既存サーバーAPI対応）
+// 投稿作成
 async function createPost(postData) {
-  try {
-    const response = await apiRequest('/api', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: postData.name,
-        pass: postData.password,  // サーバーは'pass'を期待
-        content: postData.content
-      })
-    });
-    return response;
-  } catch (error) {
-    console.error('投稿の送信に失敗しました:', error);
-    throw error;
-  }
+  return await apiRequest('/api', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: postData.name,
+      pass: postData.password,
+      content: postData.content
+    })
+  });
 }
 
-// トピックを更新
+// トピック更新表示
 function updateTopic(topicHtml) {
-  const currentTopic = document.getElementById('currentTopic');
-  // サーバーからのHTMLをデコードして表示
-  const decodedTopic = decodeHtml(topicHtml);
-  currentTopic.innerHTML = `今の話題：${decodedTopic}`;
+  var el = document.getElementById('currentTopic');
+  if (!el) return;
+  el.innerHTML = '今の話題：' + decodeHtml(topicHtml || '');
 }
 
-// 投稿を表示する関数（HTML対応版 + アンカーID付き）
+// 投稿表示（テーブルの行を返す）
 function displayPost(post) {
-  const tr = document.createElement('tr');
-  
-  // サーバーのデータ構造に対応
-  const postNumber = post.no;
-  const name = post.name;
-  const displayId = post.id;
-  const content = post.content;
-  const timestamp = post.time;
-  
-  // 投稿番号にアンカーIDを設定
+  var tr = document.createElement('tr');
+  var postNumber = post.no || '';
+  var name = post.name || '';
+  var displayId = post.id || '';
+  var content = post.content || '';
+  var timestamp = post.time || '';
   tr.id = postNumber;
-  
-  // 管理者IDリストに基づく判定
-  const ADMIN_IDS = [
-    "@42d3e89",
-    "@9b0919e", 
-    "ざーこざーこばーかばーか",
-    "@9303157",
-    "@07fcc1a"
-  ];
-  const isAdmin = ADMIN_IDS.includes(displayId) || name.includes('class="summit"');
-  
-  // コンテンツを処理（URL自動リンク + アンカーリンク + 絵文字変換）
-  const processedContent = processContent(content);
-  
-  tr.innerHTML = `
-    <td><a href="#${postNumber}" style="color: #666; text-decoration: none;">${postNumber}</a></td>
-    <td>${name}</td>
-    <td style="color: ${isAdmin ? 'red' : 'black'}">${displayId}</td>
-    <td>${processedContent}</td>
-    <td>${timestamp}</td>
-  `;
+  var ADMIN_IDS = ["@42d3e89", "@9b0919e", "ざーこざーこばーかばーか", "@9303157", "@07fcc1a"];
+  var isAdmin = ADMIN_IDS.indexOf(displayId) !== -1 || (typeof name === 'string' && name.indexOf('class="summit"') !== -1);
+  var processedContent = processContent(content);
+  tr.innerHTML = ''
+    + '<td><a href="#' + postNumber + '" style="color: #666; text-decoration: none;">' + postNumber + '</a></td>'
+    + '<td>' + name + '</td>'
+    + '<td style="color: ' + (isAdmin ? 'red' : 'black') + ';">' + displayId + '</td>'
+    + '<td>' + processedContent + '</td>'
+    + '<td>' + timestamp + '</td>';
   return tr;
 }
 
-// 絵文字入力パネルの作成
+// 絵文字パネル生成
 function createEmojiPanel() {
-  const panel = document.createElement('div');
+  var panel = document.createElement('div');
   panel.id = 'emoji-panel';
-  panel.style.cssText = `
-    display: none;
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px;
-    max-width: 400px;
-    max-height: 300px;
-    overflow-y: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 1000;
-    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-    gap: 5px;
-  `;
-  
-  // 絵文字ボタンを作成
-  Object.entries(EMOJI_MAP).forEach(([emojiCode, emojiData]) => {
-    const emojiBtn = document.createElement('button');
-    emojiBtn.innerHTML = `<img src="${emojiData.url}" alt="${emojiData.alt}" style="width: 20px; height: 20px;">`;
-    emojiBtn.title = emojiCode;
-    emojiBtn.style.cssText = `
-      border: none;
-      background: none;
-      padding: 5px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-    `;
-    
-    emojiBtn.addEventListener('mouseenter', () => {
-      emojiBtn.style.backgroundColor = '#f0f0f0';
-    });
-    
-    emojiBtn.addEventListener('mouseleave', () => {
-      emojiBtn.style.backgroundColor = 'transparent';
-    });
-    
-    emojiBtn.addEventListener('click', () => {
-      const contentInput = document.getElementById('content');
-      const cursorPos = contentInput.selectionStart;
-      const textBefore = contentInput.value.substring(0, cursorPos);
-      const textAfter = contentInput.value.substring(contentInput.selectionEnd);
-      
-      contentInput.value = textBefore + emojiCode + textAfter;
+  panel.style.cssText = [
+    'display:none',
+    'position:absolute',
+    'background:white',
+    'border:1px solid #ccc',
+    'border-radius:8px',
+    'padding:10px',
+    'max-width:400px',
+    'max-height:300px',
+    'overflow-y:auto',
+    'box-shadow:0 4px 12px rgba(0,0,0,0.2)',
+    'z-index:1000',
+    'display:grid',
+    'grid-template-columns:repeat(auto-fit, minmax(30px, 1fr))',
+    'gap:5px'
+  ].join('; ');
+  Object.keys(EMOJI_MAP).forEach(function(code) {
+    var emojiData = EMOJI_MAP[code];
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.innerHTML = '<img src="' + emojiData.url + '" alt="' + emojiData.alt + '" style="width:20px;height:20px;">';
+    btn.title = code;
+    btn.style.cssText = 'border:none; background:none; padding:5px; cursor:pointer; border-radius:4px; transition:background-color 0.2s;';
+    btn.addEventListener('mouseenter', function() { btn.style.backgroundColor = '#f0f0f0'; });
+    btn.addEventListener('mouseleave', function() { btn.style.backgroundColor = 'transparent'; });
+    btn.addEventListener('click', function() {
+      var contentInput = document.getElementById('content');
+      if (!contentInput) return;
+      var cursorPos = contentInput.selectionStart || contentInput.value.length;
+      var textBefore = contentInput.value.substring(0, cursorPos);
+      var textAfter = contentInput.value.substring(contentInput.selectionEnd || cursorPos);
+      contentInput.value = textBefore + code + textAfter;
       contentInput.focus();
-      contentInput.setSelectionRange(cursorPos + emojiCode.length, cursorPos + emojiCode.length);
-      
+      var newPos = cursorPos + code.length;
+      contentInput.setSelectionRange(newPos, newPos);
       panel.style.display = 'none';
     });
-    
-    panel.appendChild(emojiBtn);
+    panel.appendChild(btn);
   });
-  
+  document.body.appendChild(panel);
   return panel;
 }
 
-// 投稿一覧を更新する関数（エラーハンドリング改善）
-let isUpdating = false;
+// 投稿一覧更新（重複実行防止）
+var isUpdating = false;
 async function updatePostsList() {
-  if (isUpdating) return; // 重複実行防止
-  
-  const postsTableBody = document.querySelector("#postsTable tbody");
-  
+  if (isUpdating) return;
+  var postsTableBody = document.querySelector('#postsTable tbody');
+  if (!postsTableBody) return;
   try {
     isUpdating = true;
-    
-    // 初回読み込み時のみローディング表示
     if (postsTableBody.children.length === 0) {
       postsTableBody.innerHTML = '<tr><td colspan="5">読み込み中...</td></tr>';
     }
-    
-    const data = await loadData();
+    var data = await loadData();
     postsTableBody.innerHTML = '';
-    
-    // トピックも更新
     updateTopic(data.topic);
-    
-    if (data.posts.length === 0) {
+    if (!data.posts || data.posts.length === 0) {
       postsTableBody.innerHTML = '<tr><td colspan="5">投稿がありません</td></tr>';
       return;
     }
-    
-    // 投稿を表示（サーバーから既に適切な順序で返される）
-    data.posts.forEach(post => {
+    data.posts.forEach(function(post) {
       postsTableBody.appendChild(displayPost(post));
     });
-      
-  } catch (error) {
-    console.error('投稿取得エラー:', error);
-    
-    // 初回読み込み時のみエラー表示
-    if (postsTableBody.children.length === 0 || postsTableBody.innerHTML.includes('読み込み中')) {
-      postsTableBody.innerHTML = '<tr><td colspan="5" style="color: red;">投稿の読み込みに失敗しました</td></tr>';
+  } catch (err) {
+    console.error('投稿取得エラー:', err);
+    if (postsTableBody.children.length === 0 || postsTableBody.innerHTML.indexOf('読み込み中') !== -1) {
+      postsTableBody.innerHTML = '<tr><td colspan="5" style="color:red;">投稿の読み込みに失敗しました</td></tr>';
     }
-    
-    // ネットワークエラーやタイムアウトの場合のみ通知
-    if (error.message.includes('タイムアウト') || error.message.includes('Failed to fetch')) {
+    if (err.message && (err.message.indexOf('タイムアウト') !== -1 || err.message.indexOf('Failed to fetch') !== -1)) {
       showMessage('サーバーとの接続に失敗しました', 'error');
     }
   } finally {
@@ -540,328 +368,133 @@ async function updatePostsList() {
   }
 }
 
-// 投稿フォーム
-const postForm = document.getElementById('postForm');
+// DOM ができてから初期化
+document.addEventListener('DOMContentLoaded', function() {
+  // 要素取得（存在チェック）
+  var btn = document.getElementById('toggleBtn');
+  var overlay = document.getElementById('overlay');
+  var clockEl = document.getElementById('clock');
+  var postForm = document.getElementById('postForm');
+  var contentInput = document.getElementById('content');
 
-window.addEventListener('DOMContentLoaded', async () => {
-  // 通知システムの初期化
+  // 通知初期化
   NotificationManager.init();
-  
-  // 保存された名前とパスワードを復元
-  const savedName = getCookie('bbsUserName');
-  const savedPassword = getCookie('bbsUserPassword');
-  
-  if (savedName) {
-    document.getElementById('name').value = savedName;
-  }
-  if (savedPassword) {
-    document.getElementById('password').value = savedPassword;
-  }
-  
-  // 絵文字パネルの追加
-  const emojiPanel = createEmojiPanel();
-  document.body.appendChild(emojiPanel);
-  
-  // 絵文字ボタンの追加
-  const emojiButton = document.createElement('button');
+
+  // 絵文字パネル作成＆ボタン
+  var emojiPanel = createEmojiPanel();
+  var emojiButton = document.createElement('button');
   emojiButton.type = 'button';
   emojiButton.innerHTML = '😊';
-  emojiButton.style.cssText = `
-    margin-left: 10px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #f9f9f9;
-    cursor: pointer;
-    font-size: 16px;
-  `;
   emojiButton.title = '絵文字を選択';
-  
-  // フォームの内容入力欄の後に絵文字ボタンを追加
-  const contentInput = document.getElementById('content');
-  contentInput.parentNode.insertBefore(emojiButton, contentInput.nextSibling);
-  
-  emojiButton.addEventListener('click', (e) => {
+  emojiButton.style.cssText = 'margin-left:10px; padding:8px 12px; border:1px solid #ddd; border-radius:4px; background:#f9f9f9; cursor:pointer; font-size:16px;';
+  if (contentInput && contentInput.parentNode) contentInput.parentNode.insertBefore(emojiButton, contentInput.nextSibling);
+  emojiButton.addEventListener('click', function(e) {
     e.preventDefault();
-    const rect = emojiButton.getBoundingClientRect();
-    emojiPanel.style.display = emojiPanel.style.display === 'grid' ? 'none' : 'grid';
+    var rect = emojiButton.getBoundingClientRect();
+    emojiPanel.style.display = (emojiPanel.style.display === 'grid' ? 'none' : 'grid');
     emojiPanel.style.left = rect.left + 'px';
     emojiPanel.style.top = (rect.bottom + 5) + 'px';
   });
-  
   // パネル外クリックで閉じる
-  document.addEventListener('click', (e) => {
-    if (!emojiPanel.contains(e.target) && e.target !== emojiButton) {
-      emojiPanel.style.display = 'none';
-    }
+  document.addEventListener('click', function(e) {
+    if (!emojiPanel.contains(e.target) && e.target !== emojiButton) emojiPanel.style.display = 'none';
   });
-  
-  // ダークモード設定の読み込み
-  const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
+
+  // ダークモードの読み込み/管理
+  function enableDarkMode() {
+    if (overlay) overlay.style.clipPath = 'circle(150% at 100% 100%)';
+    if (btn) { btn.classList.add('white'); btn.classList.remove('black'); }
+    inverted = true;
+    setCookie('darkmode', 'true', 365);
+  }
+  function disableDarkMode() {
+    if (overlay) overlay.style.clipPath = 'circle(0 at 100% 100%)';
+    if (btn) { btn.classList.add('black'); btn.classList.remove('white'); }
+    inverted = false;
+    setCookie('darkmode', 'false', 365);
+  }
+  // cookieから読み込む
+  var darkModeCookie = (document.cookie || '').split('; ').find(function(row){ return row.indexOf('darkmode=') === 0; });
   if (darkModeCookie) {
-    const darkModeValue = darkModeCookie.split("=")[1];
-    if (darkModeValue === "true") enableDarkMode();
-    else disableDarkMode();
+    var v = darkModeCookie.split('=')[1];
+    if (v === 'true') enableDarkMode(); else disableDarkMode();
+  } else {
+    disableDarkMode();
   }
-  
-  // 時計の開始
-  setInterval(updateClock, 1000);
-  updateClock();
-  
-  // 初回の投稿一覧読み込み
-  await updatePostsList();
-  
-  // 定期的に投稿一覧を更新（3秒ごと）
+  if (btn) {
+    btn.addEventListener('click', function() {
+      if (!inverted) enableDarkMode(); else disableDarkMode();
+    });
+  }
+
+  // 時計開始
+  updateClock(clockEl);
+  setInterval(function(){ updateClock(clockEl); }, 1000);
+
+  // 名前・パスワード復元
+  var savedName = getCookie('bbsUserName');
+  var savedPassword = getCookie('bbsUserPassword');
+  if (savedName) {
+    var nameEl = document.getElementById('name');
+    if (nameEl) nameEl.value = savedName;
+  }
+  if (savedPassword) {
+    var passEl = document.getElementById('password');
+    if (passEl) passEl.value = savedPassword;
+  }
+
+  // 初回投稿一覧読み込み
+  updatePostsList();
+
+  // 定期更新（3秒ごと）
   setInterval(updatePostsList, 3000);
-});
 
-btn.addEventListener('click', () => {
-  if (!inverted) enableDarkMode();
-  else disableDarkMode();
-});
-
-postForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const content = document.getElementById('content').value.trim();
-  const name = document.getElementById('name').value.trim();
-  const password = document.getElementById('password').value;
-  
-  // 入力値検証
-  if (!content || !name || !password) {
-    showMessage('全ての項目を入力してください', 'error');
-    return;
-  }
-  
-  if (content.length > 1000) {
-    showMessage('内容は1000文字以内で入力してください', 'error');
-    return;
-  }
-  
-  if (name.length > 50) {
-    showMessage('名前は50文字以内で入力してください', 'error');
-    return;
-  }
-  
-  try {
-    // 送信ボタンを無効化
-    const submitBtn = postForm.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '送信中...';
-    
-    // 既存サーバーのAPI形式に合わせて投稿データを作成
-    const postData = {
-      name: name,
-      content: content,
-      password: password
-    };
-    
-    const response = await createPost(postData);
-    
-    // レスポンスに応じて処理
-    if (response.message) {
-      // 名前とパスワードをCookieに保存（内容欄のみリセット）
-      setCookie('bbsUserName', name);
-      setCookie('bbsUserPassword', password);
-      
-      // 内容欄のみクリア
-      document.getElementById('content').value = '';
-      
-      showMessage(response.message);
-      
-      // 少し待ってから投稿一覧を更新（サーバー処理時間を考慮）
-      setTimeout(updatePostsList, 500);
-    } else {
-      // 名前とパスワードをCookieに保存（内容欄のみリセット）
-      setCookie('bbsUserName', name);
-      setCookie('bbsUserPassword', password);
-      
-      // 内容欄のみクリア
-      document.getElementById('content').value = '';
-      
-      showMessage('投稿が完了しました');
-      setTimeout(updatePostsList, 500);
-    }
-    
-  } catch (error) {
-    // エラーメッセージの詳細表示
-    let errorMsg = '投稿の送信に失敗しました';
-    
-    if (error.message.includes('429')) {
-      errorMsg = '投稿間隔が短すぎます。少し待ってから再度お試しください';
-    } else if (error.message.includes('400')) {
-      errorMsg = '入力内容に問題があります';
-    }
-    
-    showMessage(errorMsg, 'error');
-    console.error('投稿エラー:', error);
-  } finally {
-    // 送信ボタンを復元
-    const submitBtn = postForm.querySelector('button[type="submit"]');
-    submitBtn.disabled = false;
-    submitBtn.textContent = '送信';
-  }
-});
-
-// 絵文字一覧を表示する関数（デバッグ用）
-function showAvailableEmojis() {
-  console.log('利用可能な絵文字:');
-  Object.keys(EMOJI_MAP).forEach(emoji => {
-    console.log(emoji);
+  // visibilitychange 対応
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) updatePostsList();
   });
-}
 
-// ページの可視性が変わった時に更新（タブがアクティブになった時など）
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    updatePostsList();
+  // 投稿フォーム submit
+  if (postForm) {
+    postForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var content = (document.getElementById('content') && document.getElementById('content').value || '').trim();
+      var name = (document.getElementById('name') && document.getElementById('name').value || '').trim();
+      var password = (document.getElementById('password') && document.getElementById('password').value || '');
+      if (!content || !name || !password) { showMessage('全ての項目を入力してください', 'error'); return; }
+      if (content.length > 1000) { showMessage('内容は1000文字以内で入力してください', 'error'); return; }
+      if (name.length > 50) { showMessage('名前は50文字以内で入力してください', 'error'); return; }
+      var submitBtn = postForm.querySelector('button[type="submit"]');
+      try {
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '送信中...'; }
+        var postData = { name: name, content: content, password: password };
+        var response = await createPost(postData);
+        // Cookie に保存（名前とパスワード）
+        setCookie('bbsUserName', name);
+        setCookie('bbsUserPassword', password);
+        // 内容欄クリア
+        var contentEl = document.getElementById('content');
+        if (contentEl) contentEl.value = '';
+        if (response && response.message) {
+          showMessage(response.message);
+        } else {
+          showMessage('投稿が完了しました');
+        }
+        // 少し待って更新（サーバー処理を考慮）
+        setTimeout(updatePostsList, 500);
+      } catch (err) {
+        var errorMsg = '投稿の送信に失敗しました';
+        if (err && err.message && err.message.indexOf('429') !== -1) errorMsg = '投稿間隔が短すぎます。少し待ってから再度お試しください';
+        else if (err && err.message && err.message.indexOf('400') !== -1) errorMsg = '入力内容に問題があります';
+        showMessage(errorMsg, 'error');
+        console.error('投稿エラー:', err);
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '送信'; }
+      }
+    });
   }
-});
 
-// エラーハンドリング
-window.addEventListener('error', (e) => {
-  console.error('JavaScript Error:', e.error);
-});
-
-window.addEventListener('unhandledrejection', (e) => {
-  console.error('Unhandled Promise Rejection:', e.reason);
-}); 5) + 'px';
-  });
-  
-  // パネル外クリックで閉じる
-  document.addEventListener('click', (e) => {
-    if (!emojiPanel.contains(e.target) && e.target !== emojiButton) {
-      emojiPanel.style.display = 'none';
-    }
-  });
-  
-  // ダークモード設定の読み込み
-  const darkModeCookie = document.cookie.split("; ").find(row => row.startsWith("darkmode="));
-  if (darkModeCookie) {
-    const darkModeValue = darkModeCookie.split("=")[1];
-    if (darkModeValue === "true") enableDarkMode();
-    else disableDarkMode();
-  }
-  
-  // 時計の開始
-  setInterval(updateClock, 1000);
-  updateClock();
-  
-  // 初回の投稿一覧読み込み
-  await updatePostsList();
-  
-  // 定期的に投稿一覧を更新（3秒ごと）
-  setInterval(updatePostsList, 3000);
-});
-
-btn.addEventListener('click', () => {
-  if (!inverted) enableDarkMode();
-  else disableDarkMode();
-});
-
-postForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const content = document.getElementById('content').value.trim();
-  const name = document.getElementById('name').value.trim();
-  const password = document.getElementById('password').value;
-  
-  // 入力値検証
-  if (!content || !name || !password) {
-    showMessage('全ての項目を入力してください', 'error');
-    return;
-  }
-  
-  if (content.length > 1000) {
-    showMessage('内容は1000文字以内で入力してください', 'error');
-    return;
-  }
-  
-  if (name.length > 50) {
-    showMessage('名前は50文字以内で入力してください', 'error');
-    return;
-  }
-  
-  try {
-    // 送信ボタンを無効化
-    const submitBtn = postForm.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '送信中...';
-    
-    // 既存サーバーのAPI形式に合わせて投稿データを作成
-    const postData = {
-      name: name,
-      content: content,
-      password: password
-    };
-    
-    const response = await createPost(postData);
-    
-    // レスポンスに応じて処理
-    if (response.message) {
-      // 名前とパスワードをCookieに保存（内容欄のみリセット）
-      setCookie('bbsUserName', name);
-      setCookie('bbsUserPassword', password);
-      
-      // 内容欄のみクリア
-      document.getElementById('content').value = '';
-      
-      showMessage(response.message);
-      
-      // 少し待ってから投稿一覧を更新（サーバー処理時間を考慮）
-      setTimeout(updatePostsList, 500);
-    } else {
-      // 名前とパスワードをCookieに保存（内容欄のみリセット）
-      setCookie('bbsUserName', name);
-      setCookie('bbsUserPassword', password);
-      
-      // 内容欄のみクリア
-      document.getElementById('content').value = '';
-      
-      showMessage('投稿が完了しました');
-      setTimeout(updatePostsList, 500);
-    }
-    
-  } catch (error) {
-    // エラーメッセージの詳細表示
-    let errorMsg = '投稿の送信に失敗しました';
-    
-    if (error.message.includes('429')) {
-      errorMsg = '投稿間隔が短すぎます。少し待ってから再度お試しください';
-    } else if (error.message.includes('400')) {
-      errorMsg = '入力内容に問題があります';
-    }
-    
-    showMessage(errorMsg, 'error');
-    console.error('投稿エラー:', error);
-  } finally {
-    // 送信ボタンを復元
-    const submitBtn = postForm.querySelector('button[type="submit"]');
-    submitBtn.disabled = false;
-    submitBtn.textContent = '送信';
-  }
-});
-
-// 絵文字一覧を表示する関数（デバッグ用）
-function showAvailableEmojis() {
-  console.log('利用可能な絵文字:');
-  Object.keys(EMOJI_MAP).forEach(emoji => {
-    console.log(emoji);
-  });
-}
-
-// ページの可視性が変わった時に更新（タブがアクティブになった時など）
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    updatePostsList();
-  }
-});
-
-// エラーハンドリング
-window.addEventListener('error', (e) => {
-  console.error('JavaScript Error:', e.error);
-});
-
-window.addEventListener('unhandledrejection', (e) => {
-  console.error('Unhandled Promise Rejection:', e.reason);
+  // グローバルなエラー監視
+  window.addEventListener('error', function(e) { console.error('JavaScript Error:', e.error || e); });
+  window.addEventListener('unhandledrejection', function(e) { console.error('Unhandled Promise Rejection:', e.reason || e); });
 });
