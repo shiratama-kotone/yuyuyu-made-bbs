@@ -350,6 +350,67 @@ app.post("/cw-read/check", async (req, res) => {
 });
 
 // ----------------------
+// ChatWork Web クライアント用API
+// ----------------------
+
+// ルーム一覧取得
+app.post("/cw-rooms", async (req, res) => {
+  const { apiKey } = req.body;
+  if (!apiKey) return res.status(400).json({ error: "APIキー必須" });
+
+  try {
+    const response = await axios.get("https://api.chatwork.com/v2/rooms", {
+      headers: { "X-ChatWorkToken": apiKey },
+    });
+    const rooms = response.data.map(r => ({
+      room_id: r.room_id,
+      name: r.name,
+      type: r.type,
+      unread_num: r.unread_num
+    }));
+    res.json({ rooms });
+  } catch (err) {
+    const msg = err.response?.data || err.message;
+    res.status(500).json({ error: msg });
+  }
+});
+
+// メッセージ一覧取得
+app.post("/cw-messages", async (req, res) => {
+  const { apiKey, roomId } = req.body;
+  if (!apiKey || !roomId) return res.status(400).json({ error: "APIキーとルームID必須" });
+
+  try {
+    const response = await axios.get(`https://api.chatwork.com/v2/rooms/${roomId}/messages`, {
+      headers: { "X-ChatWorkToken": apiKey },
+    });
+    res.json({ messages: response.data });
+  } catch (err) {
+    const msg = err.response?.data || err.message;
+    res.status(500).json({ error: msg });
+  }
+});
+
+// メッセージ送信
+app.post("/cw-send", async (req, res) => {
+  const { apiKey, roomId, message } = req.body;
+  if (!apiKey || !roomId || !message) return res.status(400).json({ error: "必須データ不足" });
+
+  try {
+    await axios.post(
+      `https://api.chatwork.com/v2/rooms/${roomId}/messages`,
+      new URLSearchParams({ body: message }),
+      { headers: { "X-ChatWorkToken": apiKey } }
+    );
+    res.json({ success: true, message: "送信完了" });
+  } catch (err) {
+    const msg = err.response?.data || err.message;
+    res.status(500).json({ error: msg });
+  }
+});
+
+
+// ----------------------
 // サーバー起動
 // ----------------------
 app.listen(PORT, '0.0.0.0', () => {
