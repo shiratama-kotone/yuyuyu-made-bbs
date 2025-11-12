@@ -381,7 +381,7 @@ app.post("/cw-messages", async (req, res) => {
   if (!apiKey || !roomId) return res.status(400).json({ error: "APIキーとルームID必須" });
 
   try {
-    const response = await axios.get(`https://api.chatwork.com/v2/rooms/${roomId}/messages`, {
+    const response = await axios.get(`https://api.chatwork.com/v2/rooms/${roomId}/messages?force=1`, {
       headers: { "X-ChatWorkToken": apiKey },
     });
     res.json({ messages: response.data });
