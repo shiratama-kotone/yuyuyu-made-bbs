@@ -139,14 +139,57 @@ function convertEmojis(text) {
   return text;
 }
 
+// 画像URLを<img>に変換（縦最大100px）
+function convertImageUrls(text) {
+  var imageExts = /\.(jpe?g|png|gif|webp|bmp|svg)(\?[^\s<>"]*)?$/i;
+  return text.replace(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g, function(tag, href, label) {
+    if (imageExts.test(href)) {
+      return '<a href="#" class="img-link" data-src="' + escapeHtml(href) + '">' +
+        '<img src="' + escapeHtml(href) + '" alt="画像" class="post-img" style="max-height:100px;max-width:100%;vertical-align:middle;cursor:zoom-in;border-radius:4px;">' +
+        '</a>';
+    }
+    return tag;
+  });
+}
+
 function processContent(content) {
-  // 改行をbrに変換（HTMLエスケープ後）
   var s = escapeHtml(content || '');
   s = s.replace(/\n/g, '<br>');
   s = autoLinkUrls(s);
+  s = convertImageUrls(s);
   s = autoLinkAnchors(s);
   s = convertEmojis(s);
   return s;
+}
+
+// 画像モーダル
+function initImageModal() {
+  var modal = document.createElement('div');
+  modal.id = 'img-modal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:20000;align-items:center;justify-content:center;cursor:zoom-out;';
+  var img = document.createElement('img');
+  img.id = 'img-modal-img';
+  img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 4px 32px rgba(0,0,0,0.6);';
+  var closeBtn = document.createElement('button');
+  closeBtn.id = 'img-modal-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.style.cssText = 'position:absolute;top:16px;right:20px;background:rgba(0,0,0,0.5);color:#fff;border:none;font-size:32px;width:44px;height:44px;border-radius:50%;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;';
+  modal.appendChild(img);
+  modal.appendChild(closeBtn);
+  document.body.appendChild(modal);
+
+  function closeModal() { modal.style.display = 'none'; }
+  closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeModal(); });
+  modal.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('.img-link');
+    if (!link) return;
+    e.preventDefault();
+    img.src = link.dataset.src;
+    modal.style.display = 'flex';
+  });
 }
 
 // =====================
@@ -357,6 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var submitBtn    = document.getElementById('submitBtn');
 
   NotificationManager.init();
+  initImageModal();
 
   var emojiPanel = createEmojiPanel();
   if (emojiBtn) {
