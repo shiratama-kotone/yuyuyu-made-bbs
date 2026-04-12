@@ -21,56 +21,57 @@ function apiUrl() { return SERVERS[currentServer].url; }
 // =====================
 // 絵文字定義
 // =====================
+var BASE = 'https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/';
 var EMOJI_MAP = {
-  "(anger)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_anger.gif",      alt: "(anger)" },
-  "(beer)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_beer.gif",       alt: "(beer)" },
-  "(blush)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_blush.gif",      alt: "(blush)" },
-  "(bow)":        { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_bow.gif",        alt: "(bow)" },
-  "(cake)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cake.gif",       alt: "(cake)" },
-  "(clap)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_clap.gif",       alt: "(clap)" },
-  "(coffee)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_coffee.gif",     alt: "(coffee)" },
-  "(cracker)":    { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_cracker.gif",    alt: "(cracker)" },
-  "(dance)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_dance.gif",      alt: "(dance)" },
-  "(devil)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_devil.gif",      alt: "(devil)" },
-  "(eat)":        { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_eat.gif",        alt: "(eat)" },
-  "(flower)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_flower.gif",     alt: "(flower)" },
-  "(gogo)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_gogo.gif",       alt: "(gogo)" },
-  "(grin)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_grin.gif",       alt: "(grin)" },
-  "(handshake)":  { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_handshake.gif",  alt: "(handshake)" },
-  "(heart)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_heart.gif",      alt: "(heart)" },
-  "(ikemen)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ikemen.gif",     alt: "(ikemen)" },
-  "(kiss)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_kiss.gif",       alt: "(kiss)" },
-  "(komanechi)":  { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_komanechi.gif",  alt: "(komanechi)" },
-  "(lightbulb)":  { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lightbulb.gif",  alt: "(lightbulb)" },
-  "(love)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_love.gif",       alt: "(love)" },
-  "(lucky)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_lucky.gif",      alt: "(lucky)" },
-  "(more_smile)": { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_more_smile.gif", alt: "(more_smile)" },
-  "(mumu)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_mumu.gif",       alt: "(mumu)" },
-  "(muscle)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_muscle.gif",     alt: "(muscle)" },
-  "(ninmari)":    { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_ninmari.gif",    alt: "(ninmari)" },
-  "(nod)":        { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_nod.gif",        alt: "(nod)" },
-  "(otaku)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_otaku.gif",      alt: "(otaku)" },
-  "(please)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_please.gif",     alt: "(please)" },
-  "(puke)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_puke.gif",       alt: "(puke)" },
-  "(quick)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_quick.gif",      alt: "(quick)" },
-  "(roger)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_roger.gif",      alt: "(roger)" },
-  "(sad)":        { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sad.gif",        alt: "(sad)" },
-  "(shake)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_shake.gif",      alt: "(shake)" },
-  "(smile)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_smile.gif",      alt: "(smile)" },
-  "(snooze)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_snooze.gif",     alt: "(snooze)" },
-  "(star)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_star.gif",       alt: "(star)" },
-  "(surprise)":   { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_surprise.gif",   alt: "(surprise)" },
-  "(sweat)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_sweat.gif",      alt: "(sweat)" },
-  "(talk)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_talk.gif",       alt: "(talk)" },
-  "(tears)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tears.gif",      alt: "(tears)" },
-  "(think)":      { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_think.gif",      alt: "(think)" },
-  "(tongueout)":  { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_tongueout.gif",  alt: "(tongueout)" },
-  "(whew)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_whew.gif",       alt: "(whew)" },
-  "(wink)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wink.gif",       alt: "(wink)" },
-  "(wonder)":     { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wonder.gif",     alt: "(wonder)" },
-  "(wry_smile)":  { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_wry_smile.gif",  alt: "(wry_smile)" },
-  "(yawn)":       { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yawn.gif",       alt: "(yawn)" },
-  "(yes)":        { url: "https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/emo_yes.gif",        alt: "(yes)" }
+  ':)':         { url: BASE + 'emo_smile.gif',      alt: ':)' },
+  ':(':         { url: BASE + 'emo_sad.gif',         alt: ':(' },
+  ':D':         { url: BASE + 'emo_grin.gif',        alt: ':D' },
+  '8-)':        { url: BASE + 'emo_ikemen.gif',      alt: '8-)' },
+  ':o':         { url: BASE + 'emo_surprise.gif',    alt: ':o' },
+  ';)':         { url: BASE + 'emo_wink.gif',        alt: ';)' },
+  ';(':         { url: BASE + 'emo_tears.gif',       alt: ';(' },
+  '(sweat)':    { url: BASE + 'emo_sweat.gif',       alt: '(sweat)' },
+  ':|':         { url: BASE + 'emo_mumu.gif',        alt: ':|' },
+  ':*':         { url: BASE + 'emo_kiss.gif',        alt: ':*' },
+  ':p':         { url: BASE + 'emo_tongueout.gif',   alt: ':p' },
+  '(blush)':    { url: BASE + 'emo_blush.gif',       alt: '(blush)' },
+  ':^)':        { url: BASE + 'emo_wry_smile.gif',   alt: ':^)' },
+  '|-)':        { url: BASE + 'emo_snooze.gif',      alt: '|-)' },
+  '(inlove)':   { url: BASE + 'emo_love.gif',        alt: '(inlove)' },
+  ']:)':        { url: BASE + 'emo_devil.gif',        alt: ']:)' },
+  '(talk)':     { url: BASE + 'emo_talk.gif',        alt: '(talk)' },
+  '(yawn)':     { url: BASE + 'emo_yawn.gif',        alt: '(yawn)' },
+  '(puke)':     { url: BASE + 'emo_puke.gif',        alt: '(puke)' },
+  '(emo)':      { url: BASE + 'emo_sad.gif',         alt: '(emo)' },
+  '8-|':        { url: BASE + 'emo_more_smile.gif',  alt: '8-|' },
+  ':#)':        { url: BASE + 'emo_otaku.gif',       alt: ':#)' },
+  '(nod)':      { url: BASE + 'emo_nod.gif',         alt: '(nod)' },
+  '(shake)':    { url: BASE + 'emo_shake.gif',       alt: '(shake)' },
+  '(^^;)':      { url: BASE + 'emo_sweat.gif',       alt: '(^^;)' },
+  '(whew)':     { url: BASE + 'emo_whew.gif',        alt: '(whew)' },
+  '(clap)':     { url: BASE + 'emo_clap.gif',        alt: '(clap)' },
+  '(bow)':      { url: BASE + 'emo_bow.gif',         alt: '(bow)' },
+  '(roger)':    { url: BASE + 'emo_roger.gif',       alt: '(roger)' },
+  '(flex)':     { url: BASE + 'emo_muscle.gif',      alt: '(flex)' },
+  '(dance)':    { url: BASE + 'emo_dance.gif',       alt: '(dance)' },
+  '(:/)':       { url: BASE + 'emo_wonder.gif',      alt: '(:/)' },
+  '(gogo)':     { url: BASE + 'emo_gogo.gif',        alt: '(gogo)' },
+  '(think)':    { url: BASE + 'emo_think.gif',       alt: '(think)' },
+  '(please)':   { url: BASE + 'emo_please.gif',      alt: '(please)' },
+  '(quick)':    { url: BASE + 'emo_quick.gif',       alt: '(quick)' },
+  '(anger)':    { url: BASE + 'emo_anger.gif',       alt: '(anger)' },
+  '(devil)':    { url: BASE + 'emo_devil.gif',       alt: '(devil)' },
+  '(lightbulb)':{ url: BASE + 'emo_lightbulb.gif',  alt: '(lightbulb)' },
+  '(*)':        { url: BASE + 'emo_star.gif',        alt: '(*)' },
+  '(h)':        { url: BASE + 'emo_heart.gif',       alt: '(h)' },
+  '(F)':        { url: BASE + 'emo_flower.gif',      alt: '(F)' },
+  '(cracker)':  { url: BASE + 'emo_cracker.gif',     alt: '(cracker)' },
+  '(eat)':      { url: BASE + 'emo_eat.gif',         alt: '(eat)' },
+  '(^)':        { url: BASE + 'emo_lucky.gif',       alt: '(^)' },
+  '(coffee)':   { url: BASE + 'emo_coffee.gif',      alt: '(coffee)' },
+  '(beer)':     { url: BASE + 'emo_beer.gif',        alt: '(beer)' },
+  '(handshake)':{ url: BASE + 'emo_handshake.gif',   alt: '(handshake)' },
+  '(y)':        { url: BASE + 'emo_yes.gif',         alt: '(y)' }
 };
 
 // =====================
@@ -82,7 +83,7 @@ function updateClock() {
   var el = document.getElementById('clock');
   if (!el) return;
   var now = new Date();
-  el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+  el.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
 }
 
 function setCookie(name, value, days) {
@@ -102,13 +103,13 @@ function decodeHtml(s) {
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function autoLinkUrls(text) {
   if (!text) return '';
   return text.replace(/(https?:\/\/[^\s<>"'））]+|(?:www\.)?[A-Za-z0-9][A-Za-z0-9-]*(?:\.[A-Za-z]{2,})(?:\/[^\s<>"']*)?)([.,;!?））]*)/gi, function(full, url, trail) {
-    var clean = url.replace(/[.,;!?]+$/, '');
+    var clean = url.replace(/[.,;!?]+$/,'');
     var href = clean.match(/^https?:\/\//i) ? clean : 'https://' + clean;
     return '<a href="' + href + '" target="_blank" rel="noopener noreferrer" style="color:#0066cc;text-decoration:underline;">' + escapeHtml(clean) + '</a>' + (trail || '');
   });
@@ -119,13 +120,16 @@ function autoLinkAnchors(text) {
   return text.replace(/>>(\d+)/g, '<a href="#$1" style="color:#789922;text-decoration:none;font-weight:bold;">&gt;&gt;$1</a>');
 }
 
-function escapeForRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function escapeForRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
 function convertEmojis(text) {
   if (!text) return '';
-  Object.keys(EMOJI_MAP).forEach(function(code) {
+  // 長いコードから先に置換（部分一致防止）
+  var codes = Object.keys(EMOJI_MAP).sort(function(a,b){ return b.length - a.length; });
+  codes.forEach(function(code) {
     var d = EMOJI_MAP[code];
-    text = text.replace(new RegExp(escapeForRegex(code), 'g'), '<img src="' + d.url + '" alt="' + d.alt + '" class="emoji">');
+    text = text.replace(new RegExp(escapeForRegex(code),'g'),
+      '<img src="' + d.url + '" alt="' + escapeHtml(d.alt) + '" class="emoji">');
   });
   return text;
 }
@@ -142,8 +146,7 @@ function processContent(content) {
 // 通知
 // =====================
 var NotificationManager = {
-  notifications: [],
-  container: null,
+  notifications: [], container: null,
   init: function() {
     if (this.container) return;
     this.container = document.createElement('div');
@@ -155,29 +158,19 @@ var NotificationManager = {
     var el = document.createElement('div');
     el.style.cssText = [
       'background:' + (type === 'error' ? '#f44336' : '#4CAF50'),
-      'color:#fff',
-      'padding:12px 36px 12px 16px',
-      'border-radius:8px',
-      'margin-bottom:10px',
-      'min-width:260px',
-      'max-width:380px',
-      'box-shadow:0 4px 12px rgba(0,0,0,0.25)',
-      'font-size:14px',
-      'position:relative',
-      'transform:translateX(120%)',
-      'opacity:0',
-      'transition:all 0.3s',
-      'pointer-events:auto',
-      'word-wrap:break-word',
+      'color:#fff','padding:12px 36px 12px 16px','border-radius:8px',
+      'margin-bottom:10px','min-width:240px','max-width:340px',
+      'box-shadow:0 4px 12px rgba(0,0,0,0.25)','font-size:14px',
+      'position:relative','transform:translateX(120%)','opacity:0',
+      'transition:all 0.3s','pointer-events:auto','word-wrap:break-word',
       "font-family:'M PLUS 1p',sans-serif"
     ].join(';');
     var span = document.createElement('span');
     span.textContent = text;
     var closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '×';
+    closeBtn.innerHTML = '&times;';
     closeBtn.style.cssText = 'position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0;line-height:1;';
-    el.appendChild(span);
-    el.appendChild(closeBtn);
+    el.appendChild(span); el.appendChild(closeBtn);
     this.container.appendChild(el);
     var id = Date.now() + Math.random();
     var item = { id: id, el: el, timer: null };
@@ -189,18 +182,15 @@ var NotificationManager = {
   hide: function(id) {
     for (var i = 0; i < this.notifications.length; i++) {
       if (this.notifications[i].id === id) {
-        var n = this.notifications[i];
+        var n = this.notifications[i]; var self = this; var idx = i;
         clearTimeout(n.timer);
-        n.el.style.transform = 'translateX(120%)';
-        n.el.style.opacity = '0';
-        var self = this; var idx = i;
+        n.el.style.transform = 'translateX(120%)'; n.el.style.opacity = '0';
         setTimeout(function() { if (n.el.parentNode) n.el.remove(); self.notifications.splice(idx, 1); }, 300);
         break;
       }
     }
   }
 };
-
 function showMessage(text, type) { NotificationManager.show(text || '', type || 'success'); }
 
 // =====================
@@ -241,13 +231,12 @@ function updateTopic(t) {
   if (el) el.innerHTML = '今の話題：' + decodeHtml(t || '');
 }
 
-var ADMIN_IDS = ["@42d3e89", "@9b0919e", "ざーこざーこばーかばーか", "@9303157", "@07fcc1a"];
+var ADMIN_IDS = [];
 
 function getIdClass(post) {
   if (post.role !== undefined) {
-    return ['role-blue', 'role-speaker', 'role-manager', 'role-summit', 'role-admin'][post.role] || 'role-blue';
+    return ['role-blue','role-speaker','role-manager','role-summit','role-admin'][post.role] || 'role-blue';
   }
-  if (ADMIN_IDS.indexOf(post.id) !== -1) return 'role-admin';
   return 'role-blue';
 }
 
@@ -265,16 +254,13 @@ function displayPost(post) {
   var idClass   = getIdClass(post);
   var nameStyle = color ? 'style="color:' + escapeHtml(color) + ';"' : '';
 
-  var tdNo = '<td><a href="#' + no + '" class="post-no-link">' + no + '</a></td>';
-
-  var tdInfo = '<td>'
-    + '<div class="info-name" ' + nameStyle + '>' + name + '</div>'
-    + (id ? '<div class="info-id ' + idClass + '">' + id + (add ? ' <span class="info-add">' + add + '</span>' : '') + '</div>' : '')
-    + '</td>';
-
-  var tdContent = '<td>' + content + '</td>';
-
-  tr.innerHTML = tdNo + tdInfo + tdContent;
+  tr.innerHTML =
+    '<td><a href="#' + no + '" class="post-no-link">' + no + '</a></td>' +
+    '<td>' +
+      '<div class="info-name" ' + nameStyle + '>' + name + '</div>' +
+      (id ? '<div class="info-id ' + idClass + '">' + id + (add ? ' <span class="info-add">' + add + '</span>' : '') + '</div>' : '') +
+    '</td>' +
+    '<td>' + content + '</td>';
   return tr;
 }
 
@@ -315,14 +301,14 @@ function createEmojiPanel() {
     var d = EMOJI_MAP[code];
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.innerHTML = '<img src="' + d.url + '" alt="' + d.alt + '" style="width:22px;height:22px;">';
+    btn.innerHTML = '<img src="' + d.url + '" alt="' + escapeHtml(d.alt) + '" style="width:22px;height:22px;">';
     btn.title = code;
     btn.addEventListener('click', function() {
       var inp = document.getElementById('content');
       if (!inp) return;
       var s = inp.selectionStart || inp.value.length;
       var e2 = inp.selectionEnd || s;
-      inp.value = inp.value.substring(0, s) + code + inp.value.substring(e2);
+      inp.value = inp.value.substring(0,s) + code + inp.value.substring(e2);
       inp.focus();
       inp.setSelectionRange(s + code.length, s + code.length);
       panel.style.display = 'none';
@@ -345,7 +331,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   NotificationManager.init();
 
-  // 絵文字パネル
   var emojiPanel = createEmojiPanel();
   if (emojiBtn) {
     emojiBtn.addEventListener('click', function(e) {
@@ -354,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
       emojiPanel.style.display = showing ? 'none' : 'grid';
       if (!showing) {
         var rect = emojiBtn.getBoundingClientRect();
-        emojiPanel.style.left = rect.left + 'px';
+        emojiPanel.style.left = Math.min(rect.left, window.innerWidth - 280) + 'px';
         emojiPanel.style.top  = (rect.bottom + 6) + 'px';
       }
     });
@@ -365,42 +350,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // ダークモード
   function enableDark() {
-    if (overlay)    overlay.style.clipPath = 'circle(150% at 100% 100%)';
-    if (toggleBtn)  { toggleBtn.classList.add('white'); toggleBtn.classList.remove('black'); }
+    if (overlay)   overlay.style.clipPath = 'circle(150% at 100% 100%)';
+    if (toggleBtn) { toggleBtn.classList.add('white'); toggleBtn.classList.remove('black'); }
     inverted = true;
-    setCookie('darkmode', 'true', 365);
+    setCookie('darkmode','true',365);
   }
   function disableDark() {
-    if (overlay)    overlay.style.clipPath = 'circle(0 at 100% 100%)';
-    if (toggleBtn)  { toggleBtn.classList.add('black'); toggleBtn.classList.remove('white'); }
+    if (overlay)   overlay.style.clipPath = 'circle(0 at 100% 100%)';
+    if (toggleBtn) { toggleBtn.classList.add('black'); toggleBtn.classList.remove('white'); }
     inverted = false;
-    setCookie('darkmode', 'false', 365);
+    setCookie('darkmode','false',365);
   }
   if (getCookie('darkmode') === 'true') enableDark(); else disableDark();
   if (toggleBtn) toggleBtn.addEventListener('click', function() { inverted ? disableDark() : enableDark(); });
 
-  // 時計
   updateClock();
   setInterval(updateClock, 1000);
 
-  // 名前・パスワード復元
   var savedName = getCookie('bbsUserName');
   var savedPass = getCookie('bbsUserPassword');
   if (savedName) { var ne = document.getElementById('name');     if (ne) ne.value = savedName; }
   if (savedPass) { var pe = document.getElementById('password'); if (pe) pe.value = savedPass; }
 
-  // 投稿フォーム
   if (postForm) {
     postForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       var content  = (contentInput ? contentInput.value : '').trim();
       var name     = (document.getElementById('name')     ? document.getElementById('name').value     : '').trim();
       var password = (document.getElementById('password') ? document.getElementById('password').value : '');
-      if (!content || !name || !password) { showMessage('全ての項目を入力してください', 'error'); return; }
-      if (content.length > 1000) { showMessage('内容は1000文字以内で', 'error'); return; }
-      if (name.length > 50)      { showMessage('名前は50文字以内で', 'error'); return; }
+      if (!content || !name || !password) { showMessage('全ての項目を入力してください','error'); return; }
+      if (content.length > 1000) { showMessage('内容は1000文字以内で','error'); return; }
+      if (name.length > 50)      { showMessage('名前は50文字以内で','error'); return; }
       try {
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '送信中...'; }
         var resp = await createPost({ name: name, content: content, password: password });
@@ -413,14 +394,13 @@ document.addEventListener('DOMContentLoaded', function() {
         var msg = '送信失敗';
         if (err.message && err.message.indexOf('429') !== -1) msg = '投稿が速すぎます';
         else if (err.message && err.message.indexOf('403') !== -1) msg = '投稿が禁止されています';
-        showMessage(msg, 'error');
+        showMessage(msg,'error');
       } finally {
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '送信'; }
       }
     });
   }
 
-  // 初回・定期更新
   updatePostsList();
   setInterval(updatePostsList, 3000);
   document.addEventListener('visibilitychange', function() { if (!document.hidden) updatePostsList(); });
