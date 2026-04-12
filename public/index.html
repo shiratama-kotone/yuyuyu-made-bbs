@@ -30,7 +30,8 @@
 
   <div class="nav-links">
     <a href="how.html" target="_blank">使い方</a>
-    <a href="api-use.html" target="_blank">APIの使い方</a>
+    <a href="topic.html" target="_blank">トピック変更</a>
+    <a href="del.html" target="_blank">投稿削除</a>
     <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
     <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
     <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
@@ -48,12 +49,13 @@
     <div class="form-row">
       <input type="text"     id="name"     placeholder="名前">
       <input type="password" id="password" placeholder="パスワード">
-      <button id="emojiBtn" type="button">絵文字</button>
+      <button id="emojiBtn" type="button">😊</button>
       <button type="submit"  id="submitBtn">送信</button>
     </div>
   </form>
 
   <h3 id="currentTopic">今の話題：</h3>
+  <div id="restrictionBanner"></div>
 
   <div class="table-wrap">
     <table id="postsTable">
