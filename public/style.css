@@ -1,14 +1,61 @@
+/* =====================
+   CSS変数（ライト / ダーク）
+   ===================== */
+:root {
+  --bg:          #ffffff;
+  --bg-sub:      #f7f7f7;
+  --bg-card:     #ffffff;
+  --border:      #e0e0e0;
+  --text:        #222222;
+  --text-sub:    #666666;
+  --accent:      #7c57c2;
+  --accent-dark: #6043a8;
+  --accent-pale: #ede8ff;
+  --th-bg:       #7c57c2;
+  --th-text:     #ffffff;
+  --tr-even:     #faf8ff;
+  --tr-hover:    #ede8ff;
+  --input-bg:    #ffffff;
+  --shadow:      rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --bg:          #111114;
+  --bg-sub:      #1a1a20;
+  --bg-card:     #1e1e26;
+  --border:      #333344;
+  --text:        #e8e8f0;
+  --text-sub:    #999aaa;
+  --accent:      #9b7de8;
+  --accent-dark: #b399f5;
+  --accent-pale: #2a2040;
+  --th-bg:       #2a2040;
+  --th-text:     #c8b8ff;
+  --tr-even:     #181820;
+  --tr-hover:    #2a2040;
+  --input-bg:    #1e1e26;
+  --shadow:      rgba(0,0,0,0.4);
+}
+
+/* =====================
+   リセット・ベース
+   ===================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'M PLUS 1p', Arial, sans-serif;
-  background: #f9f9f9;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
   padding: 20px;
   line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* レインボーアニメーション */
+a { color: var(--accent); }
+
+/* =====================
+   レインボー
+   ===================== */
 @keyframes rainbow {
   100% { background-position: 200%; }
 }
@@ -19,36 +66,41 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-h1 {
-  font-size: 48px;
-  margin-bottom: 8px;
-}
+/* =====================
+   見出し・説明
+   ===================== */
+h1 { font-size: 48px; margin-bottom: 8px; }
 
 p.desc {
   font-size: 13px;
-  margin-bottom: 12px;
-  line-height: 1.8;
+  margin-bottom: 14px;
+  line-height: 1.9;
+  color: var(--text-sub);
 }
 
-/* ナビリンク */
+/* =====================
+   ナビリンク
+   ===================== */
 .nav-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 16px;
 }
 .nav-links a {
-  color: #9370db;
+  color: var(--accent);
   text-decoration: none;
   font-size: 13px;
-  border: 1px solid #9370db;
+  border: 1px solid var(--accent);
   border-radius: 4px;
   padding: 3px 8px;
   transition: background 0.2s, color 0.2s;
 }
-.nav-links a:hover { background: #9370db; color: #fff; }
+.nav-links a:hover { background: var(--accent); color: #fff; }
 
-/* 時計 */
+/* =====================
+   時計
+   ===================== */
 #clock {
   position: fixed;
   top: 10px;
@@ -56,22 +108,25 @@ p.desc {
   font-size: 18px;
   font-family: 'Courier New', monospace;
   font-weight: 700;
-  color: #555;
+  color: var(--text-sub);
   z-index: 100;
 }
 
-/* サーバー切替タブ */
+/* =====================
+   サーバータブ
+   ===================== */
 .server-tabs {
   display: flex;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 .server-tabs button {
   padding: 7px 18px;
-  border: 2px solid #9370db;
+  border: 2px solid var(--accent);
+  border-bottom: none;
   border-radius: 6px 6px 0 0;
-  background: #f0eaff;
-  color: #9370db;
+  background: var(--bg-sub);
+  color: var(--accent);
   font-family: 'M PLUS 1p', sans-serif;
   font-size: 14px;
   font-weight: 700;
@@ -79,28 +134,40 @@ p.desc {
   transition: background 0.2s, color 0.2s;
 }
 .server-tabs button.active {
-  background: #9370db;
+  background: var(--accent);
   color: #fff;
 }
 
-/* フォーム */
+/* =====================
+   フォーム
+   ===================== */
 #postForm {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
   max-width: 700px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 0 8px 8px 8px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 #content {
   width: 100%;
   min-height: 80px;
   resize: vertical;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-family: 'M PLUS 1p', sans-serif;
   font-size: 14px;
+  background: var(--input-bg);
+  color: var(--text);
+  transition: border-color 0.2s;
 }
+#content:focus { outline: none; border-color: var(--accent); }
+
 .form-row {
   display: flex;
   gap: 8px;
@@ -109,16 +176,21 @@ p.desc {
 }
 .form-row input {
   padding: 8px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-family: 'M PLUS 1p', sans-serif;
   font-size: 14px;
   flex: 1;
   min-width: 120px;
+  background: var(--input-bg);
+  color: var(--text);
+  transition: border-color 0.2s;
 }
+.form-row input:focus { outline: none; border-color: var(--accent); }
+
 .form-row button[type="submit"] {
   padding: 8px 20px;
-  background: #9370db;
+  background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -127,93 +199,131 @@ p.desc {
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
-.form-row button[type="submit"]:hover    { background: #7b5bbf; }
-.form-row button[type="submit"]:disabled { background: #bbb; cursor: default; }
+.form-row button[type="submit"]:hover    { background: var(--accent-dark); }
+.form-row button[type="submit"]:disabled { background: var(--text-sub); cursor: default; }
 
-/* 絵文字ボタン */
 #emojiBtn {
   padding: 7px 12px;
-  background: #f9f9f9;
-  border: 1px solid #ccc;
+  background: var(--bg-sub);
+  border: 1px solid var(--border);
   border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
+  color: var(--text);
 }
 
-/* トピック */
+/* =====================
+   トピック・規制バナー
+   ===================== */
 #currentTopic {
   font-size: 15px;
   font-weight: 700;
-  margin-bottom: 8px;
-  color: #555;
+  margin-bottom: 4px;
+  color: var(--text);
 }
 
-/* 投稿テーブル */
+#restrictionBanner {
+  display: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #cc0000;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  background: #fff0f0;
+  border-left: 3px solid #cc0000;
+  border-radius: 3px;
+}
+[data-theme="dark"] #restrictionBanner {
+  background: #2a1010;
+  color: #ff6666;
+  border-color: #ff4444;
+}
+
+/* =====================
+   投稿テーブル
+   ===================== */
 .table-wrap {
   width: 100%;
   overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0 8px 8px 8px;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 #postsTable {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 }
-#postsTable col.col-no      { width: 52px; }
-#postsTable col.col-info    { width: 160px; }
+#postsTable col.col-no      { width: 48px; }
+#postsTable col.col-info    { width: 150px; }
 #postsTable col.col-content { width: auto; }
 
 #postsTable th {
-  background: #9370db;
-  color: #fff;
+  background: var(--th-bg);
+  color: var(--th-text);
   padding: 8px 10px;
   font-size: 13px;
   text-align: left;
+  font-weight: 700;
 }
 #postsTable td {
-  border: 1px solid #ddd;
+  border-bottom: 1px solid var(--border);
   padding: 8px 10px;
   vertical-align: top;
   font-size: 13px;
   word-break: break-word;
+  background: var(--bg-card);
+  transition: background 0.15s;
 }
-#postsTable tr:nth-child(even) td { background: #faf7ff; }
-#postsTable tr:hover td           { background: #ede8ff; }
+#postsTable tr:nth-child(even) td { background: var(--tr-even); }
+#postsTable tr:hover td           { background: var(--tr-hover); }
 
-/* 投稿番号リンク */
+/* 投稿内容の改行 */
+.post-content { white-space: pre-wrap; }
+
 .post-no-link {
-  color: #888;
+  color: var(--text-sub);
   text-decoration: none;
   font-size: 12px;
 }
+.anchor-link {
+  color: #789922;
+  text-decoration: none;
+  font-weight: bold;
+}
 
-/* 名前・ID列 */
+/* =====================
+   名前・ID列
+   ===================== */
 .info-name { font-weight: 700; font-size: 13px; }
 .info-id   { font-size: 11px; margin-top: 2px; }
 .info-add  { font-size: 11px; color: magenta; }
 
 /* 権限色 */
-.role-admin   { color: red; font-weight: 700; }
+.role-admin   { color: red;       font-weight: 700; }
 .role-summit  { color: darkcyan; }
 .role-manager { color: red; }
 .role-speaker { color: darkorange; }
 .role-blue    { color: #1a6fcf; }
 
-/* 絵文字 */
+/* =====================
+   絵文字
+   ===================== */
 .emoji { width: 20px; height: 20px; vertical-align: middle; }
 
-/* 絵文字パネル */
 #emoji-panel {
   display: none;
   position: fixed;
-  background: #fff;
-  border: 1px solid #ccc;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px;
   max-width: 360px;
   max-height: 260px;
   overflow-y: auto;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 16px var(--shadow);
   z-index: 5000;
   grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
   gap: 4px;
@@ -225,19 +335,13 @@ p.desc {
   cursor: pointer;
   border-radius: 4px;
 }
-#emoji-panel button:hover { background: #f0eaff; }
+#emoji-panel button:hover { background: var(--accent-pale); }
 
-/* ダークモードオーバーレイ */
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: #111;
-  mix-blend-mode: difference;
-  pointer-events: none;
-  clip-path: circle(0 at 100% 100%);
-  transition: clip-path 0.5s ease;
-  z-index: 9999;
-}
+/* =====================
+   ダークモードボタン（overlayは使わない）
+   ===================== */
+#overlay { display: none; }
+
 #toggleBtn {
   position: fixed;
   bottom: 16px;
@@ -245,41 +349,67 @@ p.desc {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2px solid #9370db;
+  border: 2px solid var(--accent);
+  background: var(--bg-card);
+  color: var(--text);
   font-size: 20px;
   cursor: pointer;
   z-index: 10000;
+  box-shadow: 0 2px 8px var(--shadow);
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-#toggleBtn.black         { background: #333; color: #fff; }
-#toggleBtn.white         { background: #fff; color: #333; }
-#toggleBtn.black::after  { content: '夜'; }
-#toggleBtn.white::after  { content: '朝'; }
+#toggleBtn:hover { background: var(--accent-pale); }
+
+/* =====================
+   通知
+   ===================== */
+.notification {
+  padding: 12px 36px 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  min-width: 240px;
+  max-width: 340px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  font-size: 14px;
+  position: relative;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  pointer-events: auto;
+  word-wrap: break-word;
+  font-family: 'M PLUS 1p', sans-serif;
+}
+.notification-success { background: #3a9e5c; color: #fff; }
+.notification-error   { background: #d94040; color: #fff; }
+.notification-show    { transform: translateX(0); opacity: 1; }
+.notification-close {
+  position: absolute; top: 8px; right: 8px;
+  background: none; border: none; color: #fff;
+  font-size: 18px; cursor: pointer; padding: 0; line-height: 1;
+}
 
 /* =====================
    スマホ対応
    ===================== */
 @media (max-width: 600px) {
   body { padding: 10px; }
+  h1   { font-size: 30px; }
+  #clock { font-size: 13px; top: 6px; right: 8px; }
 
-  h1 { font-size: 32px; }
-
-  #clock { font-size: 14px; top: 6px; right: 8px; }
-
-  .nav-links { gap: 6px; }
-  .nav-links a { font-size: 12px; padding: 3px 6px; }
-
+  .nav-links a { font-size: 12px; padding: 2px 6px; }
   .server-tabs button { padding: 6px 12px; font-size: 13px; }
 
-  #postForm { max-width: 100%; }
+  #postForm { max-width: 100%; padding: 10px; }
   .form-row { flex-direction: column; align-items: stretch; }
-  .form-row input { min-width: unset; width: 100%; }
+  .form-row input,
   .form-row button[type="submit"],
-  #emojiBtn { width: 100%; }
+  #emojiBtn { width: 100%; min-width: unset; }
 
-  #postsTable col.col-no   { width: 36px; }
-  #postsTable col.col-info { width: 90px; }
-
+  #postsTable col.col-no   { width: 32px; }
+  #postsTable col.col-info { width: 80px; }
   #postsTable th,
   #postsTable td { padding: 6px 6px; font-size: 12px; }
 
@@ -288,10 +418,8 @@ p.desc {
 
   #emoji-panel {
     left: 4px !important;
-    right: 4px;
     max-width: calc(100vw - 8px);
     width: calc(100vw - 8px);
   }
-
   #toggleBtn { width: 38px; height: 38px; font-size: 16px; bottom: 10px; right: 10px; }
 }
