@@ -1,168 +1,257 @@
-.example1 {
-    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
-    animation: 0.5s example4 linear infinite;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.example2 {
-    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
-    animation: 2s example4 linear infinite;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.example3 {
-    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
-    animation: 3s example4 linear infinite;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.example4 {
-    background: linear-gradient(to right, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000) 0 / 200%;
-    animation: 5s example4 linear infinite;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.summit{
-    color: darkcyan;
-}
-
-.moderator{
-    color: purple;
-}
-
-.manager{
-    color: red;
-}
-
-.speaker{
-    color:darkorange;
-}code {
-    background-color: #f5f5f5;
-    color: #333;
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    font-family: monospace;
-    white-space: pre;
-}
-
-@keyframes example4 {
-    100% { background-position: 200%; }
-}
-
-h1{
-  font-size: 50px;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  margin: 0;
-  padding: 20px;
-  background-color: #f9f9f9;
+  font-family: 'M PLUS 1p', Arial, sans-serif;
+  background: #f9f9f9;
   color: #333;
+  padding: 20px;
+  line-height: 1.6;
 }
 
-
-textarea, {
-  margin: 5px 0;
-  padding: 10px;
-  width: calc(100% - 24px);
-  box-sizing: border-box;
+/* レインボーアニメーション */
+@keyframes rainbow {
+  100% { background-position: 200%; }
+}
+.rainbow {
+  background: linear-gradient(to right,#e60000,#f39800,#fff100,#009944,#0068b7,#1d2088,#920783,#e60000) 0/200%;
+  animation: rainbow 5s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-button {
-  padding: 10px;
-  background-color: #9370db;
-  color: white;
-  border: none;
-  border-radius: 5px;
+h1 {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+p.desc {
+  font-size: 13px;
+  margin-bottom: 12px;
+  line-height: 1.8;
+}
+
+/* ナビリンク */
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.nav-links a {
+  color: #9370db;
+  text-decoration: none;
+  font-size: 13px;
+  border: 1px solid #9370db;
+  border-radius: 4px;
+  padding: 3px 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-links a:hover { background: #9370db; color: #fff; }
+
+/* 時計 */
+#clock {
+  position: fixed;
+  top: 10px;
+  right: 14px;
+  font-size: 18px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #555;
+  z-index: 100;
+}
+
+/* サーバー切替タブ */
+.server-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.server-tabs button {
+  padding: 7px 18px;
+  border: 2px solid #9370db;
+  border-radius: 6px 6px 0 0;
+  background: #f0eaff;
+  color: #9370db;
+  font-family: 'M PLUS 1p', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.server-tabs button.active {
+  background: #9370db;
+  color: #fff;
 }
 
-button:hover {
-  background-color: #8167c1;
+/* フォーム */
+#postForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  max-width: 700px;
+}
+#content {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: 'M PLUS 1p', sans-serif;
+  font-size: 14px;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.form-row input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: 'M PLUS 1p', sans-serif;
+  font-size: 14px;
+  flex: 1;
+  min-width: 120px;
+}
+.form-row button[type="submit"] {
+  padding: 8px 20px;
+  background: #9370db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'M PLUS 1p', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.form-row button[type="submit"]:hover    { background: #7b5bbf; }
+.form-row button[type="submit"]:disabled { background: #bbb; cursor: default; }
+
+/* 絵文字ボタン */
+#emojiBtn {
+  padding: 7px 12px;
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-table {
+/* トピック */
+#currentTopic {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+/* 投稿テーブル */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+#postsTable {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  table-layout: fixed;
 }
+#postsTable col.col-no      { width: 52px; }
+#postsTable col.col-info    { width: 160px; }
+#postsTable col.col-content { width: auto; }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
+#postsTable th {
+  background: #9370db;
+  color: #fff;
+  padding: 8px 10px;
+  font-size: 13px;
   text-align: left;
 }
+#postsTable td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  vertical-align: top;
+  font-size: 13px;
+  word-break: break-word;
+}
+#postsTable tr:nth-child(even) td { background: #faf7ff; }
+#postsTable tr:hover td           { background: #ede8ff; }
 
-th {
-  background-color: #9370db;
-  color: white;
+/* 投稿番号リンク */
+.post-no-link {
+  color: #888;
+  text-decoration: none;
+  font-size: 12px;
 }
 
-#clock {
-    position: fixed;
-    top: 10px;
-    right: 10px;   
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    color: #333;
-    font-family: 'Arial', sans-serif;
+/* 名前・ID列 */
+.info-name { font-weight: 700; font-size: 13px; }
+.info-id   { font-size: 11px; margin-top: 2px; }
+.info-add  { font-size: 11px; color: magenta; }
+
+/* 権限色 */
+.role-admin   { color: red; font-weight: 700; }
+.role-summit  { color: darkcyan; }
+.role-manager { color: red; }
+.role-speaker { color: darkorange; }
+.role-blue    { color: #1a6fcf; }
+
+/* 絵文字 */
+.emoji { width: 20px; height: 20px; vertical-align: middle; }
+
+/* 絵文字パネル */
+#emoji-panel {
+  display: none;
+  position: fixed;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  max-width: 360px;
+  max-height: 260px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  z-index: 5000;
+  grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  gap: 4px;
 }
-
-.comic-relief-bold {
-  font-family: "Comic Relief", system-ui;
-  font-weight: 700;
-  font-style: normal;
+#emoji-panel button {
+  border: none;
+  background: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
 }
+#emoji-panel button:hover { background: #f0eaff; }
 
-@import url("compass/css3");
-
-.center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+/* ダークモードオーバーレイ */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: #111;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  clip-path: circle(0 at 100% 100%);
+  transition: clip-path 0.5s ease;
+  z-index: 9999;
 }
-
-#bar-clock .hour,
-#bar-clock .minutes,
-#bar-clock .seconds {
-  background: #f6f6f6;
-  width: 40px;
-  height: 180px;
-  float: left;
-  margin-right: 0.5em;
-  position: relative;
+#toggleBtn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #9370db;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 10000;
+  transition: background 0.2s;
 }
-
-#bar-clock .seconds {
-  margin-right: 0;
-}
-
-#bar-clock .time {
-  display: block;
-  background: #ccc;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  transition: height 0.1s linear;
-}
-
-#bar-clock #human-time {
-  clear: left;
-  text-align: center;
-  font-size: 2.2em;
-  padding-top: 0.3em;
-  color: #ccc;
-}
-
-    .admin {
-      font-weight: bold;
-      background: linear-gradient(90deg, #e60000, #f39800, #fff100, #009944, #0068b7, #1d2088, #920783, #e60000);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+#toggleBtn.black         { background: #333; color: #fff; }
+#toggleBtn.white         { background: #fff; color: #333; }
+#toggleBtn.black::after  { content: '🌙'; }
+#toggleBtn.white::after  { content: '☀️'; }
