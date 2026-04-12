@@ -3,64 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文字列を簡単に生成！！</title>
-  <link rel="stylesheet" href="style.css">
+  <title>掲示板</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <link rel="icon" href="https://cdn.glitch.global/054c0de1-18c2-4e86-a898-38c0ca4cc12f/47c3d530-4151-4eba-8f03-a49e6e5e7d65.%E6%96%87.png?v=1747825397105">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script>
-    // Cookie確認
     if (!document.cookie.split("; ").find(row => row.startsWith("keijiban=true"))) {
       window.location.href = "/what.html";
     }
   </script>
 </head>
 <body>
-  
-  <h1 class="example4">掲示板</h1>
-  <p>新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものでパスワードのようなものじゃなくてパスワードです。<br>
-  今の話題に勇気を出して参加してみましょう！！！<br>
-  猫派だけ下ネタOKだよ<br>
-  全数字垢がほしいならパスワードを7かなんかにしとけください(<font class="example1">@7902699</font>)<br>
-  IDが<font color="red">赤い</font>人はゆゆゆが選んだ人(運営)です。<br>
-  運営だからだと言ってなにか特別なことができるわけじゃありません。
+
+  <h1 class="rainbow">掲示板</h1>
+  <p class="desc">
+    新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものでパスワードのようなものじゃなくてパスワードです。<br>
+    今の話題に勇気を出して参加してみましょう！！！<br>
+    猫派だけ下ネタOKだよ<br>
+    全数字垢がほしいならパスワードを7かなんかにしとけください(<span class="rainbow" style="font-size:13px;">@7902699</span>)<br>
+    IDが<span style="color:red;font-weight:700;">赤い</span>人はゆゆゆが選んだ人(運営)です。<br>
+    運営だからだと言ってなにか特別なことができるわけじゃありません。
   </p>
-  
-  <a href="how.html" target="_blank">使い方</a>
-  <a href="topic.html" target="_blank">トピック変更</a>
-  <a href="del.html" target="_blank">投稿削除</a>
-  <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
-  <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
-  <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
-  
-  <div id="clock" class="comic-relief-bold"></div>
-  
-  <form id="postForm">
-    <textarea id="content" placeholder="内容" required></textarea><br>
-    <input type="text" id="name" placeholder="名前" required>
-    <input type="password" id="password" placeholder="パスワード" required>
-    <button type="submit">送信</button>
+
+  <div class="nav-links">
+    <a href="how.html" target="_blank">使い方</a>
+    <a href="topic.html" target="_blank">トピック変更</a>
+    <a href="del.html" target="_blank">投稿削除</a>
+    <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
+    <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
+    <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
+  </div>
+
+  <div id="clock"></div>
+
+  <div class="server-tabs">
+    <button id="tab-chat" class="active" onclick="switchServer('chat')">雑談</button>
+    <button id="tab-battle" onclick="switchServer('battle')">バトルスタジアム</button>
+  </div>
+
+  <form id="postForm" onsubmit="return false;">
+    <textarea id="content" placeholder="内容"></textarea>
+    <div class="form-row">
+      <input type="text"     id="name"     placeholder="名前">
+      <input type="password" id="password" placeholder="パスワード">
+      <button id="emojiBtn" type="button">絵文字</button>
+      <button type="submit"  id="submitBtn">送信</button>
+    </div>
   </form>
-  
-  <h2>投稿</h2>
+
   <h3 id="currentTopic">今の話題：</h3>
-  <table id="postsTable" border="1">
-    <thead>
-      <tr>
-        <th>番号</th>
-        <th>名前</th>
-        <th>ID</th>
-        <th>内容</th>
-        <th>日時</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  
+
+  <div class="table-wrap">
+    <table id="postsTable">
+      <colgroup>
+        <col class="col-no">
+        <col class="col-info">
+        <col class="col-content">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>番号</th>
+          <th>名前 / ID</th>
+          <th>投稿</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
   <button id="toggleBtn" class="black"></button>
   <div id="overlay"></div>
+
   <script src="script.js"></script>
+  <script src="clock.js"></script>
 </body>
 </html>
