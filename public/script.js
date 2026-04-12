@@ -1,9 +1,10 @@
 // =====================
-// サーバー設定
+// サーバー設定（同一サーバー、エンドポイント分離）
 // =====================
-var SERVERS = {
-  chat:   { name: '雑談',            url: 'https://yuyuyu-made-bbs-server.onrender.com' },
-  battle: { name: 'バトルスタジアム', url: 'https://yuyuyu-made-bbs.onrender.com' }
+var SERVER_URL = 'https://yuyuyu-made-bbs-server.onrender.com';
+var ENDPOINTS = {
+  chat:   '/api',
+  battle: '/api/battle'
 };
 var currentServer = 'chat';
 
@@ -13,65 +14,69 @@ function switchServer(key) {
   document.getElementById('tab-battle').classList.toggle('active', key === 'battle');
   var tbody = document.querySelector('#postsTable tbody');
   if (tbody) tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
+  var topicEl = document.getElementById('currentTopic');
+  if (topicEl) topicEl.textContent = '今の話題：';
+  var banner = document.getElementById('restrictionBanner');
+  if (banner) { banner.textContent = ''; banner.style.display = 'none'; }
   updatePostsList();
 }
 
-function apiUrl() { return SERVERS[currentServer].url; }
+function apiEndpoint() { return SERVER_URL + ENDPOINTS[currentServer]; }
 
 // =====================
 // 絵文字定義
 // =====================
 var BASE = 'https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/main/emoji/';
 var EMOJI_MAP = {
-  ':)':         { url: BASE + 'emo_smile.gif',      alt: ':)' },
-  ':(':         { url: BASE + 'emo_sad.gif',         alt: ':(' },
-  ':D':         { url: BASE + 'emo_grin.gif',        alt: ':D' },
-  '8-)':        { url: BASE + 'emo_ikemen.gif',      alt: '8-)' },
-  ':o':         { url: BASE + 'emo_surprise.gif',    alt: ':o' },
-  ';)':         { url: BASE + 'emo_wink.gif',        alt: ';)' },
-  ';(':         { url: BASE + 'emo_tears.gif',       alt: ';(' },
-  '(sweat)':    { url: BASE + 'emo_sweat.gif',       alt: '(sweat)' },
-  ':|':         { url: BASE + 'emo_mumu.gif',        alt: ':|' },
-  ':*':         { url: BASE + 'emo_kiss.gif',        alt: ':*' },
-  ':p':         { url: BASE + 'emo_tongueout.gif',   alt: ':p' },
-  '(blush)':    { url: BASE + 'emo_blush.gif',       alt: '(blush)' },
-  ':^)':        { url: BASE + 'emo_wry_smile.gif',   alt: ':^)' },
-  '|-)':        { url: BASE + 'emo_snooze.gif',      alt: '|-)' },
-  '(inlove)':   { url: BASE + 'emo_love.gif',        alt: '(inlove)' },
-  ']:)':        { url: BASE + 'emo_devil.gif',        alt: ']:)' },
-  '(talk)':     { url: BASE + 'emo_talk.gif',        alt: '(talk)' },
-  '(yawn)':     { url: BASE + 'emo_yawn.gif',        alt: '(yawn)' },
-  '(puke)':     { url: BASE + 'emo_puke.gif',        alt: '(puke)' },
-  '(emo)':      { url: BASE + 'emo_sad.gif',         alt: '(emo)' },
-  '8-|':        { url: BASE + 'emo_more_smile.gif',  alt: '8-|' },
-  ':#)':        { url: BASE + 'emo_otaku.gif',       alt: ':#)' },
-  '(nod)':      { url: BASE + 'emo_nod.gif',         alt: '(nod)' },
-  '(shake)':    { url: BASE + 'emo_shake.gif',       alt: '(shake)' },
-  '(^^;)':      { url: BASE + 'emo_sweat.gif',       alt: '(^^;)' },
-  '(whew)':     { url: BASE + 'emo_whew.gif',        alt: '(whew)' },
-  '(clap)':     { url: BASE + 'emo_clap.gif',        alt: '(clap)' },
-  '(bow)':      { url: BASE + 'emo_bow.gif',         alt: '(bow)' },
-  '(roger)':    { url: BASE + 'emo_roger.gif',       alt: '(roger)' },
-  '(flex)':     { url: BASE + 'emo_muscle.gif',      alt: '(flex)' },
-  '(dance)':    { url: BASE + 'emo_dance.gif',       alt: '(dance)' },
-  '(:/)':       { url: BASE + 'emo_wonder.gif',      alt: '(:/)' },
-  '(gogo)':     { url: BASE + 'emo_gogo.gif',        alt: '(gogo)' },
-  '(think)':    { url: BASE + 'emo_think.gif',       alt: '(think)' },
-  '(please)':   { url: BASE + 'emo_please.gif',      alt: '(please)' },
-  '(quick)':    { url: BASE + 'emo_quick.gif',       alt: '(quick)' },
-  '(anger)':    { url: BASE + 'emo_anger.gif',       alt: '(anger)' },
-  '(devil)':    { url: BASE + 'emo_devil.gif',       alt: '(devil)' },
-  '(lightbulb)':{ url: BASE + 'emo_lightbulb.gif',  alt: '(lightbulb)' },
-  '(*)':        { url: BASE + 'emo_star.gif',        alt: '(*)' },
-  '(h)':        { url: BASE + 'emo_heart.gif',       alt: '(h)' },
-  '(F)':        { url: BASE + 'emo_flower.gif',      alt: '(F)' },
-  '(cracker)':  { url: BASE + 'emo_cracker.gif',     alt: '(cracker)' },
-  '(eat)':      { url: BASE + 'emo_eat.gif',         alt: '(eat)' },
-  '(^)':        { url: BASE + 'emo_lucky.gif',       alt: '(^)' },
-  '(coffee)':   { url: BASE + 'emo_coffee.gif',      alt: '(coffee)' },
-  '(beer)':     { url: BASE + 'emo_beer.gif',        alt: '(beer)' },
-  '(handshake)':{ url: BASE + 'emo_handshake.gif',   alt: '(handshake)' },
-  '(y)':        { url: BASE + 'emo_yes.gif',         alt: '(y)' }
+  ':)':         { url: BASE + 'emo_smile.gif' },
+  ':(':         { url: BASE + 'emo_sad.gif' },
+  ':D':         { url: BASE + 'emo_grin.gif' },
+  '8-)':        { url: BASE + 'emo_ikemen.gif' },
+  ':o':         { url: BASE + 'emo_surprise.gif' },
+  ';)':         { url: BASE + 'emo_wink.gif' },
+  ';(':         { url: BASE + 'emo_tears.gif' },
+  '(sweat)':    { url: BASE + 'emo_sweat.gif' },
+  ':|':         { url: BASE + 'emo_mumu.gif' },
+  ':*':         { url: BASE + 'emo_kiss.gif' },
+  ':p':         { url: BASE + 'emo_tongueout.gif' },
+  '(blush)':    { url: BASE + 'emo_blush.gif' },
+  ':^)':        { url: BASE + 'emo_wry_smile.gif' },
+  '|-)':        { url: BASE + 'emo_snooze.gif' },
+  '(inlove)':   { url: BASE + 'emo_love.gif' },
+  ']:)':        { url: BASE + 'emo_devil.gif' },
+  '(talk)':     { url: BASE + 'emo_talk.gif' },
+  '(yawn)':     { url: BASE + 'emo_yawn.gif' },
+  '(puke)':     { url: BASE + 'emo_puke.gif' },
+  '(emo)':      { url: BASE + 'emo_sad.gif' },
+  '8-|':        { url: BASE + 'emo_more_smile.gif' },
+  ':#)':        { url: BASE + 'emo_otaku.gif' },
+  '(nod)':      { url: BASE + 'emo_nod.gif' },
+  '(shake)':    { url: BASE + 'emo_shake.gif' },
+  '(^^;)':      { url: BASE + 'emo_sweat.gif' },
+  '(whew)':     { url: BASE + 'emo_whew.gif' },
+  '(clap)':     { url: BASE + 'emo_clap.gif' },
+  '(bow)':      { url: BASE + 'emo_bow.gif' },
+  '(roger)':    { url: BASE + 'emo_roger.gif' },
+  '(flex)':     { url: BASE + 'emo_muscle.gif' },
+  '(dance)':    { url: BASE + 'emo_dance.gif' },
+  '(:/)':       { url: BASE + 'emo_wonder.gif' },
+  '(gogo)':     { url: BASE + 'emo_gogo.gif' },
+  '(think)':    { url: BASE + 'emo_think.gif' },
+  '(please)':   { url: BASE + 'emo_please.gif' },
+  '(quick)':    { url: BASE + 'emo_quick.gif' },
+  '(anger)':    { url: BASE + 'emo_anger.gif' },
+  '(devil)':    { url: BASE + 'emo_devil.gif' },
+  '(lightbulb)':{ url: BASE + 'emo_lightbulb.gif' },
+  '(*)':        { url: BASE + 'emo_star.gif' },
+  '(h)':        { url: BASE + 'emo_heart.gif' },
+  '(F)':        { url: BASE + 'emo_flower.gif' },
+  '(cracker)':  { url: BASE + 'emo_cracker.gif' },
+  '(eat)':      { url: BASE + 'emo_eat.gif' },
+  '(^)':        { url: BASE + 'emo_lucky.gif' },
+  '(coffee)':   { url: BASE + 'emo_coffee.gif' },
+  '(beer)':     { url: BASE + 'emo_beer.gif' },
+  '(handshake)':{ url: BASE + 'emo_handshake.gif' },
+  '(y)':        { url: BASE + 'emo_yes.gif' }
 };
 
 // =====================
@@ -111,35 +116,67 @@ function autoLinkUrls(text) {
   return text.replace(/(https?:\/\/[^\s<>"'））]+|(?:www\.)?[A-Za-z0-9][A-Za-z0-9-]*(?:\.[A-Za-z]{2,})(?:\/[^\s<>"']*)?)([.,;!?））]*)/gi, function(full, url, trail) {
     var clean = url.replace(/[.,;!?]+$/,'');
     var href = clean.match(/^https?:\/\//i) ? clean : 'https://' + clean;
-    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer" style="color:#0066cc;text-decoration:underline;">' + escapeHtml(clean) + '</a>' + (trail || '');
+    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(clean) + '</a>' + (trail || '');
   });
 }
 
 function autoLinkAnchors(text) {
   if (!text) return '';
-  return text.replace(/>>(\d+)/g, '<a href="#$1" style="color:#789922;text-decoration:none;font-weight:bold;">&gt;&gt;$1</a>');
+  return text.replace(/>>(\d+)/g, '<a href="#$1" class="anchor-link">&gt;&gt;$1</a>');
 }
 
 function escapeForRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
 function convertEmojis(text) {
   if (!text) return '';
-  // 長いコードから先に置換（部分一致防止）
   var codes = Object.keys(EMOJI_MAP).sort(function(a,b){ return b.length - a.length; });
   codes.forEach(function(code) {
-    var d = EMOJI_MAP[code];
-    text = text.replace(new RegExp(escapeForRegex(code),'g'),
-      '<img src="' + d.url + '" alt="' + escapeHtml(d.alt) + '" class="emoji">');
+    text = text.replace(
+      new RegExp(escapeForRegex(code),'g'),
+      '<img src="' + EMOJI_MAP[code].url + '" alt="' + escapeHtml(code) + '" class="emoji">'
+    );
   });
   return text;
 }
 
 function processContent(content) {
-  var s = content || '';
+  // 改行をbrに変換（HTMLエスケープ後）
+  var s = escapeHtml(content || '');
+  s = s.replace(/\n/g, '<br>');
   s = autoLinkUrls(s);
   s = autoLinkAnchors(s);
   s = convertEmojis(s);
   return s;
+}
+
+// =====================
+// 規制バナー表示
+// =====================
+function updateRestrictionBanner(rs) {
+  var el = document.getElementById('restrictionBanner');
+  if (!el) return;
+  var msgs = [];
+
+  if (rs.stopActive || rs.prohibitActive) {
+    var until = rs.stopActive ? rs.stopUntil : rs.prohibitUntil;
+    var d = new Date(until);
+    var h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
+    msgs.push(h + '時' + m + '分まで青IDの投稿を禁止中');
+  }
+  if (rs.restrict) {
+    msgs.push('青ID一部規制中');
+  }
+  if (rs.prevent && currentServer === 'chat') {
+    msgs.push('雑談での青IDの発言制限中');
+  }
+
+  if (msgs.length) {
+    el.textContent = msgs.join('　／　');
+    el.style.display = 'block';
+  } else {
+    el.textContent = '';
+    el.style.display = 'none';
+  }
 }
 
 // =====================
@@ -156,26 +193,18 @@ var NotificationManager = {
   show: function(text, type) {
     this.init();
     var el = document.createElement('div');
-    el.style.cssText = [
-      'background:' + (type === 'error' ? '#f44336' : '#4CAF50'),
-      'color:#fff','padding:12px 36px 12px 16px','border-radius:8px',
-      'margin-bottom:10px','min-width:240px','max-width:340px',
-      'box-shadow:0 4px 12px rgba(0,0,0,0.25)','font-size:14px',
-      'position:relative','transform:translateX(120%)','opacity:0',
-      'transition:all 0.3s','pointer-events:auto','word-wrap:break-word',
-      "font-family:'M PLUS 1p',sans-serif"
-    ].join(';');
+    el.className = 'notification ' + (type === 'error' ? 'notification-error' : 'notification-success');
     var span = document.createElement('span');
     span.textContent = text;
     var closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
-    closeBtn.style.cssText = 'position:absolute;top:8px;right:8px;background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0;line-height:1;';
+    closeBtn.className = 'notification-close';
     el.appendChild(span); el.appendChild(closeBtn);
     this.container.appendChild(el);
     var id = Date.now() + Math.random();
     var item = { id: id, el: el, timer: null };
     this.notifications.push(item);
-    requestAnimationFrame(function() { el.style.transform = 'translateX(0)'; el.style.opacity = '1'; });
+    requestAnimationFrame(function() { el.classList.add('notification-show'); });
     item.timer = setTimeout(function() { NotificationManager.hide(id); }, 8000);
     closeBtn.addEventListener('click', function() { NotificationManager.hide(id); });
   },
@@ -184,7 +213,7 @@ var NotificationManager = {
       if (this.notifications[i].id === id) {
         var n = this.notifications[i]; var self = this; var idx = i;
         clearTimeout(n.timer);
-        n.el.style.transform = 'translateX(120%)'; n.el.style.opacity = '0';
+        n.el.classList.remove('notification-show');
         setTimeout(function() { if (n.el.parentNode) n.el.remove(); self.notifications.splice(idx, 1); }, 300);
         break;
       }
@@ -200,7 +229,7 @@ async function apiRequest(endpoint, options) {
   var ctrl = new AbortController();
   var tid = setTimeout(function() { ctrl.abort(); }, 5000);
   try {
-    var resp = await fetch(apiUrl() + endpoint, Object.assign({ headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal }, options || {}));
+    var resp = await fetch(endpoint, Object.assign({ headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal }, options || {}));
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
@@ -212,12 +241,12 @@ async function apiRequest(endpoint, options) {
 }
 
 async function loadData() {
-  var d = await apiRequest('/api');
-  return { posts: d.posts || [], topic: d.topic || '' };
+  var d = await apiRequest(apiEndpoint());
+  return { posts: d.posts || [], topic: d.topic || '', restriction: d.restriction || {} };
 }
 
 async function createPost(postData) {
-  return await apiRequest('/api', {
+  return await apiRequest(apiEndpoint(), {
     method: 'POST',
     body: JSON.stringify({ name: postData.name, pass: postData.password, content: postData.content })
   });
@@ -228,10 +257,8 @@ async function createPost(postData) {
 // =====================
 function updateTopic(t) {
   var el = document.getElementById('currentTopic');
-  if (el) el.innerHTML = '今の話題：' + decodeHtml(t || '');
+  if (el) el.innerHTML = '今の話題：' + escapeHtml(decodeHtml(t || '')).replace(/\n/g, '<br>');
 }
-
-var ADMIN_IDS = [];
 
 function getIdClass(post) {
   if (post.role !== undefined) {
@@ -250,17 +277,16 @@ function displayPost(post) {
   var add     = escapeHtml(post.addSuffix || '');
   var color   = post.colorCode || null;
   var content = processContent(post.content || '');
-
-  var idClass   = getIdClass(post);
-  var nameStyle = color ? 'style="color:' + escapeHtml(color) + ';"' : '';
+  var idClass = getIdClass(post);
+  var nameStyle = color ? ' style="color:' + escapeHtml(color) + ';"' : '';
 
   tr.innerHTML =
     '<td><a href="#' + no + '" class="post-no-link">' + no + '</a></td>' +
     '<td>' +
-      '<div class="info-name" ' + nameStyle + '>' + name + '</div>' +
+      '<div class="info-name"' + nameStyle + '>' + name + '</div>' +
       (id ? '<div class="info-id ' + idClass + '">' + id + (add ? ' <span class="info-add">' + add + '</span>' : '') + '</div>' : '') +
     '</td>' +
-    '<td>' + content + '</td>';
+    '<td class="post-content">' + content + '</td>';
   return tr;
 }
 
@@ -274,6 +300,7 @@ async function updatePostsList() {
     if (tbody.children.length === 0) tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
     var data = await loadData();
     updateTopic(data.topic);
+    updateRestrictionBanner(data.restriction);
     tbody.innerHTML = '';
     if (!data.posts || data.posts.length === 0) {
       tbody.innerHTML = '<tr><td colspan="3">投稿がありません</td></tr>';
@@ -297,11 +324,11 @@ function createEmojiPanel() {
   var panel = document.createElement('div');
   panel.id = 'emoji-panel';
   document.body.appendChild(panel);
-  Object.keys(EMOJI_MAP).forEach(function(code) {
-    var d = EMOJI_MAP[code];
+  var codes = Object.keys(EMOJI_MAP).sort(function(a,b){ return b.length - a.length; });
+  codes.forEach(function(code) {
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.innerHTML = '<img src="' + d.url + '" alt="' + escapeHtml(d.alt) + '" style="width:22px;height:22px;">';
+    btn.innerHTML = '<img src="' + EMOJI_MAP[code].url + '" alt="' + escapeHtml(code) + '" style="width:22px;height:22px;">';
     btn.title = code;
     btn.addEventListener('click', function() {
       var inp = document.getElementById('content');
@@ -350,20 +377,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  function enableDark() {
-    if (overlay)   overlay.style.clipPath = 'circle(150% at 100% 100%)';
-    if (toggleBtn) { toggleBtn.classList.add('white'); toggleBtn.classList.remove('black'); }
-    inverted = true;
-    setCookie('darkmode','true',365);
+  // ダークモード（システム設定に追従）
+  function applyDark(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    if (overlay) overlay.style.display = 'none'; // overlay不要
+    if (toggleBtn) {
+      toggleBtn.textContent = dark ? '☀️' : '🌙';
+    }
+    inverted = dark;
+    setCookie('darkmode', dark ? 'true' : 'false', 365);
   }
-  function disableDark() {
-    if (overlay)   overlay.style.clipPath = 'circle(0 at 100% 100%)';
-    if (toggleBtn) { toggleBtn.classList.add('black'); toggleBtn.classList.remove('white'); }
-    inverted = false;
-    setCookie('darkmode','false',365);
+
+  // システムのダークモードを監視
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var savedDark = getCookie('darkmode');
+  if (savedDark === '') {
+    applyDark(prefersDark.matches);
+  } else {
+    applyDark(savedDark === 'true');
   }
-  if (getCookie('darkmode') === 'true') enableDark(); else disableDark();
-  if (toggleBtn) toggleBtn.addEventListener('click', function() { inverted ? disableDark() : enableDark(); });
+  prefersDark.addEventListener('change', function(e) {
+    if (getCookie('darkmode') === '') applyDark(e.matches);
+  });
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      applyDark(!inverted);
+    });
+  }
 
   updateClock();
   setInterval(updateClock, 1000);
