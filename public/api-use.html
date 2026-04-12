@@ -3,43 +3,229 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APIの使い方！</title>
+  <title>APIの使い方</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .api-wrap { max-width: 800px; margin: 0 auto; }
+    h2 { font-size: 22px; margin: 28px 0 10px; border-left: 4px solid var(--accent); padding-left: 10px; color: var(--accent); }
+    h3 { font-size: 16px; margin: 18px 0 6px; color: var(--text); }
+    p, li { font-size: 14px; margin-bottom: 6px; line-height: 1.8; }
+    ul { padding-left: 20px; }
+    pre {
+      background: var(--bg-sub);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin: 8px 0 14px;
+      color: var(--text);
+    }
+    code {
+      background: var(--bg-sub);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--accent);
+    }
+    .endpoint {
+      display: inline-block;
+      background: var(--accent-pale);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: monospace;
+      font-size: 13px;
+      margin: 6px 0;
+      word-break: break-all;
+      color: var(--text);
+    }
+    .method {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      color: #fff;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .method-get  { background: #3a9e5c; }
+    .method-post { background: #c06000; }
+    .back-link { display: inline-block; margin-bottom: 20px; color: var(--accent); text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    table.field-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 8px 0 14px;
+    }
+    table.field-table th {
+      background: var(--th-bg);
+      color: var(--th-text);
+      padding: 7px 10px;
+      text-align: left;
+    }
+    table.field-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 7px 10px;
+      background: var(--bg-card);
+    }
+    table.field-table tr:nth-child(even) td { background: var(--tr-even); }
+  </style>
 </head>
 <body>
-  <h1>APIの使い方！</h1>
-  <a href="/">掲示板に戻る</a>
-  
-  <h2>データ取得</h2>
-  <p><a href="https://yuyuyu-made-bbs-server.onrender.com/api">https://yuyuyu-made-bbs-server.onrender.com/api</a>で投稿とtopicが取得できます。(json形式)<br>
-バトスタは<a href="https://yuyuyu-made-bbs.onrender.com/api">https://yuyuyu-made-bbs.onrender.com/api</a></p>
-  
-  <h2>投稿送信</h2>
-  <p><font size="5">(POSTリクエストでないと送信できません。)</font></p>
-  <p>送信できるのは1秒1回です。</p>
-  
-  <h3>方法1: クエリパラメーター</h3>
-  <p>https://yuyuyu-made-bbs-server.onrender.com/api?name=[名前]&pass=[パスワード]&content=[内容]</p>
-  <p>に<b>POST</b>リクエストで送信</p>
-  
-  <h3>方法2: JSON</h3>
-  <p>https://yuyuyu-made-bbs-server.onrender.com/api</p>
-  <p>に<b>POST</b>リクエストで以下のJSONを送信：</p>
+<div class="api-wrap">
+  <h1 style="font-size:32px;margin-bottom:8px;">APIの使い方</h1>
+  <a href="/" class="back-link">← 掲示板に戻る</a>
+
+  <!-- ========== エンドポイント一覧 ========== -->
+  <h2>エンドポイント一覧</h2>
+  <p>すべて同一サーバー（<code>https://yuyuyu-made-bbs-server.onrender.com</code>）で提供しています。</p>
+
+  <table class="field-table">
+    <thead><tr><th>メソッド</th><th>パス</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="method method-get">GET</span></td>
+        <td><code>/api</code></td>
+        <td>雑談の投稿・topic・規制状態を取得</td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td>
+        <td><code>/api</code></td>
+        <td>雑談に投稿（またはコマンド実行）</td>
+      </tr>
+      <tr>
+        <td><span class="method method-get">GET</span></td>
+        <td><code>/api/battle</code></td>
+        <td>バトルスタジアムの投稿・topic・規制状態を取得</td>
+      </tr>
+      <tr>
+        <td><span class="method method-post">POST</span></td>
+        <td><code>/api/battle</code></td>
+        <td>バトルスタジアムに投稿（またはコマンド実行）</td>
+      </tr>
+      <tr>
+        <td><span class="method method-get">GET</span></td>
+        <td><code>/health</code></td>
+        <td>サーバーの死活確認</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ========== データ取得 ========== -->
+  <h2>データ取得（GET）</h2>
+  <div class="endpoint">GET https://yuyuyu-made-bbs-server.onrender.com/api</div>
+  <div class="endpoint">GET https://yuyuyu-made-bbs-server.onrender.com/api/battle</div>
+
+  <h3>レスポンス例</h3>
   <pre>{
+  "topic": "今の話題",
+  "posts": [
+    {
+      "no": 5,
+      "name": "ユーザー名",
+      "content": "投稿内容",
+      "id": "@abc1234",
+      "time": "2025/8/31 15:30:00",
+      "deleted": false,
+      "role": 0,
+      "colorCode": null,
+      "addSuffix": null
+    }
+  ],
+  "restriction": {
+    "prevent": false,
+    "restrict": false,
+    "stopActive": false,
+    "stopUntil": 0,
+    "prohibitActive": false,
+    "prohibitUntil": 0
+  }
+}</pre>
+
+  <h3>postsの各フィールド</h3>
+  <table class="field-table">
+    <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>no</code></td><td>number</td><td>投稿番号（連番）</td></tr>
+      <tr><td><code>name</code></td><td>string</td><td>投稿者名</td></tr>
+      <tr><td><code>content</code></td><td>string</td><td>投稿内容</td></tr>
+      <tr><td><code>id</code></td><td>string</td><td>ハッシュID（@xxxxxxx形式）</td></tr>
+      <tr><td><code>time</code></td><td>string</td><td>投稿日時（JST）</td></tr>
+      <tr><td><code>deleted</code></td><td>boolean</td><td>削除済みかどうか</td></tr>
+      <tr><td><code>role</code></td><td>number</td><td>権限レベル: 0=青ID / 1=スピーカー / 2=マネージャー / 3=サミット / 4=運営</td></tr>
+      <tr><td><code>colorCode</code></td><td>string|null</td><td>名前色（HEX形式）。未設定はnull</td></tr>
+      <tr><td><code>addSuffix</code></td><td>string|null</td><td>IDの後ろに付く文字。未設定はnull</td></tr>
+    </tbody>
+  </table>
+
+  <h3>restrictionの各フィールド</h3>
+  <table class="field-table">
+    <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>prevent</code></td><td>boolean</td><td>/prevent作用中（雑談のみ青ID投稿禁止）</td></tr>
+      <tr><td><code>restrict</code></td><td>boolean</td><td>/restrict作用中（banされた青ID投稿禁止）</td></tr>
+      <tr><td><code>stopActive</code></td><td>boolean</td><td>/stop作用中</td></tr>
+      <tr><td><code>stopUntil</code></td><td>number</td><td>stop終了時刻（Unixミリ秒）</td></tr>
+      <tr><td><code>prohibitActive</code></td><td>boolean</td><td>/prohibit作用中</td></tr>
+      <tr><td><code>prohibitUntil</code></td><td>number</td><td>prohibit終了時刻（Unixミリ秒）</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ========== 投稿送信 ========== -->
+  <h2>投稿送信（POST）</h2>
+  <p>POSTリクエストのみ受け付けます。送信は<b>1秒に1回</b>まで。</p>
+
+  <h3>方法1: クエリパラメーター</h3>
+  <pre>POST https://yuyuyu-made-bbs-server.onrender.com/api?name=名前&amp;pass=パスワード&amp;content=内容</pre>
+
+  <h3>方法2: JSONボディ</h3>
+  <pre>POST https://yuyuyu-made-bbs-server.onrender.com/api
+Content-Type: application/json
+
+{
   "name": "名前",
-  "pass": "パスワード", 
+  "pass": "パスワード",
   "content": "内容"
 }</pre>
-  <p>Content-Type: application/json を設定してください。</p>
-  
-  <h2>投稿データ形式</h2>
-  <p>投稿には自動で番号が付与されます：</p>
+
+  <h3>リクエストフィールド</h3>
+  <table class="field-table">
+    <thead><tr><th>フィールド</th><th>必須</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td>✓</td><td>投稿者名（最大50文字）</td></tr>
+      <tr><td><code>pass</code></td><td>✓</td><td>パスワード（IDの生成に使用。SHA-256ハッシュの先頭7文字がIDになる）</td></tr>
+      <tr><td><code>content</code></td><td>✓</td><td>投稿内容（最大1000文字）。コマンドもここに記述。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>レスポンス例（成功）</h3>
   <pre>{
-  "no": 3,
-  "name": "ユーザー名",
-  "content": "投稿内容",
-  "id": "@abc1234",
-  "time": "2025/8/31 15:30:00"
+  "message": "投稿成功",
+  "post": { "no": 6, "name": "名前", ... }
 }</pre>
+
+  <h3>エラーレスポンス例</h3>
+  <pre>{
+  "error": "投稿が禁止されています"
+}</pre>
+
+  <!-- ========== IDについて ========== -->
+  <h2>IDの仕組み</h2>
+  <p>パスワードをSHA-256でハッシュ化し、先頭7文字に<code>@</code>を付けたものがIDになります。</p>
+  <pre>ID = "@" + sha256(パスワード).slice(0, 7)</pre>
+  <p>例えばパスワードを <code>7</code> にすると ID は <code>@7902699</code> になります。</p>
+  <p>同じパスワードを使い続けることで同じIDを維持できます。</p>
+
+  <br>
+</div>
 </body>
 </html>
