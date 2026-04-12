@@ -13,7 +13,8 @@
     "express": "^4.21.2",
     "cors": "^2.8.5",
     "axios": "^1.7.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "pg": "^8.13.3"
   },
   "main": "server.js",
   "keywords": [],
