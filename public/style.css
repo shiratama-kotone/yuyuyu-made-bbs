@@ -253,5 +253,45 @@ p.desc {
 }
 #toggleBtn.black         { background: #333; color: #fff; }
 #toggleBtn.white         { background: #fff; color: #333; }
-#toggleBtn.black::after  { content: '🌙'; }
-#toggleBtn.white::after  { content: '☀️'; }
+#toggleBtn.black::after  { content: '夜'; }
+#toggleBtn.white::after  { content: '朝'; }
+
+/* =====================
+   スマホ対応
+   ===================== */
+@media (max-width: 600px) {
+  body { padding: 10px; }
+
+  h1 { font-size: 32px; }
+
+  #clock { font-size: 14px; top: 6px; right: 8px; }
+
+  .nav-links { gap: 6px; }
+  .nav-links a { font-size: 12px; padding: 3px 6px; }
+
+  .server-tabs button { padding: 6px 12px; font-size: 13px; }
+
+  #postForm { max-width: 100%; }
+  .form-row { flex-direction: column; align-items: stretch; }
+  .form-row input { min-width: unset; width: 100%; }
+  .form-row button[type="submit"],
+  #emojiBtn { width: 100%; }
+
+  #postsTable col.col-no   { width: 36px; }
+  #postsTable col.col-info { width: 90px; }
+
+  #postsTable th,
+  #postsTable td { padding: 6px 6px; font-size: 12px; }
+
+  .info-name { font-size: 12px; }
+  .info-id   { font-size: 10px; }
+
+  #emoji-panel {
+    left: 4px !important;
+    right: 4px;
+    max-width: calc(100vw - 8px);
+    width: calc(100vw - 8px);
+  }
+
+  #toggleBtn { width: 38px; height: 38px; font-size: 16px; bottom: 10px; right: 10px; }
+}
