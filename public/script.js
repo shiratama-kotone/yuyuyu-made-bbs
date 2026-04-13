@@ -300,7 +300,10 @@ async function createPost(postData) {
 // =====================
 function updateTopic(t) {
   var el = document.getElementById('currentTopic');
-  if (el) el.innerHTML = '今の話題：' + escapeHtml(decodeHtml(t || '')).replace(/\n/g, '<br>');
+  if (!el) return;
+  var s = escapeHtml(decodeHtml(t || '')).replace(/\n/g, '<br>');
+  s = convertEmojis(s);
+  el.innerHTML = '今の話題：' + s;
 }
 
 function getIdClass(post) {
