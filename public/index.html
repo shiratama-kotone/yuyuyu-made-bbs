@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&family=Kosugi+Maru&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="https://cdn.glitch.global/054c0de1-18c2-4e86-a898-38c0ca4cc12f/47c3d530-4151-4eba-8f03-a49e6e5e7d65.%E6%96%87.png?v=1747825397105">
+  <script src="clock.js"></script>
   <script>
     if (!document.cookie.split("; ").find(row => row.startsWith("keijiban=true"))) {
       window.location.href = "/what.html";
@@ -19,18 +20,16 @@
 
   <h1 class="rainbow">掲示板</h1>
   <p class="desc">
-    新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものです。<br>
+    新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものです。
+    パスワードはできるだけ他の人から推測されないものにしましょう<br>
     今の話題に勇気を出して参加してみましょう！！！<br>
-    猫派だけ下ネタOKだよ<br>
-    <s>全数字垢がほしいならパスワードを7かなんかにしとけください(<span class="rainbow" style="font-size:13px;">@7902699</span>)</s><br>
-    IDが<span style="color:red;">赤い</span>人はゆゆゆが選んだ人(運営)です。
+    使い方を読もう
   </p>
 
   <div class="nav-links">
     <a href="how.html" target="_blank">使い方</a>
     <a href="api-use.html" target="_blank">API</a>
-    <a href="topic.html" target="_blank">トピック変更</a>
-    <a href="del.html" target="_blank">投稿削除</a>
+    <a href="account.html" target="_blank">アカウント</a>
     <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
     <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
     <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
@@ -44,7 +43,7 @@
   </div>
 
   <form id="postForm" onsubmit="return false;">
-    <textarea id="content" placeholder="内容（Shift+Enterで送信 / Enterで改行）"></textarea>
+    <textarea id="content" placeholder="内容（Enterで改行 / Shift+Enterで送信）"></textarea>
     <div class="form-row">
       <input type="text"     id="name"     placeholder="名前">
       <input type="password" id="password" placeholder="パスワード">
@@ -74,9 +73,10 @@
     </table>
   </div>
 
+  <div id="overlay"></div>
+
   <button id="toggleBtn">🌙</button>
   <button id="settingsBtn">⚙️</button>
-  <div id="overlay"></div>
 
   <script src="script.js"></script>
 </body>
