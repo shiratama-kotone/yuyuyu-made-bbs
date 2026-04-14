@@ -219,13 +219,18 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
 #emoji-panel button:hover { background:var(--accent-pale); }
 
 /* =====================
-   設定パネル
+   設定パネル（fixed、スクロール不問）
    ===================== */
 #settings-panel {
-  position:fixed; top:0; right:-340px; width:320px; height:100vh; overflow-y:auto;
-  background:var(--bg-card); border-left:1px solid var(--border);
-  box-shadow:-4px 0 16px var(--shadow); z-index:9000;
-  transition:right 0.3s ease;
+  position: fixed;
+  top: 0; right: -340px; bottom: 0;
+  width: 320px;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 16px var(--shadow);
+  z-index: 9000;
+  transition: right 0.3s ease;
 }
 #settings-panel.open { right:0; }
 .settings-header {
