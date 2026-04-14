@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アカウント</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="clock.js"></script>
+  <style>
+    .page-wrap { max-width: 480px; margin: 0 auto; padding-top: 20px; }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin-bottom: 20px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    h2 { font-size: 18px; margin-bottom: 16px; color: var(--accent); }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
+    .field input {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+      border-radius: 6px; font-family: var(--font); font-size: 14px;
+      background: var(--input-bg); color: var(--text);
+    }
+    .field input:focus { outline: none; border-color: var(--accent); }
+    .btn {
+      width: 100%; padding: 10px; background: var(--accent); color: #fff;
+      border: none; border-radius: 6px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: var(--font); transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent-dark); }
+    .btn-sub {
+      background: var(--bg-sub); color: var(--text); border: 1px solid var(--border); margin-top: 8px;
+    }
+    .msg { font-size: 13px; padding: 8px 12px; border-radius: 6px; margin-top: 10px; display: none; }
+    .msg-ok  { background: #e6f4ec; color: #2a7a4a; border: 1px solid #a8d8b9; }
+    .msg-err { background: #fdecea; color: #a33; border: 1px solid #f5b8b8; }
+    [data-theme="dark"] .msg-ok  { background: #1a3028; color: #6dcf9a; border-color: #2a6040; }
+    [data-theme="dark"] .msg-err { background: #2a1010; color: #f88; border-color: #6a2020; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+    .tab {
+      flex: 1; padding: 8px; border: 2px solid var(--accent); border-radius: 6px;
+      background: var(--bg-sub); color: var(--accent); font-weight: 700;
+      cursor: pointer; font-size: 13px; font-family: var(--font); text-align: center;
+    }
+    .tab.active { background: var(--accent); color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .me-info { font-size: 13px; line-height: 2; }
+    .me-info span { color: var(--text-sub); }
+    .token-box {
+      background: var(--bg-sub); border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; font-family: monospace; font-size: 12px;
+      word-break: break-all; margin: 8px 0; color: var(--text);
+    }
+    .copy-btn {
+      font-size: 11px; padding: 3px 8px; background: var(--bg-sub);
+      border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+      color: var(--text); font-family: var(--font);
+    }
+    .back-link { display: inline-block; margin-bottom: 16px; color: var(--accent); text-decoration: none; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div id="clock"></div>
+<div class="page-wrap">
+  <a href="/" class="back-link">← 掲示板に戻る</a>
+  <h1 style="font-size:28px;margin-bottom:16px;" class="rainbow">アカウント</h1>
+
+  <!-- ログイン済みUI -->
+  <div id="loggedIn" style="display:none;">
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('me')">マイページ</div>
+        <div class="tab" onclick="showTab('webhook')">Webhook</div>
+      </div>
+
+      <!-- マイページ -->
+      <div id="tab-me" class="tab-content active">
+        <div class="me-info">
+          <div><span>ユーザー名：</span><strong id="me-username"></strong></div>
+          <div><span>掲示板ID：</span><strong id="me-bbsid"></strong></div>
+          <div><span>登録日：</span><span id="me-created"></span></div>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:4px;">アクセストークン</div>
+          <div class="token-box" id="me-token"></div>
+          <button class="copy-btn" onclick="copyToken()">コピー</button>
+        </div>
+        <button class="btn btn-sub" style="margin-top:16px;" onclick="logout()">ログアウト</button>
+      </div>
+
+      <!-- Webhook -->
+      <div id="tab-webhook" class="tab-content">
+        <div class="field">
+          <label>Webhook URL</label>
+          <input type="url" id="wh-url" placeholder="https://example.com/webhook">
+        </div>
+        <div class="field">
+          <label>チャンネル</label>
+          <select id="wh-channel" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text);font-size:14px;">
+            <option value="chat">雑談</option>
+            <option value="battle">バトルスタジアム</option>
+          </select>
+        </div>
+        <button class="btn" onclick="addWebhook()">登録</button>
+        <div id="wh-msg" class="msg"></div>
+        <div id="wh-list" style="margin-top:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 未ログインUI -->
+  <div id="loggedOut">
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active" onclick="showAuthTab('login')">ログイン</div>
+        <div class="tab" onclick="showAuthTab('register')">アカウント作成</div>
+      </div>
+
+      <!-- ログイン -->
+      <div id="auth-login" class="tab-content active">
+        <div class="field">
+          <label>掲示板パスワード</label>
+          <input type="password" id="login-pass" placeholder="掲示板のパスワード">
+        </div>
+        <div class="field">
+          <label>掲示板ID（確認用・自動計算）</label>
+          <input type="text" id="login-id" readonly placeholder="パスワードを入力すると自動入力">
+        </div>
+        <button class="btn" onclick="doLogin()">ログイン</button>
+        <div id="login-msg" class="msg"></div>
+      </div>
+
+      <!-- アカウント作成 -->
+      <div id="auth-register" class="tab-content">
+        <div class="field">
+          <label>ユーザー名（英数字・_　3〜20文字）</label>
+          <input type="text" id="reg-username" placeholder="my_name">
+        </div>
+        <div class="field">
+          <label>掲示板パスワード</label>
+          <input type="password" id="reg-pass" placeholder="掲示板のパスワード">
+        </div>
+        <div class="field">
+          <label>掲示板ID（確認用・自動計算）</label>
+          <input type="text" id="reg-id" readonly placeholder="パスワードを入力すると自動入力">
+        </div>
+        <button class="btn" onclick="doRegister()">アカウント作成</button>
+        <div id="reg-msg" class="msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="toggleBtn">🌙</button>
+
+<script>
+var SERVER = 'https://yuyuyu-made-bbs-server.onrender.com';
+
+// ダークモード
+(function() {
+  function applyDark(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    var btn = document.getElementById('toggleBtn');
+    if (btn) btn.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem('darkmode', dark ? 'true' : 'false');
+  }
+  var saved = localStorage.getItem('darkmode');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  applyDark(saved !== null ? saved === 'true' : prefersDark.matches);
+  prefersDark.addEventListener('change', function(e) { if (localStorage.getItem('darkmode') === null) applyDark(e.matches); });
+  document.getElementById('toggleBtn').addEventListener('click', function() {
+    applyDark(document.documentElement.getAttribute('data-theme') !== 'dark');
+  });
+})();
+
+// ID計算
+async function calcId(pass) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
+  var b64 = btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+  return '@' + b64.replace(/[^A-Za-z0-9]/g, '').slice(0, 7);
+}
+
+// パスワード入力でID自動計算
+document.getElementById('login-pass').addEventListener('input', async function() {
+  document.getElementById('login-id').value = this.value ? await calcId(this.value) : '';
+});
+document.getElementById('reg-pass').addEventListener('input', async function() {
+  document.getElementById('reg-id').value = this.value ? await calcId(this.value) : '';
+});
+
+function showMsg(id, text, ok) {
+  var el = document.getElementById(id);
+  el.textContent = text; el.className = 'msg ' + (ok ? 'msg-ok' : 'msg-err'); el.style.display = 'block';
+}
+function showTab(name) {
+  ['me','webhook'].forEach(function(t) {
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+  document.querySelectorAll('#loggedIn .tab').forEach(function(t,i) {
+    t.classList.toggle('active', ['me','webhook'][i]===name);
+  });
+  if (name === 'webhook') loadWebhooks();
+}
+function showAuthTab(name) {
+  ['login','register'].forEach(function(t) {
+    document.getElementById('auth-'+t).classList.toggle('active', t===name);
+  });
+  document.querySelectorAll('#loggedOut .tab').forEach(function(t,i) {
+    t.classList.toggle('active', ['login','register'][i]===name);
+  });
+}
+
+function getToken() { return localStorage.getItem('bbs_token') || ''; }
+
+async function doLogin() {
+  var pass = document.getElementById('login-pass').value;
+  var id   = document.getElementById('login-id').value;
+  if (!pass) { showMsg('login-msg','パスワードを入力してください',false); return; }
+  try {
+    var r = await fetch(SERVER+'/account/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ bbs_id: id, bbs_pass: pass })
+    });
+    var d = await r.json();
+    if (!r.ok) { showMsg('login-msg', d.error||'エラー', false); return; }
+    localStorage.setItem('bbs_token', d.token);
+    showMsg('login-msg','ログインしました',true);
+    setTimeout(loadMe, 500);
+  } catch(e) { showMsg('login-msg','通信エラー',false); }
+}
+
+async function doRegister() {
+  var username = document.getElementById('reg-username').value.trim();
+  var pass     = document.getElementById('reg-pass').value;
+  var id       = document.getElementById('reg-id').value;
+  if (!username||!pass) { showMsg('reg-msg','全項目を入力してください',false); return; }
+  try {
+    var r = await fetch(SERVER+'/account/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username, bbs_id: id, bbs_pass: pass })
+    });
+    var d = await r.json();
+    if (!r.ok) { showMsg('reg-msg', d.error||'エラー', false); return; }
+    localStorage.setItem('bbs_token', d.token);
+    showMsg('reg-msg','アカウントを作成しました',true);
+    setTimeout(loadMe, 800);
+  } catch(e) { showMsg('reg-msg','通信エラー',false); }
+}
+
+async function loadMe() {
+  var token = getToken();
+  if (!token) { document.getElementById('loggedOut').style.display=''; document.getElementById('loggedIn').style.display='none'; return; }
+  try {
+    var r = await fetch(SERVER+'/account/me', { headers:{'Authorization':'Bearer '+token} });
+    if (!r.ok) { logout(); return; }
+    var d = await r.json();
+    document.getElementById('me-username').textContent = d.username;
+    document.getElementById('me-bbsid').textContent    = d.bbs_id;
+    document.getElementById('me-created').textContent  = new Date(d.created_at).toLocaleString('ja-JP');
+    document.getElementById('me-token').textContent    = token;
+    document.getElementById('loggedOut').style.display = 'none';
+    document.getElementById('loggedIn').style.display  = '';
+  } catch(e) { logout(); }
+}
+
+function logout() {
+  localStorage.removeItem('bbs_token');
+  document.getElementById('loggedOut').style.display = '';
+  document.getElementById('loggedIn').style.display  = 'none';
+}
+
+function copyToken() {
+  var t = document.getElementById('me-token').textContent;
+  navigator.clipboard.writeText(t).then(function() { alert('コピーしました'); });
+}
+
+async function loadWebhooks() {
+  var r = await fetch(SERVER+'/webhooks', { headers:{'Authorization':'Bearer '+getToken()} });
+  var d = await r.json();
+  var list = document.getElementById('wh-list');
+  if (!d.webhooks.length) { list.innerHTML='<div style="font-size:13px;color:var(--text-sub);">登録されているWebhookはありません</div>'; return; }
+  list.innerHTML = d.webhooks.map(function(w) {
+    return '<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;">'
+      + '<div style="font-weight:700;margin-bottom:4px;">' + (w.channel==='chat'?'雑談':'バトルスタジアム') + '</div>'
+      + '<div style="word-break:break-all;color:var(--text-sub);margin-bottom:6px;">' + escHtml(w.url) + '</div>'
+      + '<div style="display:flex;gap:6px;">'
+      + '<button class="copy-btn" onclick="testWh('+w.id+')">テスト送信</button>'
+      + '<button class="copy-btn" style="color:red;border-color:#f99;" onclick="delWh('+w.id+')">削除</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function addWebhook() {
+  var url = document.getElementById('wh-url').value.trim();
+  var ch  = document.getElementById('wh-channel').value;
+  if (!url) { showMsg('wh-msg','URLを入力してください',false); return; }
+  var r = await fetch(SERVER+'/webhooks', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+getToken()},
+    body: JSON.stringify({ url, channel: ch })
+  });
+  var d = await r.json();
+  if (!r.ok) { showMsg('wh-msg', d.error||'エラー', false); return; }
+  showMsg('wh-msg','登録しました',true);
+  document.getElementById('wh-url').value = '';
+  loadWebhooks();
+}
+
+async function testWh(id) {
+  var r = await fetch(SERVER+'/webhooks/'+id+'/test', {
+    method:'POST', headers:{'Authorization':'Bearer '+getToken()}
+  });
+  var d = await r.json();
+  showMsg('wh-msg', r.ok ? 'テスト送信成功' : (d.error||'エラー'), r.ok);
+}
+
+async function delWh(id) {
+  if (!confirm('削除しますか？')) return;
+  await fetch(SERVER+'/webhooks/'+id, { method:'DELETE', headers:{'Authorization':'Bearer '+getToken()} });
+  loadWebhooks();
+}
+
+loadMe();
+</script>
+</body>
+</html>
