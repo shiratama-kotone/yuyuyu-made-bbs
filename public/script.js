@@ -201,6 +201,16 @@ function autoLinkAnchors(text) {
 
 function escapeForRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
+// SHA-256 → Base64 → 英数字のみ → 7文字
+function bufToBase64(buf) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+}
+function calcId(pass) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass)).then(function(buf) {
+    return '@' + bufToBase64(buf).replace(/[^A-Za-z0-9]/g, '').slice(0, 7);
+  });
+}
+
 function convertEmojis(text) {
   if (!text) return '';
   var codes = Object.keys(EMOJI_MAP).sort(function(a,b){ return b.length - a.length; });
@@ -732,10 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (savedName) { var ne=document.getElementById('name'); if(ne) ne.value=savedName; }
   if (savedPass) {
     var pe=document.getElementById('password'); if(pe) pe.value=savedPass;
-    // 自分のIDを計算（SHA-256はブラウザAPIで）
-    crypto.subtle.digest('SHA-256', new TextEncoder().encode(savedPass)).then(function(buf) {
-      myId = '@' + Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,7);
-    });
+    calcId(savedPass).then(function(id) { myId = id; });
   }
 
   // パスワード変更時にmyId更新
@@ -743,9 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (passEl) {
     passEl.addEventListener('input', function() {
       if (!this.value) { myId = null; return; }
-      crypto.subtle.digest('SHA-256', new TextEncoder().encode(this.value)).then(function(buf) {
-        myId = '@' + Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,7);
-      });
+      calcId(this.value).then(function(id) { myId = id; });
     });
   }
 
