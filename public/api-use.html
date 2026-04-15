@@ -10,250 +10,290 @@
   <link rel="stylesheet" href="style.css">
   <script src="clock.js"></script>
   <style>
-    .api-wrap { max-width: 820px; margin: 0 auto; }
-    h2 { font-size: 20px; margin: 28px 0 10px; border-left: 4px solid var(--accent); padding-left: 10px; color: var(--accent); }
-    h3 { font-size: 15px; margin: 16px 0 6px; color: var(--text); }
-    p, li { font-size: 14px; margin-bottom: 6px; line-height: 1.8; }
+    .wrap { max-width: 840px; margin: 0 auto; }
+    h2 { font-size: 20px; margin: 32px 0 10px; border-left: 4px solid var(--accent); padding-left: 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 16px 0 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px; color: var(--text); }
+    p, li { font-size: 14px; line-height: 1.9; margin-bottom: 5px; }
     ul { padding-left: 20px; }
     pre {
       background: var(--bg-sub); border: 1px solid var(--border); border-radius: 6px;
       padding: 12px 14px; font-family: monospace; font-size: 13px; overflow-x: auto;
-      margin: 8px 0 14px; color: var(--text); white-space: pre;
+      margin: 6px 0 12px; color: var(--text); white-space: pre;
     }
     code {
       background: var(--bg-sub); border: 1px solid var(--border); border-radius: 4px;
       padding: 1px 6px; font-family: monospace; font-size: 13px; color: var(--accent);
     }
-    .method { display:inline-block; font-size:11px; font-weight:700; padding:2px 7px; border-radius:3px; color:#fff; vertical-align:middle; margin-right:6px; }
-    .method-get    { background:#3a9e5c; }
-    .method-post   { background:#c06000; }
-    .method-delete { background:#c02020; }
-    table.t { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 14px; }
+    .method { display:inline-block; font-size:11px; font-weight:700; padding:2px 7px; border-radius:3px; color:#fff; vertical-align:middle; margin-right:4px; }
+    .get    { background:#3a9e5c; }
+    .post   { background:#c06000; }
+    .delete { background:#c02020; }
+    .auth   { background:#555; font-size:11px; padding:2px 7px; border-radius:3px; color:#fff; display:inline-block; }
+    table.t { width:100%; border-collapse:collapse; font-size:13px; margin:6px 0 14px; }
     table.t th { background:var(--th-bg); color:var(--th-text); padding:7px 10px; text-align:left; }
-    table.t td { border-bottom:1px solid var(--border); padding:7px 10px; background:var(--bg-card); }
+    table.t td { border-bottom:1px solid var(--border); padding:7px 10px; background:var(--bg-card); vertical-align:top; }
     table.t tr:nth-child(even) td { background:var(--tr-even); }
-    .back-link { display:inline-block; margin-bottom:16px; color:var(--accent); text-decoration:none; font-size:13px; }
-    .link-list { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 20px; }
-    .link-list a {
-      display:inline-block; padding:6px 14px; border:1px solid var(--accent);
-      border-radius:6px; color:var(--accent); text-decoration:none; font-size:13px;
-    }
-    .link-list a:hover { background:var(--accent); color:#fff; }
-
-    /* テスト実行 */
-    .test-box { background:var(--bg-sub); border:1px solid var(--border); border-radius:8px; padding:14px; margin:10px 0 16px; }
+    .test-box { background:var(--bg-sub); border:1px solid var(--border); border-radius:8px; padding:14px; margin:8px 0 14px; }
     .test-box input, .test-box select, .test-box textarea {
       width:100%; padding:7px 10px; border:1px solid var(--border); border-radius:6px;
       background:var(--input-bg); color:var(--text); font-size:13px; font-family:monospace;
-      margin-bottom:8px; box-sizing:border-box;
+      margin-bottom:7px; box-sizing:border-box;
     }
     .test-box textarea { min-height:60px; resize:vertical; }
-    .test-run {
-      padding:7px 18px; background:var(--accent); color:#fff; border:none;
-      border-radius:6px; cursor:pointer; font-size:13px; font-family:var(--font);
-    }
-    .test-run:hover { background:var(--accent-dark); }
-    .test-result {
-      margin-top:10px; padding:10px; background:var(--bg-card); border:1px solid var(--border);
+    .run { padding:7px 18px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:13px; }
+    .run:hover { background:var(--accent-dark); }
+    .result {
+      margin-top:8px; padding:10px; background:var(--bg-card); border:1px solid var(--border);
       border-radius:6px; font-family:monospace; font-size:12px; white-space:pre-wrap;
-      word-break:break-all; max-height:300px; overflow-y:auto; display:none;
+      word-break:break-all; max-height:280px; overflow-y:auto; display:none;
     }
+    .back-link { display:inline-block; margin-bottom:16px; color:var(--accent); text-decoration:none; font-size:13px; }
+    .link-row { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 20px; }
+    .link-row a {
+      display:inline-block; padding:6px 14px; border:1px solid var(--accent);
+      border-radius:6px; color:var(--accent); text-decoration:none; font-size:13px;
+    }
+    .link-row a:hover { background:var(--accent); color:#fff; }
+    .tag { display:inline-block; font-size:11px; padding:1px 6px; border-radius:3px; color:#fff; margin-left:4px; }
+    .tag-req  { background:#999; }
+    .tag-opt  { background:#4a9; }
   </style>
 </head>
 <body>
 <div id="clock"></div>
-<div class="api-wrap">
+<div class="wrap">
   <a href="/" class="back-link">← 掲示板に戻る</a>
-  <h1 style="font-size:30px;margin-bottom:8px;">APIの使い方</h1>
+  <h1 style="font-size:28px;margin-bottom:4px;">APIの使い方</h1>
+  <p style="color:var(--text-sub);font-size:13px;margin-bottom:10px;">ベースURL: <code>https://yuyuyu-made-bbs-server.onrender.com</code></p>
 
-  <div class="link-list">
+  <div class="link-row">
     <a href="account.html">アカウント・Webhook管理</a>
     <a href="how.html">コマンド一覧</a>
   </div>
-
-  <p>ベースURL: <code>https://yuyuyu-made-bbs-server.onrender.com</code></p>
 
   <!-- ========== エンドポイント一覧 ========== -->
   <h2>エンドポイント一覧</h2>
   <table class="t">
     <thead><tr><th>メソッド</th><th>パス</th><th>認証</th><th>説明</th></tr></thead>
     <tbody>
-      <tr><td><span class="method method-get">GET</span></td><td><code>/api</code></td><td>不要</td><td>雑談の投稿・topic・規制状態を取得</td></tr>
-      <tr><td><span class="method method-post">POST</span></td><td><code>/api</code></td><td>不要</td><td>雑談に投稿 / コマンド実行</td></tr>
-      <tr><td><span class="method method-get">GET</span></td><td><code>/api/battle</code></td><td>不要</td><td>バトルスタジアムの投稿・topic・規制状態を取得</td></tr>
-      <tr><td><span class="method method-post">POST</span></td><td><code>/api/battle</code></td><td>不要</td><td>バトルスタジアムに投稿 / コマンド実行</td></tr>
-      <tr><td><span class="method method-post">POST</span></td><td><code>/account/register</code></td><td>不要</td><td>アカウント作成</td></tr>
-      <tr><td><span class="method method-post">POST</span></td><td><code>/account/login</code></td><td>不要</td><td>ログイン（トークン発行）</td></tr>
-      <tr><td><span class="method method-get">GET</span></td><td><code>/account/me</code></td><td>Bearer</td><td>自分の情報を取得</td></tr>
-      <tr><td><span class="method method-get">GET</span></td><td><code>/webhooks</code></td><td>Bearer</td><td>Webhook一覧取得</td></tr>
-      <tr><td><span class="method method-post">POST</span></td><td><code>/webhooks</code></td><td>Bearer</td><td>Webhook登録</td></tr>
-      <tr><td><span class="method method-delete">DELETE</span></td><td><code>/webhooks/:id</code></td><td>Bearer</td><td>Webhook削除</td></tr>
-      <tr><td><span class="method method-post">POST</span></td><td><code>/webhooks/:id/test</code></td><td>Bearer</td><td>Webhookテスト送信</td></tr>
-      <tr><td><span class="method method-get">GET</span></td><td><code>/seedsearch?pass=</code></td><td>不要</td><td>シードID生成（マネージャー以上）</td></tr>
-      <tr><td><span class="method method-get">GET</span></td><td><code>/health</code></td><td>不要</td><td>サーバー死活確認</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api</code></td><td>不要</td><td>雑談の投稿・topic・規制状態を取得</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api</code></td><td>不要</td><td>雑談に投稿 / コマンド実行</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/battle</code></td><td>不要</td><td>バトルスタジアムの投稿・topic・規制状態を取得</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/battle</code></td><td>不要</td><td>バトルスタジアムに投稿 / コマンド実行</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/account/register</code></td><td>不要</td><td>アカウント作成</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/account/login</code></td><td>不要</td><td>ログイン（トークン再発行）</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/account/me</code></td><td><span class="auth">Bearer</span></td><td>自分の情報取得</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/webhooks</code></td><td><span class="auth">Bearer</span></td><td>Webhook一覧取得</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/webhooks</code></td><td><span class="auth">Bearer</span></td><td>Webhook登録</td></tr>
+      <tr><td><span class="method delete">DELETE</span></td><td><code>/webhooks/:id</code></td><td><span class="auth">Bearer</span></td><td>Webhook削除</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/webhooks/:id/test</code></td><td><span class="auth">Bearer</span></td><td>Webhookテスト送信</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/seedsearch?pass=</code></td><td>不要</td><td>シードID生成（マネージャー以上）</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/health</code></td><td>不要</td><td>サーバー死活確認</td></tr>
     </tbody>
   </table>
 
-  <!-- ========== データ取得 ========== -->
-  <h2>データ取得（GET /api）</h2>
+  <!-- ========== GET /api ========== -->
+  <h2>データ取得 <code>GET /api</code></h2>
+  <h3>レスポンス</h3>
   <pre>{
-  "topic": "今の話題",
-  "posts": [
-    {
-      "no": 5,
-      "name": "ユーザー名",
-      "content": "投稿内容",
-      "id": "@AbCdEfG",
-      "time": "2025/8/31 15:30:00",
-      "deleted": false,
-      "role": 0,
-      "colorCode": null,
-      "addSuffix": null
-    }
-  ],
+  "topic": "今の話題（複数行も可）",
+  "posts": [ ...投稿配列（新しい順）... ],
   "restriction": {
-    "prevent": false,
-    "restrict": false,
-    "stopActive": false,
-    "stopUntil": 0,
-    "prohibitActive": false,
-    "prohibitUntil": 0
+    "prevent":        false,   // 雑談の青ID投稿禁止中か
+    "restrict":       false,   // banされた青IDの規制中か
+    "stopActive":     false,   // /stop作用中か
+    "stopUntil":      0,       // stop終了時刻（Unixミリ秒）
+    "prohibitActive": false,   // /prohibit作用中か
+    "prohibitUntil":  0        // prohibit終了時刻（Unixミリ秒）
   }
 }</pre>
 
-  <h3>roleの値</h3>
+  <h3>postsの各フィールド</h3>
   <table class="t">
-    <thead><tr><th>値</th><th>権限</th><th>IDの色</th></tr></thead>
+    <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
     <tbody>
-      <tr><td>0</td><td>青ID（一般）</td><td>青</td></tr>
-      <tr><td>1</td><td>スピーカー</td><td>オレンジ</td></tr>
-      <tr><td>2</td><td>マネージャー</td><td>赤</td></tr>
-      <tr><td>3</td><td>サミット</td><td>ダークシアン</td></tr>
-      <tr><td>4</td><td>運営（admin）</td><td>赤</td></tr>
+      <tr><td><code>no</code></td><td>number</td><td>投稿番号（連番・固定）</td></tr>
+      <tr><td><code>name</code></td><td>string</td><td>投稿者名</td></tr>
+      <tr><td><code>content</code></td><td>string</td><td>投稿内容（改行あり）</td></tr>
+      <tr><td><code>id</code></td><td>string</td><td>ハッシュID（@XXXXXXX形式）</td></tr>
+      <tr><td><code>time</code></td><td>string</td><td>投稿日時（JST文字列）</td></tr>
+      <tr><td><code>deleted</code></td><td>boolean</td><td>削除済みか</td></tr>
+      <tr><td><code>role</code></td><td>number</td><td>権限: 0=青ID 1=スピーカー 2=マネージャー 3=サミット 4=運営</td></tr>
+      <tr><td><code>colorCode</code></td><td>string|null</td><td>名前色（HEX）。未設定はnull</td></tr>
+      <tr><td><code>addSuffix</code></td><td>string|null</td><td>IDの後ろのテキスト。未設定はnull</td></tr>
     </tbody>
   </table>
 
-  <!-- ========== テスト: GET /api ========== -->
   <h3>🧪 テスト実行</h3>
   <div class="test-box">
-    <select id="test-channel">
-      <option value="chat">雑談（/api）</option>
-      <option value="battle">バトルスタジアム（/api/battle）</option>
+    <select id="tc">
+      <option value="chat">雑談 (/api)</option>
+      <option value="battle">バトルスタジアム (/api/battle)</option>
     </select>
-    <button class="test-run" onclick="testGet()">GET 実行</button>
-    <div class="test-result" id="test-get-result"></div>
+    <button class="run" onclick="testGet()">GET 実行</button>
+    <div class="result" id="r-get"></div>
   </div>
 
-  <!-- ========== 投稿送信 ========== -->
-  <h2>投稿送信（POST /api）</h2>
-  <h3>JSONボディ</h3>
-  <pre>POST /api
+  <!-- ========== POST /api ========== -->
+  <h2>投稿送信 <code>POST /api</code></h2>
+  <h3>リクエストボディ（JSON）</h3>
+  <pre>Content-Type: application/json
+
+{
+  "name":    "投稿者名",      // 必須 最大50文字
+  "pass":    "パスワード",    // 必須 IDの生成に使用
+  "content": "投稿内容"       // 必須 最大1000文字 コマンドも可
+}</pre>
+
+  <h3>クエリパラメーターでも可</h3>
+  <pre>POST /api?name=名前&amp;pass=パスワード&amp;content=内容</pre>
+
+  <h3>レスポンス（成功）</h3>
+  <pre>{
+  "message": "投稿成功",   // コマンド時はコマンド名（例: "/del"）
+  "post": { ...投稿オブジェクト... }
+}</pre>
+
+  <h3>エラーレスポンス</h3>
+  <table class="t">
+    <thead><tr><th>ステータス</th><th>error</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>400</td><td>全フィールド必須</td><td>name/pass/contentのいずれかが欠けている</td></tr>
+      <tr><td>429</td><td>同じパスワードで1秒に1回まで</td><td>連投制限</td></tr>
+      <tr><td>403</td><td>権限不足 / 投稿禁止 / NGワード等</td><td>各種制限</td></tr>
+      <tr><td>500</td><td>データ処理失敗</td><td>サーバーエラー</td></tr>
+    </tbody>
+  </table>
+
+  <h3>🧪 テスト実行</h3>
+  <div class="test-box">
+    <input type="text"     id="p-name"    placeholder="名前">
+    <input type="password" id="p-pass"    placeholder="パスワード">
+    <textarea              id="p-content" placeholder="内容（コマンドも可）"></textarea>
+    <select id="p-ch">
+      <option value="chat">雑談</option>
+      <option value="battle">バトルスタジアム</option>
+    </select>
+    <button class="run" onclick="testPost()">POST 実行</button>
+    <div class="result" id="r-post"></div>
+  </div>
+
+  <!-- ========== アカウントAPI ========== -->
+  <h2>アカウントAPI</h2>
+
+  <h3><span class="method post">POST</span> /account/register — アカウント作成</h3>
+  <pre>{
+  "username": "my_name",    // 必須 英数字・_ 3〜20文字
+  "bbs_id":   "@AbCdEfG",  // 必須 自分の掲示板ID
+  "bbs_pass": "パスワード"  // 必須 IDと一致しないと登録不可
+}</pre>
+  <p>レスポンス: <code>{ "token": "uuid...", "message": "アカウントを作成しました" }</code></p>
+
+  <h3><span class="method post">POST</span> /account/login — ログイン</h3>
+  <pre>{
+  "bbs_id":   "@AbCdEfG",
+  "bbs_pass": "パスワード"
+}</pre>
+  <p>レスポンス: <code>{ "token": "uuid...", "username": "..." }</code></p>
+  <p class="note">※ ログインするたびに新しいトークンが発行されます。古いトークンは無効になります。</p>
+
+  <h3><span class="method get">GET</span> /account/me — 自分の情報</h3>
+  <p>ヘッダー: <code>Authorization: Bearer &lt;token&gt;</code></p>
+  <pre>{
+  "username":   "my_name",
+  "bbs_id":     "@AbCdEfG",
+  "created_at": "2025-08-31T..."
+}</pre>
+
+  <!-- ========== WebhookAPI ========== -->
+  <h2>Webhook API</h2>
+  <p>投稿が発生したとき、登録したURLへPOSTリクエストが送信されます。1アカウント最大10件登録可能。</p>
+
+  <h3>Webhookペイロード</h3>
+  <pre>{
+  "event_time": "2025-08-31T15:30:00.000Z",  // 送信日時（ISO 8601）
+  "id":         "@AbCdEfG",                  // 投稿者のハッシュID
+  "name":       "投稿者名",
+  "no":         42,                          // 投稿番号
+  "content":    "投稿内容",
+  "role":       0,                           // 権限レベル（0〜4）
+  "channel":    "chat"                       // "chat" または "battle"
+}</pre>
+
+  <h3><span class="method post">POST</span> /webhooks — Webhook登録</h3>
+  <pre>Authorization: Bearer &lt;token&gt;
 Content-Type: application/json
 
 {
-  "name": "名前",
-  "pass": "パスワード",
-  "content": "内容"
+  "url":     "https://example.com/webhook",  // 必須
+  "channel": "chat"                          // 任意 "chat"(default) or "battle"
 }</pre>
+  <p>レスポンス: <code>{ "webhook": { "id": 1, "url": "...", "channel": "chat", "created_at": "..." } }</code></p>
 
-  <h3>IDの生成アルゴリズム</h3>
-  <pre>SHA-256(パスワード) → Base64 → 英数字のみ残す → 先頭7文字 → "@" を付与</pre>
-  <p>例: パスワード <code>hello</code> → ID <code>@LPJNulw</code></p>
+  <h3><span class="method delete">DELETE</span> /webhooks/:id — 削除</h3>
+  <pre>Authorization: Bearer &lt;token&gt;</pre>
 
-  <!-- ========== テスト: POST /api ========== -->
-  <h3>🧪 テスト実行</h3>
+  <h3><span class="method post">POST</span> /webhooks/:id/test — テスト送信</h3>
+  <p>登録済みのWebhookへテスト用のペイロードを送信します。</p>
+
+  <h3>🧪 Webhookテスト（登録→テスト→削除）</h3>
   <div class="test-box">
-    <input type="text"     id="test-name"    placeholder="名前">
-    <input type="password" id="test-pass"    placeholder="パスワード">
-    <textarea              id="test-content" placeholder="内容（コマンドも可）"></textarea>
-    <select id="test-post-channel">
+    <input type="text" id="wt-token" placeholder="アクセストークン（account.htmlで取得）">
+    <input type="url"  id="wt-url"   placeholder="Webhook URL（https://...）">
+    <select id="wt-ch">
       <option value="chat">雑談</option>
       <option value="battle">バトルスタジアム</option>
     </select>
-    <button class="test-run" onclick="testPost()">POST 実行</button>
-    <div class="test-result" id="test-post-result"></div>
-  </div>
-
-  <!-- ========== アカウント API ========== -->
-  <h2>アカウント API</h2>
-  <h3>POST /account/register — アカウント作成</h3>
-  <pre>{
-  "username": "my_name",
-  "bbs_id":   "@AbCdEfG",
-  "bbs_pass": "掲示板のパスワード"
-}</pre>
-  <p>レスポンス: <code>{ "token": "uuid..." }</code></p>
-
-  <h3>POST /account/login — ログイン</h3>
-  <pre>{
-  "bbs_id":   "@AbCdEfG",
-  "bbs_pass": "掲示板のパスワード"
-}</pre>
-  <p>レスポンス: <code>{ "token": "uuid...", "username": "..." }</code></p>
-
-  <h3>認証が必要なエンドポイント</h3>
-  <p>ヘッダーに <code>Authorization: Bearer &lt;token&gt;</code> を付けてください。</p>
-
-  <!-- ========== Webhook ========== -->
-  <h2>Webhook</h2>
-  <p>投稿が発生したときに登録したURLへPOSTリクエストが送信されます。</p>
-  <h3>ペイロード</h3>
-  <pre>{
-  "event_time": "2025-08-31T15:30:00.000Z",
-  "id":         "@AbCdEfG",
-  "name":       "投稿者名",
-  "no":         42,
-  "content":    "投稿内容",
-  "channel":    "chat"
-}</pre>
-
-  <h3>Webhook登録（POST /webhooks）</h3>
-  <pre>Authorization: Bearer &lt;token&gt;
-
-{
-  "url":     "https://example.com/webhook",
-  "channel": "chat"
-}</pre>
-
-  <!-- ========== テスト: Webhook ========== -->
-  <h3>🧪 テスト実行（要ログイン）</h3>
-  <div class="test-box">
-    <input type="text" id="test-token" placeholder="アクセストークン（account.htmlで取得）">
-    <input type="url"  id="test-wh-url" placeholder="Webhook URL">
-    <select id="test-wh-channel">
-      <option value="chat">雑談</option>
-      <option value="battle">バトルスタジアム</option>
-    </select>
-    <button class="test-run" onclick="testWebhook()">Webhook登録 → テスト送信 → 削除</button>
-    <div class="test-result" id="test-wh-result"></div>
+    <button class="run" onclick="testWebhook()">登録 → テスト → 削除</button>
+    <div class="result" id="r-wh"></div>
   </div>
 
   <!-- ========== WebSocket ========== -->
   <h2>WebSocket</h2>
-  <p>サーバーへのWebSocket接続URLは以下です。</p>
   <pre>wss://yuyuyu-made-bbs-server.onrender.com</pre>
-  <h3>受信メッセージ形式</h3>
-  <pre>// 新着投稿
-{ "channel": "chat", "type": "post", "post": { ...postオブジェクト } }
+  <p>接続後、そのまま待機するだけでリアルタイムに投稿イベントを受信できます。送信は不要です。</p>
 
-// 全削除
-{ "channel": "chat", "type": "clear" }
+  <h3>受信メッセージの形式</h3>
+  <table class="t">
+    <thead><tr><th>type</th><th>説明</th><th>追加フィールド</th></tr></thead>
+    <tbody>
+      <tr><td><code>post</code></td><td>新着投稿</td><td><code>channel</code>, <code>post</code>（投稿オブジェクト）</td></tr>
+      <tr><td><code>clear</code></td><td>全削除（/clear実行）</td><td><code>channel</code></td></tr>
+      <tr><td><code>delete</code></td><td>個別削除（/del実行）</td><td><code>channel</code>, <code>nos</code>（番号配列）</td></tr>
+      <tr><td><code>destroy</code></td><td>一括削除（/destroy実行）</td><td><code>channel</code></td></tr>
+    </tbody>
+  </table>
 
-// 個別削除
-{ "channel": "chat", "type": "delete", "nos": [3, 5] }
+  <h3>受信例（JavaScript）</h3>
+  <pre>const ws = new WebSocket('wss://yuyuyu-made-bbs-server.onrender.com');
 
-// destroy
-{ "channel": "chat", "type": "destroy" }</pre>
+ws.onmessage = (e) => {
+  const data = JSON.parse(e.data);
+  if (data.channel !== 'chat') return; // チャンネルフィルタ
 
+  if (data.type === 'post') {
+    console.log('新着:', data.post.name, data.post.content);
+  } else if (data.type === 'delete') {
+    console.log('削除:', data.nos);
+  }
+};</pre>
+
+  <!-- ========== /seedsearch ========== -->
+  <h2>シードID生成 <code>GET /seedsearch</code></h2>
+  <p>パスワードからランダムなIDペアを生成して返します。マネージャー以上のみ利用可能。</p>
+  <pre>GET /seedsearch?pass=あなたのパスワード</pre>
+  <p>レスポンス: <code>{ "seeds": [ { "pass": "a1b2c3d4", "id": "@AbCdEfG" }, ... ] }</code></p>
+  <p>生成数: マネージャー10件 / サミット100件 / 運営200件</p>
+
+  <br>
+  <p><a href="how.html" style="color:var(--accent);">コマンド一覧はこちら →</a></p>
   <br>
 </div>
 
 <button id="toggleBtn">🌙</button>
-
 <script>
 var SERVER = 'https://yuyuyu-made-bbs-server.onrender.com';
 
-// ダークモード
 (function(){
   function applyDark(dark) {
     document.documentElement.setAttribute('data-theme', dark?'dark':'light');
@@ -263,70 +303,64 @@ var SERVER = 'https://yuyuyu-made-bbs-server.onrender.com';
   var saved=localStorage.getItem('darkmode');
   var pref=window.matchMedia('(prefers-color-scheme: dark)');
   applyDark(saved!==null ? saved==='true' : pref.matches);
-  pref.addEventListener('change',function(e){ if(!localStorage.getItem('darkmode')) applyDark(e.matches); });
+  pref.addEventListener('change',function(e){ if(localStorage.getItem('darkmode')===null) applyDark(e.matches); });
   document.getElementById('toggleBtn').addEventListener('click',function(){
     applyDark(document.documentElement.getAttribute('data-theme')!=='dark');
   });
+  var color=localStorage.getItem('bbs_themeColor')||'#7c57c2';
+  var r=parseInt(color.slice(1,3),16),g=parseInt(color.slice(3,5),16),b=parseInt(color.slice(5,7),16);
+  var tc=(r*0.299+g*0.587+b*0.114)<128?'#fff':'#222';
+  document.documentElement.style.setProperty('--accent',color);
+  document.documentElement.style.setProperty('--th-bg',color);
+  document.documentElement.style.setProperty('--th-text',tc);
 })();
 
-function showResult(id, data) {
-  var el = document.getElementById(id);
-  el.textContent = JSON.stringify(data, null, 2);
-  el.style.display = 'block';
+function show(id, data) {
+  var el=document.getElementById(id);
+  el.textContent=JSON.stringify(data,null,2);
+  el.style.display='block';
 }
 
 async function testGet() {
-  var ch = document.getElementById('test-channel').value;
-  var ep = ch==='chat' ? '/api' : '/api/battle';
+  var ch=document.getElementById('tc').value;
   try {
-    var r = await fetch(SERVER+ep);
-    showResult('test-get-result', await r.json());
-  } catch(e) { showResult('test-get-result', { error: e.message }); }
+    var r=await fetch(SERVER+(ch==='chat'?'/api':'/api/battle'));
+    show('r-get', await r.json());
+  } catch(e) { show('r-get',{error:e.message}); }
 }
 
 async function testPost() {
-  var ch = document.getElementById('test-post-channel').value;
-  var ep = ch==='chat' ? '/api' : '/api/battle';
-  var name = document.getElementById('test-name').value;
-  var pass = document.getElementById('test-pass').value;
-  var content = document.getElementById('test-content').value;
-  if (!name||!pass||!content) { showResult('test-post-result',{error:'全項目入力してください'}); return; }
+  var ch=document.getElementById('p-ch').value;
+  var name=document.getElementById('p-name').value;
+  var pass=document.getElementById('p-pass').value;
+  var content=document.getElementById('p-content').value;
+  if(!name||!pass||!content){show('r-post',{error:'全項目入力してください'});return;}
   try {
-    var r = await fetch(SERVER+ep, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name,pass,content})
+    var r=await fetch(SERVER+(ch==='chat'?'/api':'/api/battle'),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,pass,content})
     });
-    showResult('test-post-result', await r.json());
-  } catch(e) { showResult('test-post-result', { error: e.message }); }
+    show('r-post',await r.json());
+  } catch(e){show('r-post',{error:e.message});}
 }
 
 async function testWebhook() {
-  var token = document.getElementById('test-token').value.trim();
-  var url   = document.getElementById('test-wh-url').value.trim();
-  var ch    = document.getElementById('test-wh-channel').value;
-  if (!token||!url) { showResult('test-wh-result',{error:'トークンとURLを入力してください'}); return; }
-  var log = [];
+  var token=document.getElementById('wt-token').value.trim();
+  var url=document.getElementById('wt-url').value.trim();
+  var ch=document.getElementById('wt-ch').value;
+  if(!token||!url){show('r-wh',{error:'トークンとURLを入力してください'});return;}
+  var log=[];
   try {
-    // 登録
-    var r1 = await fetch(SERVER+'/webhooks', {
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body: JSON.stringify({url, channel:ch})
-    });
-    var d1 = await r1.json(); log.push({ step:'register', status:r1.status, data:d1 });
-    if (!r1.ok) { showResult('test-wh-result',log); return; }
-    var whId = d1.webhook.id;
-    // テスト
-    var r2 = await fetch(SERVER+'/webhooks/'+whId+'/test', {
-      method:'POST', headers:{'Authorization':'Bearer '+token}
-    });
-    log.push({ step:'test', status:r2.status, data:await r2.json() });
-    // 削除
-    var r3 = await fetch(SERVER+'/webhooks/'+whId, {
-      method:'DELETE', headers:{'Authorization':'Bearer '+token}
-    });
-    log.push({ step:'delete', status:r3.status, data:await r3.json() });
-    showResult('test-wh-result', log);
-  } catch(e) { log.push({error:e.message}); showResult('test-wh-result',log); }
+    var r1=await fetch(SERVER+'/webhooks',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({url,channel:ch})});
+    var d1=await r1.json(); log.push({step:'register',status:r1.status,data:d1});
+    if(!r1.ok){show('r-wh',log);return;}
+    var id=d1.webhook.id;
+    var r2=await fetch(SERVER+'/webhooks/'+id+'/test',{method:'POST',headers:{'Authorization':'Bearer '+token}});
+    log.push({step:'test',status:r2.status,data:await r2.json()});
+    var r3=await fetch(SERVER+'/webhooks/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+token}});
+    log.push({step:'delete',status:r3.status,data:await r3.json()});
+    show('r-wh',log);
+  } catch(e){log.push({error:e.message});show('r-wh',log);}
 }
 </script>
 </body>
