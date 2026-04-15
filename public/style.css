@@ -39,6 +39,8 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html { overflow-x: hidden; }
+
 body {
   font-family: var(--font);
   font-size: var(--font-size);
@@ -47,6 +49,7 @@ body {
   padding: 20px;
   line-height: 1.6;
   transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
 }
 
 a { color: var(--accent); }
@@ -82,7 +85,8 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
 #clock {
   position:fixed; top:10px; right:14px;
   font-size:18px; font-family:'Courier New',monospace; font-weight:700;
-  color:var(--text-sub); z-index:100;
+  color:var(--text-sub); z-index:9500;
+  pointer-events: none;
 }
 
 /* =====================
@@ -193,6 +197,10 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
 .emoji { width:20px; height:20px; vertical-align:middle; }
 .post-img { max-height:100px; max-width:100%; vertical-align:middle; cursor:zoom-in; border-radius:4px; }
 
+/* 埋め込みメディア */
+.embed-wrap { margin: 4px 0; }
+.embed-wrap iframe { display: block; }
+
 /* 画像モーダル */
 #img-modal {
   display:none; position:fixed; inset:0;
@@ -219,20 +227,8 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
 #emoji-panel button:hover { background:var(--accent-pale); }
 
 /* =====================
-   設定パネル（fixed、スクロール不問）
+   設定パネル
    ===================== */
-#settings-panel {
-  position: fixed;
-  top: 0; right: -340px; bottom: 0;
-  width: 320px;
-  overflow-y: auto;
-  background: var(--bg-card);
-  border-left: 1px solid var(--border);
-  box-shadow: -4px 0 16px var(--shadow);
-  z-index: 9000;
-  transition: right 0.3s ease;
-}
-#settings-panel.open { right:0; }
 .settings-header {
   display:flex; justify-content:space-between; align-items:center;
   padding:14px 16px; border-bottom:1px solid var(--border);
@@ -281,15 +277,29 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
 
 #overlay    { display:none; }
 #toggleBtn, #settingsBtn {
-  position:fixed; bottom:16px; width:44px; height:44px; border-radius:50%;
-  border:2px solid var(--accent); background:var(--bg-card); color:var(--text);
-  font-size:20px; cursor:pointer; z-index:10000;
-  box-shadow:0 2px 8px var(--shadow); transition:background 0.2s;
-  display:flex; align-items:center; justify-content:center;
+  position: fixed !important;
+  bottom: 16px;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--accent); background: var(--bg-card); color: var(--text);
+  font-size: 20px; cursor: pointer; z-index: 9500;
+  box-shadow: 0 2px 8px var(--shadow); transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center;
 }
-#toggleBtn  { right:68px; }
-#settingsBtn { right:16px; }
-#toggleBtn:hover, #settingsBtn:hover { background:var(--accent-pale); }
+#toggleBtn  { right: 68px; }
+#settingsBtn { right: 16px; }
+#toggleBtn:hover, #settingsBtn:hover { background: var(--accent-pale); }
+
+/* 設定パネルの横スクロール漏れ防止 */
+#settings-panel {
+  position: fixed !important;
+  top: 0; right: -340px; bottom: 0;
+  width: 320px; overflow-y: auto; overflow-x: hidden;
+  background: var(--bg-card); border-left: 1px solid var(--border);
+  box-shadow: -4px 0 16px var(--shadow);
+  z-index: 9200;
+  transition: right 0.3s ease;
+}
+#settings-panel.open { right: 0; }
 
 /* =====================
    スマホ対応
