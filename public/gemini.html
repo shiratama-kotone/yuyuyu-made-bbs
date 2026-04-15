@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBS Client</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f4f7f6;
+            --chat-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ヘッダー */
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #topic {
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 4px;
+        }
+
+        /* 投稿一覧エリア */
+        #chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .post {
+            background: var(--chat-bg);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .post-name {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .post-content {
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        /* 投稿フォーム */
+        .input-area {
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+        }
+
+        .input-area input, .input-area textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .input-area textarea {
+            grid-column: 1 / span 2;
+            resize: none;
+            height: 50px;
+        }
+
+        .input-area button {
+            grid-row: 1 / span 2;
+            padding: 0 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .input-area button:hover {
+            opacity: 0.8;
+        }
+
+        .role-admin { border-left: 5px solid #ff4757; }
+        .role-manager { border-left: 5px solid #ffa502; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight: bold; font-size: 1.2rem;">掲示板</div>
+    <div id="topic">Loading topic...</div>
+</header>
+
+<div id="chat-area">
+    </div>
+
+<div class="input-area">
+    <input type="text" id="nameInput" placeholder="名前 (最大50文字)" maxlength="50">
+    <input type="password" id="passInput" placeholder="パスワード (ID生成用)">
+    <textarea id="contentInput" placeholder="メッセージを入力... (最大1000文字)" maxlength="1000"></textarea>
+    <button id="sendBtn">送信</button>
+</div>
+
+<script>
+    const API_BASE = "https://yuyuyu-made-bbs-server.onrender.com";
+    const WS_URL = "wss://yuyuyu-made-bbs-server.onrender.com";
+    const chatArea = document.getElementById('chat-area');
+    const topicArea = document.getElementById('topic');
+
+    // 投稿を描画する関数
+    function appendPost(post, prepend = false) {
+        if (post.deleted) return;
+
+        const div = document.createElement('div');
+        div.className = 'post';
+        if (post.role >= 3) div.classList.add('role-admin');
+        else if (post.role >= 2) div.classList.add('role-manager');
+
+        div.id = `post-${post.no}`;
+        div.innerHTML = `
+            <div class="post-header">
+                <span class="post-name" style="color:${post.colorCode || ''}">${post.name} <small>${post.id}</small></span>
+                <span>#${post.no} - ${post.time}</span>
+            </div>
+            <div class="post-content">${post.content}</div>
+        `;
+
+        if (prepend) {
+            chatArea.prepend(div);
+        } else {
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+    }
+
+    // 初期データの取得
+    async function fetchPosts() {
+        try {
+            const res = await fetch(`${API_BASE}/api`);
+            const data = await res.json();
+            
+            topicArea.innerText = data.topic || "話題はありません";
+            chatArea.innerHTML = '';
+            // APIは新しい順で返るため、表示用にリバースして描画
+            data.posts.reverse().forEach(post => appendPost(post));
+        } catch (err) {
+            console.error("データ取得失敗:", err);
+            topicArea.innerText = "サーバー接続エラー";
+        }
+    }
+
+    // 投稿送信
+    async function sendPost() {
+        const name = document.getElementById('nameInput').value;
+        const pass = document.getElementById('passInput').value;
+        const content = document.getElementById('contentInput').value;
+
+        if (!name || !pass || !content) {
+            alert("すべて入力してください");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/api`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, pass, content })
+            });
+
+            if (res.ok) {
+                document.getElementById('contentInput').value = '';
+            } else {
+                const errData = await res.json();
+                alert("エラー: " + (errData.error || "送信失敗"));
+            }
+        } catch (err) {
+            alert("送信エラーが発生しました");
+        }
+    }
+
+    // WebSocket接続
+    function connectWS() {
+        const ws = new WebSocket(WS_URL);
+
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if (data.channel !== 'chat') return;
+
+            if (data.type === 'post') {
+                appendPost(data.post);
+            } else if (data.type === 'delete') {
+                data.nos.forEach(no => {
+                    const el = document.getElementById(`post-${no}`);
+                    if (el) el.remove();
+                });
+            } else if (data.type === 'clear' || data.type === 'destroy') {
+                chatArea.innerHTML = '';
+            }
+        };
+
+        ws.onclose = () => {
+            console.log("WS切断。再接続します...");
+            setTimeout(connectWS, 3000);
+        };
+    }
+
+    // イベント設定
+    document.getElementById('sendBtn').onclick = sendPost;
+    document.getElementById('contentInput').onkeydown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendPost();
+        }
+    };
+
+    // 起動
+    fetchPosts();
+    connectWS();
+</script>
+
+</body>
+</html>
