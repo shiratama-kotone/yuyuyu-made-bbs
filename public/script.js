@@ -84,6 +84,7 @@ var Settings = {
     if (wrap) {
       wrap.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
     }
+  }
 };
 
 function shadeColor(hex, pct) {
