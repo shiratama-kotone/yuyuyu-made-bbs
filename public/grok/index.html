@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>掲示板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500&amp;display=swap');
+        
+        :root {
+            --tw-color-primary: #10b981;
+        }
+        
+        * {
+            font-family: 'Noto Sans JP', 'Inter', system-ui, sans-serif;
+        }
+        
+        .tail-container * {
+            font-family: 'Noto Sans JP', 'Inter', system-ui, sans-serif;
+        }
+        
+        .post-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -12px rgb(16 185 129 / 0.15);
+        }
+        
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: #10b981 #27272a;
+        }
+        
+        .live-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .content a {
+            transition: color 0.15s ease;
+        }
+        
+        .content img {
+            transition: transform 0.3s ease;
+        }
+        
+        .content img:hover {
+            transform: scale(1.03);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        .toast {
+            animation: toastIn 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body class="tail-container bg-zinc-950 text-zinc-100 flex flex-col h-screen">
+    <!-- HEADER -->
+    <header class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-x-3">
+            <!-- ロゴ -->
+            <div class="w-9 h-9 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-inner">📋</div>
+            <h1 class="text-3xl font-semibold tracking-[-0.5px]">掲示板</h1>
+        </div>
+        
+        <!-- 接続状況 -->
+        <div id="ws-status" class="flex items-center gap-x-2 bg-zinc-800 text-sm font-medium px-4 h-9 rounded-3xl border border-zinc-700">
+            <div id="ws-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 live-dot"></div>
+            <span id="ws-text" class="text-emerald-300">リアルタイム接続中</span>
+        </div>
+        
+        <div class="flex items-center gap-x-4">
+            <!-- リロードボタン -->
+            <button onclick="loadBoard()" 
+                    class="flex items-center justify-center w-9 h-9 hover:bg-zinc-800 rounded-2xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-7.714-6.314" />
+                </svg>
+            </button>
+            
+            <!-- 現在のユーザー情報（簡易） -->
+            <div onclick="showInfo()" class="flex items-center gap-x-2 cursor-pointer">
+                <div class="text-xs text-zinc-400">powered by yuyuyu API</div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 話題バナー -->
+    <div id="topic-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3 text-white flex items-center gap-x-3 shadow-sm">
+        <div class="flex items-center justify-center w-6 h-6 bg-white/20 rounded-2xl text-sm font-bold">🔥</div>
+        <span class="font-medium text-sm uppercase tracking-[0.5px]">現在の話題</span>
+        <div id="topic-text" class="flex-1 font-semibold text-base leading-tight"></div>
+    </div>
+    
+    <!-- メインエリア -->
+    <div class="flex-1 flex flex-col min-h-0">
+        
+        <!-- 投稿リスト -->
+        <div id="posts-container" 
+             class="flex-1 overflow-y-auto scrollbar-thin px-4 md:px-8 py-8 space-y-8 bg-zinc-950">
+            <!-- 投稿はJSで挿入 -->
+            <div id="loading" class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                <div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-sm">投稿を読み込み中...</p>
+            </div>
+        </div>
+        
+        <!-- 投稿フォーム -->
+        <div class="border-t border-zinc-800 bg-zinc-900 px-4 md:px-8 py-6">
+            <form id="post-form" class="max-w-3xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <!-- 名前 -->
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 tracking-widest">名前</label>
+                        <input 
+                            id="input-name"
+                            type="text"
+                            maxlength="50"
+                            class="w-full bg-white/5 border border-white/10 focus:border-emerald-400 focus:ring-0 rounded-3xl px-5 py-4 text-base outline-none transition-all"
+                            placeholder="匿名でもOK">
+                    </div>
+                    
+                    <!-- パスワード -->
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 tracking-widest">パスワード</label>
+                        <div class="relative">
+                            <input 
+                                id="input-pass"
+                                type="password"
+                                class="w-full bg-white/5 border border-white/10 focus:border-emerald-400 focus:ring-0 rounded-3xl px-5 py-4 text-base outline-none transition-all"
+                                placeholder="削除・管理用">
+                            <button type="button" onclick="togglePassword(this)"
+                                    class="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 本文 -->
+                    <div class="md:col-span-6">
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 tracking-widest">本文</label>
+                        <textarea 
+                            id="input-content"
+                            maxlength="1000"
+                            rows="3"
+                            class="w-full bg-white/5 border border-white/10 focus:border-emerald-400 focus:ring-0 rounded-3xl px-5 py-4 text-base outline-none resize-y min-h-[108px] transition-all"
+                            placeholder="ここに書き込む..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mt-6">
+                    <div class="text-[10px] text-zinc-500 flex items-center gap-x-2">
+                        <span class="px-3 py-1 bg-white/10 rounded-3xl">1秒に1投稿</span>
+                        <span>・</span>
+                        <span>画像URLは自動で表示</span>
+                    </div>
+                    
+                    <button id="submit-btn"
+                            type="submit"
+                            class="flex items-center gap-x-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-white font-semibold px-10 py-4 rounded-3xl shadow-lg shadow-emerald-500/30">
+                        <span>投稿する</span>
+                        <svg id="submit-spinner" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- TOAST -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-y-2"></div>
+    
+    <!-- 情報モーダル -->
+    <div onclick="if(event.target.id === 'modal') hideInfo()" 
+         id="modal"
+         class="hidden fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="bg-zinc-900 w-full max-w-lg md:rounded-3xl rounded-t-3xl p-8">
+            <h2 class="text-xl font-semibold mb-4">この掲示板について</h2>
+            <div class="space-y-6 text-sm leading-relaxed text-zinc-300">
+                <p>・API: <span class="font-mono text-emerald-400">https://yuyuyu-made-bbs-server.onrender.com</span></p>
+                <p>・WebSocketでリアルタイム更新（投稿・削除・全消去）</p>
+                <p>・名前・パスワードは自動保存（次回も入力不要）</p>
+                <p>・URLは自動リンク化、画像URLはインライン表示</p>
+                <p>・ロール（Mgr / Summit / Admin）は特別バッジ付き</p>
+                <p class="text-emerald-400">高級感のあるモダンデザインで、スマホでもPCでも快適に使えます。</p>
+            </div>
+            <button onclick="hideInfo()" 
+                    class="mt-8 w-full py-4 bg-white/10 hover:bg-white/20 rounded-3xl text-white font-medium">
+                閉じる
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        /**
+         * Tailwind CSS 初期化
+         */
+        function initTailwind() {
+            return {
+                config(userConfig = {}) {
+                    return {
+                        configUser: userConfig,
+                        theme: {
+                            extend: {},
+                        },
+                    }
+                },
+                theme(userConfig = {}) {
+                    return {
+                        configUser: userConfig,
+                        defaultTheme: {
+                            extend: {},
+                        },
+                    }
+                },
+            }
+        }
+        
+        /**
+         * HTMLエスケープ
+         */
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;")
+        }
+        
+        /**
+         * 本文をリッチ表示（URL自動リンク + 画像インライン + 改行）
+         */
+        function renderContent(content) {
+            if (!content) return ''
+            
+            let html = escapeHtml(content)
+            
+            // URL検出（画像 or 通常リンク）
+            html = html.replace(
+                /(https?:\/\/[^\s<>"']+)/gi,
+                (url) => {
+                    const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif)(\?.*)?$/i.test(url)
+                    if (isImage) {
+                        return `<img src="${url}" class="max-w-xs md:max-w-md rounded-2xl my-4 shadow-md border border-zinc-700 cursor-pointer" alt="投稿画像" onerror="this.style.display='none';this.outerHTML='&lt;span class=\\'text-red-400 text-xs\\'>[画像読み込みエラー]&lt;/span&gt;'">`
+                    }
+                    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 underline break-all">🔗 ${url}</a>`
+                }
+            )
+            
+            // 改行を<br>に
+            html = html.replace(/\n/g, '<br>')
+            
+            return html
+        }
+        
+        /**
+         * ロールバッジ生成
+         */
+        function getRoleBadge(role) {
+            switch (role) {
+                case 1:
+                    return `<span class="inline-flex items-center px-3 py-1 text-xs font-bold bg-sky-400 text-white rounded-3xl">SP</span>`
+                case 2:
+                    return `<span class="inline-flex items-center px-3 py-1 text-xs font-bold bg-blue-500 text-white rounded-3xl">Mgr</span>`
+                case 3:
+                    return `<span class="inline-flex items-center px-3 py-1 text-xs font-bold bg-violet-500 text-white rounded-3xl">Summit</span>`
+                case 4:
+                    return `<span class="inline-flex items-center px-3 py-1 text-xs font-bold bg-red-500 text-white rounded-3xl gap-x-1"><span class="text-base">👑</span>Admin</span>`
+                default:
+                    return ''
+            }
+        }
+        
+        /**
+         * 投稿1件のDOM要素を作成
+         */
+        function createPostElement(post) {
+            const div = document.createElement('div')
+            div.className = `post-card bg-zinc-900 border ${post.role >= 2 ? 'border-emerald-400/60 ring-1 ring-emerald-400/30' : 'border-zinc-800'} rounded-3xl px-6 py-5 shadow-xl`
+            div.dataset.no = post.no
+            
+            const nameStyle = post.colorCode 
+                ? `color: ${post.colorCode};` 
+                : ''
+            
+            const idDisplay = post.id ? `<span class="ml-2 text-xs text-zinc-400 font-mono">${post.id}</span>` : ''
+            
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center">
+                        <!-- No -->
+                        <span class="font-mono text-xs bg-zinc-800 text-zinc-400 px-3 py-1 rounded-3xl mr-3">#${post.no}</span>
+                        
+                        <!-- 名前 -->
+                        <span class="font-semibold text-base" style="${nameStyle}">${escapeHtml(post.name)}</span>
+                        ${idDisplay}
+                        
+                        <!-- ロールバッジ -->
+                        ${getRoleBadge(post.role)}
+                    </div>
+                    
+                    <!-- 時間 -->
+                    <span class="text-xs text-zinc-400 font-light whitespace-nowrap">${post.time}</span>
+                </div>
+                
+                <!-- 本文 -->
+                <div class="content mt-5 text-[15.2px] leading-relaxed text-zinc-100">
+                    ${renderContent(post.content)}
+                </div>
+            `
+            return div
+        }
+        
+        /**
+         * 投稿リストをクリアして再描画
+         */
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container')
+            // ローディングを非表示
+            const loading = document.getElementById('loading')
+            if (loading) loading.style.display = 'none'
+            
+            container.innerHTML = ''
+            
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                        <div class="text-6xl mb-4">📭</div>
+                        <p class="text-lg">まだ投稿がありません</p>
+                        <p class="text-sm mt-2">最初の書き込みをしてみましょう！</p>
+                    </div>
+                `
+                return
+            }
+            
+            // 新しい順（APIがすでに新しい順で返してくる）
+            posts.forEach(post => {
+                if (post.deleted) return
+                const element = createPostElement(post)
+                container.appendChild(element)
+            })
+        }
+        
+        /**
+         * 初期データ取得
+         */
+        async function loadBoard() {
+            const container = document.getElementById('posts-container')
+            const loading = document.getElementById('loading')
+            if (loading) loading.style.display = 'flex'
+            
+            try {
+                const res = await fetch('https://yuyuyu-made-bbs-server.onrender.com/api', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                })
+                
+                if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                
+                const data = await res.json()
+                
+                // 話題表示
+                document.getElementById('topic-text').innerHTML = `
+                    <span class="font-semibold">${escapeHtml(data.topic || 'トピックが設定されていません')}</span>
+                `
+                
+                // 投稿描画
+                renderPosts(data.posts)
+                
+                // restriction情報はログ出力のみ（将来的な拡張用）
+                console.log('%c[API] restriction:', 'color:#10b981', data.restriction)
+                
+            } catch (err) {
+                console.error(err)
+                showToast('投稿の読み込みに失敗しました。再読み込みしてください。', 'error')
+                // エラー表示
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-red-400">
+                        <p class="text-xl mb-2">⚠️ 読み込みエラー</p>
+                        <button onclick="loadBoard()" 
+                                class="mt-6 px-8 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-300 rounded-3xl text-sm font-medium">
+                            もう一度読み込む
+                        </button>
+                    </div>
+                `
+            }
+        }
+        
+        /**
+         * WebSocket接続
+         */
+        let ws = null
+        let reconnectTimer = null
+        
+        function connectWebSocket() {
+            if (ws && ws.readyState === WebSocket.OPEN) return
+            
+            try {
+                ws = new WebSocket('wss://yuyuyu-made-bbs-server.onrender.com')
+                
+                ws.onopen = () => {
+                    console.log('%c[WS] 接続成功', 'color:#10b981;font-weight:600')
+                    updateWsStatus(true)
+                    // 再接続タイマーをクリア
+                    if (reconnectTimer) clearTimeout(reconnectTimer)
+                }
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data)
+                        
+                        // 仕様通り channel === 'chat' のみ処理
+                        if (data.channel !== 'chat') return
+                        
+                        const container = document.getElementById('posts-container')
+                        
+                        switch (data.type) {
+                            case 'post':
+                                if (data.post && !data.post.deleted) {
+                                    const newEl = createPostElement(data.post)
+                                    // 先頭に追加（最新順を維持）
+                                    if (container.firstChild) {
+                                        container.insertBefore(newEl, container.firstChild)
+                                    } else {
+                                        container.appendChild(newEl)
+                                    }
+                                    // 空状態メッセージがあれば削除
+                                    if (container.querySelector('div.flex.flex-col.items-center')) {
+                                        container.innerHTML = ''
+                                    }
+                                }
+                                break
+                                
+                            case 'delete':
+                                if (data.nos && Array.isArray(data.nos)) {
+                                    data.nos.forEach(no => {
+                                        const el = container.querySelector(`[data-no="${no}"]`)
+                                        if (el) {
+                                            el.style.transitionDuration = '300ms'
+                                            el.style.opacity = '0'
+                                            el.style.transform = 'translateY(-10px)'
+                                            setTimeout(() => el.remove(), 300)
+                                        }
+                                    })
+                                }
+                                break
+                                
+                            case 'clear':
+                            case 'destroy':
+                                // 全消去
+                                container.style.transitionDuration = '400ms'
+                                container.style.opacity = '0'
+                                setTimeout(() => {
+                                    container.innerHTML = `
+                                        <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                                            <div class="text-6xl mb-4">🧹</div>
+                                            <p class="text-lg">すべて削除されました</p>
+                                        </div>
+                                    `
+                                    container.style.opacity = '1'
+                                }, 400)
+                                break
+                        }
+                    } catch (e) {
+                        console.warn('WSメッセージ解析エラー', e)
+                    }
+                }
+                
+                ws.onclose = () => {
+                    console.log('%c[WS] 切断', 'color:#f43f5e')
+                    updateWsStatus(false)
+                    // 3秒後に再接続
+                    reconnectTimer = setTimeout(() => {
+                        connectWebSocket()
+                    }, 3000)
+                }
+                
+                ws.onerror = (err) => {
+                    console.error('[WS] エラー', err)
+                    updateWsStatus(false)
+                }
+                
+            } catch (e) {
+                console.error('WebSocket初期化エラー', e)
+                updateWsStatus(false)
+            }
+        }
+        
+        /**
+         * WebSocketステータスUI更新
+         */
+        function updateWsStatus(connected) {
+            const dot = document.getElementById('ws-dot')
+            const text = document.getElementById('ws-text')
+            
+            if (connected) {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 live-dot'
+                text.textContent = 'リアルタイム接続中'
+                text.className = 'text-emerald-300'
+            } else {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-red-400'
+                text.textContent = '切断・再接続中…'
+                text.className = 'text-red-300'
+            }
+        }
+        
+        /**
+         * トースト表示
+         */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container')
+            
+            const toast = document.createElement('div')
+            toast.className = `toast flex items-center gap-x-3 px-6 py-4 rounded-3xl shadow-2xl text-sm font-medium max-w-xs`
+            
+            if (type === 'error') {
+                toast.classList.add('bg-red-500', 'text-white')
+                toast.innerHTML = `
+                    <span class="text-xl">⚠️</span>
+                    <span>${message}</span>
+                `
+            } else {
+                toast.classList.add('bg-emerald-500', 'text-white')
+                toast.innerHTML = `
+                    <span class="text-xl">✅</span>
+                    <span>${message}</span>
+                `
+            }
+            
+            container.appendChild(toast)
+            
+            // 自動削除
+            setTimeout(() => {
+                toast.style.transitionDuration = '400ms'
+                toast.style.opacity = '0'
+                toast.style.transform = 'translateY(20px)'
+                setTimeout(() => toast.remove(), 400)
+            }, 4200)
+        }
+        
+        /**
+         * パスワード表示トグル
+         */
+        function togglePassword(btn) {
+            const input = document.getElementById('input-pass')
+            if (input.type === 'password') {
+                input.type = 'text'
+                btn.textContent = '🙈'
+            } else {
+                input.type = 'password'
+                btn.textContent = '👁️'
+            }
+        }
+        
+        /**
+         * 投稿処理
+         */
+        async function handlePost(e) {
+            e.preventDefault()
+            
+            const nameInput = document.getElementById('input-name')
+            const passInput = document.getElementById('input-pass')
+            const contentInput = document.getElementById('input-content')
+            const btn = document.getElementById('submit-btn')
+            const spinner = document.getElementById('submit-spinner')
+            
+            const name = nameInput.value.trim()
+            const pass = passInput.value.trim()
+            const content = contentInput.value.trim()
+            
+            if (!name) {
+                showToast('名前を入力してください', 'error')
+                nameInput.focus()
+                return
+            }
+            if (!pass) {
+                showToast('パスワードを入力してください（削除権限などに使用されます）', 'error')
+                passInput.focus()
+                return
+            }
+            if (!content) {
+                showToast('本文を入力してください', 'error')
+                contentInput.focus()
+                return
+            }
+            
+            // ボタン無効化
+            btn.disabled = true
+            spinner.classList.remove('hidden')
+            
+            try {
+                const response = await fetch('https://yuyuyu-made-bbs-server.onrender.com/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        pass: pass,
+                        content: content
+                    })
+                })
+                
+                if (response.status === 429) {
+                    showToast('同一パスワードでの投稿は1秒に1回までです', 'error')
+                    return
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`サーバーエラー ${response.status}`)
+                }
+                
+                // 成功
+                showToast('投稿しました！')
+                
+                // フォームリセット
+                contentInput.value = ''
+                
+                // localStorageに保存（次回も入力不要）
+                localStorage.setItem('bbs_name', name)
+                localStorage.setItem('bbs_pass', pass)
+                
+                // WebSocketが来るのを待つ（自動で先頭に追加される）
+                
+            } catch (err) {
+                console.error(err)
+                showToast('投稿に失敗しました。もう一度お試しください。', 'error')
+            } finally {
+                btn.disabled = false
+                spinner.classList.add('hidden')
+            }
+        }
+        
+        /**
+         * モーダル表示
+         */
+        function showInfo() {
+            document.getElementById('modal').classList.remove('hidden')
+            document.getElementById('modal').classList.add('flex')
+        }
+        
+        function hideInfo() {
+            const modal = document.getElementById('modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+        
+        /**
+         * 起動処理
+         */
+        function initializeApp() {
+            // Tailwind
+            initTailwind()
+            
+            // localStorageから名前・パスを復元
+            const savedName = localStorage.getItem('bbs_name') || ''
+            const savedPass = localStorage.getItem('bbs_pass') || ''
+            
+            document.getElementById('input-name').value = savedName
+            document.getElementById('input-pass').value = savedPass
+            
+            // フォームイベント
+            document.getElementById('post-form').addEventListener('submit', handlePost)
+            
+            // 初回読み込み
+            loadBoard()
+            
+            // WebSocket接続
+            connectWebSocket()
+            
+            console.log('%c🚀 掲示板Webアプリが起動しました（完全仕様準拠・モダンデザイン）', 'color:#10b981;font-size:13px;font-weight:600')
+        }
+        
+        // DOMContentLoadedで起動
+        window.onload = initializeApp
+    </script>
+</body>
+</html>
