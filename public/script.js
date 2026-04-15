@@ -23,7 +23,7 @@ function switchServer(key) {
 function apiEndpoint() { return SERVER_URL + ENDPOINTS[currentServer]; }
 
 // =====================
-// 設定（Cookie保存）
+// 設定（localStorageで保存・全ページ共有）
 // =====================
 var Settings = {
   defaults: {
@@ -38,10 +38,12 @@ var Settings = {
     enterSend:     'false',
   },
   get: function(key) {
-    var v = getCookie('bbs_' + key);
-    return v !== '' ? v : this.defaults[key];
+    var v = localStorage.getItem('bbs_' + key);
+    return v !== null ? v : this.defaults[key];
   },
   set: function(key, value) {
+    localStorage.setItem('bbs_' + key, value);
+    // Cookieにも保存（後方互換）
     setCookie('bbs_' + key, value, 365);
   },
   apply: function() {
@@ -53,36 +55,35 @@ var Settings = {
 
     // テーマカラー
     var r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
-    var dark = (r*0.299 + g*0.587 + b*0.114) < 128 ? '#ffffff' : '#222222';
+    var textColor = (r*0.299 + g*0.587 + b*0.114) < 128 ? '#ffffff' : '#222222';
     document.documentElement.style.setProperty('--accent',      color);
     document.documentElement.style.setProperty('--accent-dark', shadeColor(color, -20));
     document.documentElement.style.setProperty('--accent-pale', shadeColor(color, 80));
     document.documentElement.style.setProperty('--th-bg',       color);
-    document.documentElement.style.setProperty('--th-text',     dark);
+    document.documentElement.style.setProperty('--th-text',     textColor);
 
     // フォント
     var fontMap = {
-      mplus:   "'M PLUS 1p', sans-serif",
+      mplus:      "'M PLUS 1p', sans-serif",
       kosugimaru: "'Kosugi Maru', sans-serif",
-      roboto:  "'Roboto', sans-serif",
-      sansserif: "sans-serif",
-      serif:   "serif",
-      mono:    "monospace",
+      roboto:     "'Roboto', sans-serif",
+      sansserif:  "sans-serif",
+      serif:      "serif",
+      mono:       "monospace",
     };
-    // カスタムフォント
-    var customFont = getCookie('bbs_customFontName');
+    var customFont = localStorage.getItem('bbs_customFontName');
     if (font === 'custom' && customFont) {
       document.documentElement.style.setProperty('--font', "'" + customFont + "', sans-serif");
     } else {
       document.documentElement.style.setProperty('--font', fontMap[font] || fontMap.mplus);
     }
 
-    // フォントサイズ
     document.documentElement.style.setProperty('--font-size', fontSize + 'px');
-
-    // コントラスト・明るさ
-    document.body.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
-  }
+    // filterはbodyに当てるとposition:fixedが崩れるので#main-wrapに適用
+    var wrap = document.getElementById('main-wrap');
+    if (wrap) {
+      wrap.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
+    }
 };
 
 function shadeColor(hex, pct) {
@@ -224,10 +225,22 @@ function convertEmojis(text) {
 function convertImageUrls(text) {
   if (Settings.get('autoImage') !== 'true') return text;
   var imageExts = /\.(jpe?g|png|gif|webp|bmp|svg)(\?[^\s<>"]*)?$/i;
-  return text.replace(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g, function(tag, href) {
+  var videoExts = /\.(mp4|webm|ogg|mov)(\?[^\s<>"]*)?$/i;
+  return text.replace(/<a href="([^"]+)"[^>]*>[^<]+<\/a>/g, function(tag, href) {
+    // YouTube（通常・Short）
+    var ytMatch = href.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+    if (ytMatch) {
+      return '<div class="embed-wrap"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] +
+        '" frameborder="0" allowfullscreen loading="lazy" style="width:100%;max-width:480px;height:270px;border-radius:8px;"></iframe></div>';
+    }
+    // 画像
     if (imageExts.test(href)) {
       return '<a href="#" class="img-link" data-src="' + escapeHtml(href) + '">' +
         '<img src="' + escapeHtml(href) + '" alt="画像" class="post-img"></a>';
+    }
+    // 動画
+    if (videoExts.test(href)) {
+      return '<video src="' + escapeHtml(href) + '" controls style="max-width:100%;max-height:300px;border-radius:8px;display:block;margin:4px 0;"></video>';
     }
     return tag;
   });
@@ -471,9 +484,10 @@ async function updatePostsList() {
 }
 
 // =====================
-// アンカースクロール
+// アンカースクロール & ダブルタップアンカー挿入
 // =====================
 function initAnchorScroll() {
+  // アンカーリンクのスクロール
   document.addEventListener('click', function(e) {
     var a = e.target.closest('.anchor-link');
     if (!a) return;
@@ -484,6 +498,28 @@ function initAnchorScroll() {
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       target.classList.add('anchor-highlight');
       setTimeout(function() { target.classList.remove('anchor-highlight'); }, 1500);
+    }
+  });
+
+  // 投稿番号のダブルタップ/ダブルクリックでアンカー挿入
+  var lastTap = { no: null, time: 0 };
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('.post-no-link');
+    if (!link) return;
+    var no = link.textContent.trim();
+    var now = Date.now();
+    if (lastTap.no === no && now - lastTap.time < 400) {
+      // ダブルタップ判定
+      var inp = document.getElementById('content');
+      if (!inp) return;
+      var insert = '>>' + no + ' ';
+      var pos = inp.selectionStart || inp.value.length;
+      inp.value = inp.value.substring(0, pos) + insert + inp.value.substring(pos);
+      inp.focus();
+      inp.setSelectionRange(pos + insert.length, pos + insert.length);
+      lastTap = { no: null, time: 0 };
+    } else {
+      lastTap = { no: no, time: now };
     }
   });
 }
@@ -666,9 +702,8 @@ function buildSettingsPanel() {
   // リセット
   document.getElementById('s-reset').addEventListener('click', function() {
     Object.keys(Settings.defaults).forEach(function(k) {
-      setCookie('bbs_' + k, '', -1);
+      localStorage.removeItem('bbs_' + k);
     });
-    Settings.apply();
     location.reload();
   });
 
@@ -721,21 +756,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ダークモード（システム追従）
+  // ダークモード（システム追従・localStorage保存）
   function applyDark(dark) {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     if (toggleBtn) toggleBtn.textContent = dark ? '☀️' : '🌙';
     inverted = dark;
-    setCookie('darkmode', dark ? 'true' : 'false', 365);
+    localStorage.setItem('darkmode', dark ? 'true' : 'false');
   }
   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-  var savedDark = getCookie('darkmode');
-  applyDark(savedDark !== '' ? savedDark === 'true' : prefersDark.matches);
-  prefersDark.addEventListener('change', function(e) { if (getCookie('darkmode')==='') applyDark(e.matches); });
+  var savedDark = localStorage.getItem('darkmode');
+  applyDark(savedDark !== null ? savedDark === 'true' : prefersDark.matches);
+  prefersDark.addEventListener('change', function(e) {
+    if (localStorage.getItem('darkmode') === null) applyDark(e.matches);
+  });
   if (toggleBtn) toggleBtn.addEventListener('click', function() { applyDark(!inverted); });
-
-  updateClock();
-  setInterval(updateClock, 1000);
 
   // 名前・パスワード復元
   var savedName = getCookie('bbsUserName'), savedPass = getCookie('bbsUserPassword');
