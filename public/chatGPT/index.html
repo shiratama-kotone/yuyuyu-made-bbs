@@ -1,30 +1,28 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>掲示板</title>
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="https://cdn.glitch.global/b063afd9-f3c5-4a81-a445-da854de0fa7a/yuyuyu-new-visual.png">
-</head>
+<script src="https://cdn.tailwindcss.com"></script>
 
-<body>
-<div id="header"></div>
+<!-- header -->
+<header class="p-4 bg-slate-900 shadow text-xl font-bold text-center">
+掲示板
+</header>
 
-<div class="content">
-  <h1>掲示板</h1>
+<!-- topic -->
+<div id="topic" class="text-center text-sm text-gray-400 py-2"></div>
 
-  <div class="form">
-    <input id="name" placeholder="名前">
-    <input id="pass" placeholder="パスワード">
-    <textarea id="contentInput" placeholder="本文"></textarea>
-    <button onclick="sendPost()">投稿</button>
+<!-- posts -->
+<div id="posts" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+<!-- form -->
+<div class="p-3 bg-slate-900 border-t border-slate-700">
+  <div class="flex gap-2 mb-2">
+    <input id="name" placeholder="名前"
+      class="flex-1 p-2 rounded bg-slate-800">
+    <input id="pass" placeholder="パスワード"
+      class="flex-1 p-2 rounded bg-slate-800">
   </div>
-
-  <div id="posts"></div>
+  <textarea id="content" placeholder="本文"
+    class="w-full p-2 rounded bg-slate-800 mb-2"></textarea>
+  <button onclick="send()"
+    class="w-full bg-indigo-500 hover:bg-indigo-600 p-2 rounded">
+    投稿
+  </button>
 </div>
-
-<div id="footer"></div>
-<script src="script.js"></script>
-</body>
-</html>
