@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎭 ゆゆゆ掲示板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'M PLUS 1p', sans-serif;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e9e9e9 100%);
+      color: #333;
+      transition: background 0.3s, color 0.3s;
+    }
+    
+    body[data-theme="dark"] {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #e0e0e0;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      padding: 30px 0 20px;
+      border-bottom: 3px solid #7c57c2;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #7c57c2, #a78bde);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .topic-box {
+      background: rgba(124, 87, 194, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #7c57c2;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    
+    .topic-label {
+      font-weight: 700;
+      font-size: 12px;
+      color: #7c57c2;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    
+    .input-section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    
+    body[data-theme="dark"] .input-section {
+      background: #2a2a2a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #666;
+      text-transform: uppercase;
+    }
+    
+    body[data-theme="dark"] label {
+      color: #aaa;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-family: 'M PLUS 1p', sans-serif;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+    
+    body[data-theme="dark"] input[type="text"],
+    body[data-theme="dark"] input[type="password"],
+    body[data-theme="dark"] textarea,
+    body[data-theme="dark"] select {
+      background: #333;
+      color: #e0e0e0;
+      border-color: #444;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #7c57c2;
+      box-shadow: 0 0 8px rgba(124, 87, 194, 0.2);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'M PLUS 1p', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-post {
+      background: linear-gradient(135deg, #7c57c2, #a78bde);
+      color: white;
+    }
+    
+    .btn-post:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 87, 194, 0.3);
+    }
+    
+    .btn-post:active {
+      transform: translateY(0);
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #e0e0e0;
+    }
+    
+    body[data-theme="dark"] .btn-secondary {
+      background: #3a3a3a;
+      color: #e0e0e0;
+      border-color: #444;
+    }
+    
+    .btn-secondary:hover {
+      background: #e8e8e8;
+    }
+    
+    body[data-theme="dark"] .btn-secondary:hover {
+      background: #444;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #7c57c2;
+    }
+    
+    .loading.active {
+      display: block;
+    }
+    
+    .posts-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .post {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s;
+    }
+    
+    body[data-theme="dark"] .post {
+      background: #2a2a2a;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    
+    .post:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .post-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    body[data-theme="dark"] .post-header {
+      background: #333;
+      border-bottom-color: #444;
+    }
+    
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    
+    .post-no {
+      font-weight: 700;
+      color: #7c57c2;
+      font-size: 12px;
+      min-width: 30px;
+    }
+    
+    .post-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .post-id {
+      font-family: monospace;
+      font-size: 11px;
+      color: #999;
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    
+    body[data-theme="dark"] .post-id {
+      background: #444;
+      color: #bbb;
+    }
+    
+    .post-role {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: white;
+      margin-left: auto;
+    }
+    
+    .role-0 { background: #999; }
+    .role-1 { background: #ff9500; }
+    .role-2 { background: #7c57c2; }
+    .role-3 { background: #e91e63; }
+    .role-4 { background: #f44336; }
+    
+    .post-time {
+      font-size: 11px;
+      color: #999;
+    }
+    
+    .post-content {
+      padding: 15px;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    
+    .post.deleted {
+      opacity: 0.6;
+    }
+    
+    .post.deleted .post-content::before {
+      content: "❌ [削除済み] ";
+      color: #999;
+      font-size: 12px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+    
+    body[data-theme="dark"] .empty-state {
+      color: #666;
+    }
+    
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      border-left: 3px solid #c62828;
+      display: none;
+    }
+    
+    body[data-theme="dark"] .error-message {
+      background: #3e1f1f;
+      color: #ff7b7b;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #7c57c2;
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+    
+    .channel-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    body[data-theme="dark"] .channel-tabs {
+      border-bottom-color: #444;
+    }
+    
+    .tab {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      color: #999;
+      cursor: pointer;
+      font-family: 'M PLUS 1p', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      color: #7c57c2;
+      border-bottom-color: #7c57c2;
+    }
+    
+    .restriction-info {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .restriction-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #fff3e0;
+      color: #e65100;
+    }
+    
+    body[data-theme="dark"] .restriction-badge {
+      background: #3e2f1f;
+      color: #ffb74d;
+    }
+    
+    .refresh-btn {
+      padding: 8px 16px;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    body[data-theme="dark"] .refresh-btn {
+      background: #3a3a3a;
+      color: #e0e0e0;
+    }
+  </style>
+</head>
+<body data-theme="light">
+<div class="container">
+  <header>
+    <h1>🎭 ゆゆゆ掲示板</h1>
+  </header>
+  
+  <div class="channel-tabs">
+    <button class="tab active" data-channel="chat" onclick="switchChannel('chat')">💬 雑談</button>
+    <button class="tab" data-channel="battle" onclick="switchChannel('battle')">⚔️ バトルスタジアム</button>
+  </div>
+  
+  <div id="topic-container"></div>
+  
+  <div id="restriction-container"></div>
+  
+  <div class="input-section">
+    <div id="error-message" class="error-message"></div>
+    
+    <div class="form-group">
+      <label>名前</label>
+      <input type="text" id="name" placeholder="投稿者名を入力" maxlength="50">
+    </div>
+    
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="pass" placeholder="IDの生成に使用（秘密）" maxlength="50">
+    </div>
+    
+    <div class="form-group">
+      <label>内容</label>
+      <textarea id="content" placeholder="投稿内容またはコマンドを入力" maxlength="1000"></textarea>
+      <div style="text-align: right; font-size: 11px; color: #999; margin-top: 4px;">
+        <span id="char-count">0</span> / 1000
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button class="btn-post" onclick="submitPost()">📤 投稿</button>
+      <button class="btn-secondary refresh-btn" onclick="loadPosts()">🔄 更新</button>
+    </div>
+    
+    <div class="loading" id="loading">⏳ 処理中...</div>
+  </div>
+  
+  <div class="posts-section" id="posts-container"></div>
+  
+  <div class="empty-state" id="empty-state" style="display: none;">
+    📭 まだ投稿がありません。最初の投稿者になってね！
+  </div>
+</div>
+
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+
+<script>
+const SERVER = 'https://yuyuyu-made-bbs-server.onrender.com';
+let currentChannel = 'chat';
+let posts = [];
+
+// テーマ管理
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('bbs-theme', isDark ? 'light' : 'dark');
+  updateThemeButton();
+}
+
+function updateThemeButton() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+}
+
+// 初期化
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('bbs-theme');
+  const pref = window.matchMedia('(prefers-color-scheme: dark)');
+  const isDark = saved ? saved === 'dark' : pref.matches;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  updateThemeButton();
+  
+  document.getElementById('content').addEventListener('input', (e) => {
+    document.getElementById('char-count').textContent = e.target.value.length;
+  });
+  
+  loadPosts();
+  setInterval(loadPosts, 3000);
+});
+
+// チャンネル切り替え
+function switchChannel(channel) {
+  currentChannel = channel;
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.channel === channel);
+  });
+  loadPosts();
+}
+
+// 投稿取得
+async function loadPosts() {
+  try {
+    const endpoint = currentChannel === 'chat' ? '/api' : '/api/battle';
+    const response = await fetch(`${SERVER}${endpoint}`);
+    const data = await response.json();
+    
+    // Topic更新
+    if (data.topic) {
+      document.getElementById('topic-container').innerHTML = `
+        <div class="topic-box">
+          <div class="topic-label">📌 現在の話題</div>
+          ${data.topic}
+        </div>
+      `;
+    } else {
+      document.getElementById('topic-container').innerHTML = '';
+    }
+    
+    // 規制情報表示
+    if (data.restriction) {
+      let badges = '';
+      if (data.restriction.prevent) badges += '<span class="restriction-badge">🚫 青ID投稿禁止中</span>';
+      if (data.restriction.restrict) badges += '<span class="restriction-badge">🔒 BAN規制中</span>';
+      if (data.restriction.stopActive) badges += '<span class="restriction-badge">⏸️ /stop作用中</span>';
+      if (data.restriction.prohibitActive) badges += '<span class="restriction-badge">📢 /prohibit作用中</span>';
+      
+      if (badges) {
+        document.getElementById('restriction-container').innerHTML = `<div class="restriction-info">${badges}</div>`;
+      } else {
+        document.getElementById('restriction-container').innerHTML = '';
+      }
+    }
+    
+    // 投稿表示
+    posts = data.posts || [];
+    renderPosts();
+  } catch (error) {
+    showError('投稿の取得に失敗しました: ' + error.message);
+  }
+}
+
+// 投稿レンダリング
+function renderPosts() {
+  const container = document.getElementById('posts-container');
+  const empty = document.getElementById('empty-state');
+  
+  if (posts.length === 0) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  
+  container.innerHTML = posts.map(post => `
+    <div class="post ${post.deleted ? 'deleted' : ''}">
+      <div class="post-header">
+        <div class="post-meta">
+          <span class="post-no">No.${post.no}</span>
+          <span class="post-name" ${post.colorCode ? `style="color: ${post.colorCode}"` : ''}>${escapeHtml(post.name)}${post.addSuffix ? `<span style="font-weight: normal; opacity: 0.8;">${escapeHtml(post.addSuffix)}</span>` : ''}</span>
+          <span class="post-id">${post.id}</span>
+          <span class="post-role role-${post.role}">${getRoleName(post.role)}</span>
+        </div>
+        <span class="post-time">${post.time}</span>
+      </div>
+      <div class="post-content">${escapeHtml(post.content)}</div>
+    </div>
+  `).join('');
+}
+
+// 投稿送信
+async function submitPost() {
+  const name = document.getElementById('name').value.trim();
+  const pass = document.getElementById('pass').value.trim();
+  const content = document.getElementById('content').value.trim();
+  
+  if (!name || !pass || !content) {
+    showError('全項目入力してください');
+    return;
+  }
+  
+  if (name.length > 50) {
+    showError('名前は50文字以内にしてください');
+    return;
+  }
+  
+  if (content.length > 1000) {
+    showError('内容は1000文字以内にしてください');
+    return;
+  }
+  
+  const loading = document.getElementById('loading');
+  loading.classList.add('active');
+  
+  try {
+    const endpoint = currentChannel === 'chat' ? '/api' : '/api/battle';
+    const response = await fetch(`${SERVER}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, pass, content })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      showError(data.error || '投稿に失敗しました');
+      return;
+    }
+    
+    // 成功時はフォームをクリア
+    document.getElementById('content').value = '';
+    document.getElementById('char-count').textContent = '0';
+    hideError();
+    
+    // 投稿を再取得
+    await loadPosts();
+  } catch (error) {
+    showError('通信エラー: ' + error.message);
+  } finally {
+    loading.classList.remove('active');
+  }
+}
+
+// ユーティリティ
+function getRoleName(role) {
+  const names = ['青ID', 'Speaker', 'Manager', 'Summit', 'Admin'];
+  return names[role] || 'Unknown';
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function showError(message) {
+  const el = document.getElementById('error-message');
+  el.textContent = message;
+  el.classList.add('show');
+}
+
+function hideError() {
+  const el = document.getElementById('error-message');
+  el.classList.remove('show');
+}
+</script>
+</body>
+</html>
