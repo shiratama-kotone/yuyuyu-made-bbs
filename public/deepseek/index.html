@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゆゆゆメイドBBS - クライアント</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      font-family: 'Segoe UI', '游ゴシック', 'Yu Gothic', sans-serif;
+    }
+    body {
+      background: #f3efe5;
+      padding: 20px;
+      color: #2e241b;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fffaf0;
+      border-radius: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      padding: 24px 28px;
+      border: 1px solid #e5d5b8;
+    }
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 3px dashed #c9ad7a;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    h1 {
+      font-weight: 500;
+      font-size: 2.1rem;
+      letter-spacing: 2px;
+      color: #6b4f2c;
+    }
+    h1 small {
+      font-size: 0.9rem;
+      margin-left: 12px;
+      color: #a28b6a;
+    }
+    .channel-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: #e7dbca;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: bold;
+      color: #4a3720;
+      cursor: pointer;
+      font-size: 1rem;
+      border: 1px solid #cfbc9c;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: #b48c5c;
+      color: white;
+      border-color: #7a5d3e;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .topic-box {
+      background: #e7dcc8;
+      padding: 12px 20px;
+      border-radius: 40px;
+      margin: 20px 0 18px;
+      font-size: 1.1rem;
+      border-left: 12px solid #b48c5c;
+      color: #2b1f12;
+      font-weight: 500;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .restriction-badge {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      color: #7a5d3e;
+    }
+    .restriction-badge span {
+      background: #e5d5b8;
+      padding: 4px 12px;
+      border-radius: 30px;
+    }
+    .posts-area {
+      min-height: 300px;
+      max-height: 550px;
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-bottom: 24px;
+    }
+    .post-item {
+      background: #fcf7f0;
+      border-bottom: 1px solid #ddd0bc;
+      padding: 14px 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      transition: background 0.1s;
+    }
+    .post-item:hover {
+      background: #fff4e6;
+    }
+    .post-number {
+      color: #9e8466;
+      font-weight: 600;
+      min-width: 60px;
+      font-size: 0.9rem;
+    }
+    .post-name {
+      font-weight: 700;
+      margin-right: 12px;
+      color: #4f3a24;
+      min-width: 120px;
+    }
+    .post-id {
+      font-family: 'SF Mono', 'Menlo', monospace;
+      background: #e7dbca;
+      padding: 2px 8px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      color: #4b3a26;
+      margin-right: 10px;
+    }
+    .post-time {
+      font-size: 0.7rem;
+      color: #8b7557;
+      margin-left: auto;
+    }
+    .post-content {
+      width: 100%;
+      margin-top: 8px;
+      padding-left: 64px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+    .deleted-mark {
+      opacity: 0.6;
+      font-style: italic;
+    }
+    .post-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      width: 100%;
+    }
+    .form-panel {
+      background: #efe3d4;
+      padding: 20px 18px;
+      border-radius: 28px;
+    }
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .input-group input, .input-group textarea {
+      padding: 12px 16px;
+      border: 2px solid #dac5a8;
+      border-radius: 48px;
+      background: white;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+      flex: 1 1 200px;
+    }
+    .input-group input:focus, .input-group textarea:focus {
+      border-color: #b48c5c;
+    }
+    .input-group textarea {
+      resize: vertical;
+      min-height: 80px;
+      border-radius: 24px;
+      width: 100%;
+    }
+    .action-bar {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #b48c5c;
+      border: none;
+      color: white;
+      font-weight: bold;
+      padding: 12px 28px;
+      border-radius: 60px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 1px solid #8b6d48;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: 0.1s;
+    }
+    button:hover {
+      background: #9c7648;
+      transform: scale(0.98);
+    }
+    button.secondary {
+      background: #cfbc9c;
+      color: #2e241b;
+      border-color: #a68e6f;
+    }
+    .status {
+      font-size: 0.85rem;
+      color: #5e4a32;
+    }
+    .error-message {
+      color: #b13e3e;
+      font-weight: 500;
+    }
+    .webhook-section {
+      margin-top: 24px;
+      border-top: 2px dotted #c9ad7a;
+      padding-top: 20px;
+    }
+    .account-info {
+      background: #dbccb7;
+      border-radius: 24px;
+      padding: 12px 18px;
+      margin-top: 12px;
+    }
+    .flex-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>ゆゆゆメイドBBS <small>／掲示板</small></h1>
+    <div class="channel-tabs">
+      <button class="tab-btn active" data-channel="chat">💬 雑談</button>
+      <button class="tab-btn" data-channel="battle">⚔️ バトルスタジアム</button>
+    </div>
+  </header>
+
+  <!-- トピック表示 -->
+  <div id="topicDisplay" class="topic-box">📌 読み込み中…</div>
+
+  <!-- 規制情報 -->
+  <div id="restrictionInfo" class="restriction-badge"></div>
+
+  <!-- 投稿一覧 -->
+  <div id="postsContainer" class="posts-area">
+    <div class="post-item">投稿を読み込んでいます…</div>
+  </div>
+
+  <!-- 投稿フォーム -->
+  <div class="form-panel">
+    <div class="input-group">
+      <input type="text" id="postName" placeholder="名前 (最大50字)" maxlength="50" value="名無し">
+      <input type="password" id="postPass" placeholder="パスワード (ID生成用)" value="">
+    </div>
+    <textarea id="postContent" placeholder="内容 (最大1000文字) コマンドも可 /help" maxlength="1000"></textarea>
+    <div class="action-bar">
+      <div class="flex-row">
+        <button id="sendPostBtn">📨 投稿</button>
+        <button id="refreshBtn" class="secondary">🔄 更新</button>
+      </div>
+      <div id="formStatus" class="status"></div>
+    </div>
+    <div style="font-size:0.75rem; margin-top: 8px; color:#5f4d35;">※ passはID生成に使用。同じpassで1秒1回まで。</div>
+  </div>
+
+  <!-- 簡易アカウント/Webhookエリア (拡張) -->
+  <div class="webhook-section">
+    <details>
+      <summary style="font-weight: bold; cursor: pointer; padding: 8px 0;">🔧 アカウント & Webhook管理 (トークン)</summary>
+      <div style="margin-top: 16px;">
+        <div class="account-info">
+          <div class="flex-row">
+            <input type="text" id="accountTokenInput" placeholder="Bearerトークンを入力" style="flex:2; padding: 10px; border-radius: 40px; border:1px solid #ccc;">
+            <button id="applyTokenBtn" class="secondary">適用</button>
+            <button id="fetchMeBtn">👤 自分の情報</button>
+          </div>
+          <div id="accountMeDisplay" style="margin-top: 12px;"></div>
+        </div>
+        <div style="margin-top: 20px;">
+          <h4>📡 Webhook</h4>
+          <div class="flex-row">
+            <input type="url" id="webhookUrlInput" placeholder="https://example.com/webhook" style="flex:2; padding: 10px; border-radius: 40px;">
+            <select id="webhookChannelSelect" style="padding: 10px; border-radius: 40px;">
+              <option value="chat">chat (雑談)</option>
+              <option value="battle">battle</option>
+            </select>
+            <button id="registerWebhookBtn">登録</button>
+          </div>
+          <div id="webhookList" style="margin-top: 16px; font-size:0.9rem;"></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- WebSocket接続状態 -->
+  <div style="margin-top: 12px; font-size:0.8rem; text-align:right; opacity:0.7;" id="wsStatus">🟡 WebSocket接続中…</div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- 設定 ----------
+    const BASE_API = 'https://yuyuyu-made-bbs-server.onrender.com';
+    const WS_URL = 'wss://yuyuyu-made-bbs-server.onrender.com';
+    
+    // 状態
+    let currentChannel = 'chat'; // 'chat' or 'battle'
+    let bearerToken = localStorage.getItem('bbs_bearer') || '';
+    let webSocket = null;
+    let wsConnected = false;
+
+    // DOM要素
+    const topicEl = document.getElementById('topicDisplay');
+    const restrictionEl = document.getElementById('restrictionInfo');
+    const postsEl = document.getElementById('postsContainer');
+    const postName = document.getElementById('postName');
+    const postPass = document.getElementById('postPass');
+    const postContent = document.getElementById('postContent');
+    const sendBtn = document.getElementById('sendPostBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const formStatus = document.getElementById('formStatus');
+    const wsStatus = document.getElementById('wsStatus');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const accountTokenInput = document.getElementById('accountTokenInput');
+    const applyTokenBtn = document.getElementById('applyTokenBtn');
+    const fetchMeBtn = document.getElementById('fetchMeBtn');
+    const accountMeDisplay = document.getElementById('accountMeDisplay');
+    const webhookUrlInput = document.getElementById('webhookUrlInput');
+    const webhookChannelSelect = document.getElementById('webhookChannelSelect');
+    const registerWebhookBtn = document.getElementById('registerWebhookBtn');
+    const webhookList = document.getElementById('webhookList');
+
+    // トークン初期表示
+    accountTokenInput.value = bearerToken;
+
+    // ---------- ヘルパー ----------
+    function getApiUrl(channel){
+      return channel === 'chat' ? `${BASE_API}/api` : `${BASE_API}/api/battle`;
+    }
+
+    // エンドポイント振り分け用
+    function apiEndpoint(channel){
+      return channel === 'chat' ? '/api' : '/api/battle';
+    }
+
+    // 認証ヘッダー
+    function authHeaders(){
+      const headers = { 'Content-Type': 'application/json' };
+      if(bearerToken) headers['Authorization'] = `Bearer ${bearerToken}`;
+      return headers;
+    }
+
+    // ステータス表示
+    function setStatus(msg, isError = false){
+      formStatus.textContent = msg;
+      formStatus.style.color = isError ? '#b13e3e' : '#2e6b2e';
+      if(!isError) setTimeout(()=> { if(formStatus.textContent === msg) formStatus.textContent = ''; }, 4000);
+    }
+
+    // 規制情報レンダリング
+    function renderRestriction(rest){
+      if(!rest) return;
+      const parts = [];
+      if(rest.prevent) parts.push('🚫 青ID投稿禁止');
+      if(rest.restrict) parts.push('⛔ ban規制中');
+      if(rest.stopActive) parts.push('🛑 /stop有効');
+      if(rest.prohibitActive) parts.push('🔒 /prohibit有効');
+      restrictionEl.innerHTML = parts.map(p => `<span>${p}</span>`).join('') || '<span>✅ 通常状態</span>';
+    }
+
+    // 投稿レンダリング
+    function renderPosts(posts){
+      if(!posts || posts.length === 0){
+        postsEl.innerHTML = '<div class="post-item">✨ まだ投稿がありません</div>';
+        return;
+      }
+      const html = posts.map(p => {
+        const nameColor = p.colorCode ? `style="color: ${p.colorCode};"` : '';
+        const suffix = p.addSuffix ? ` ${p.addSuffix}` : '';
+        const deletedClass = p.deleted ? 'deleted-mark' : '';
+        const contentDisplay = p.deleted ? '（この投稿は削除されました）' : escapeHtml(p.content);
+        return `
+          <div class="post-item ${deletedClass}">
+            <div class="post-meta">
+              <span class="post-number">No.${p.no}</span>
+              <span class="post-name" ${nameColor}>${escapeHtml(p.name)}</span>
+              <span class="post-id">${escapeHtml(p.id)}${escapeHtml(suffix)}</span>
+              <span class="post-time">${escapeHtml(p.time)}</span>
+            </div>
+            <div class="post-content">${contentDisplay.replace(/\n/g, '<br>')}</div>
+          </div>
+        `;
+      }).join('');
+      postsEl.innerHTML = html;
+    }
+
+    // 簡易エスケープ
+    function escapeHtml(text){
+      if(!text) return text;
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // データ取得 & 表示
+    async function fetchAndRender(){
+      try {
+        const url = getApiUrl(currentChannel);
+        const res = await fetch(url);
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        topicEl.textContent = `📌 ${data.topic || '（話題なし）'}`;
+        renderRestriction(data.restriction);
+        renderPosts(data.posts || []);
+        setStatus('✅ 更新完了');
+      } catch(e){
+        setStatus(`取得エラー: ${e.message}`, true);
+      }
+    }
+
+    // 投稿送信
+    async function sendPost(){
+      const name = postName.value.trim();
+      const pass = postPass.value;
+      const content = postContent.value.trim();
+      if(!name || !pass || !content){
+        setStatus('名前・パスワード・内容は必須です', true);
+        return;
+      }
+      if(content.length > 1000){ setStatus('内容は1000文字以内', true); return; }
+      
+      const payload = { name, pass, content };
+      const endpoint = getApiUrl(currentChannel);
+      try{
+        setStatus('送信中...');
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok){
+          let errText = await res.text();
+          try{ const j = JSON.parse(errText); errText = j.error || errText; }catch{}
+          throw new Error(`${res.status} ${errText}`);
+        }
+        const data = await res.json();
+        setStatus(`✅ ${data.message || '投稿成功'}`);
+        postContent.value = '';
+        await fetchAndRender(); // 更新
+      }catch(e){
+        setStatus(`投稿失敗: ${e.message}`, true);
+      }
+    }
+
+    // ---------- WebSocket ----------
+    function connectWebSocket(){
+      if(webSocket && webSocket.readyState === WebSocket.OPEN) return;
+      wsStatus.textContent = '🟡 WebSocket再接続中…';
+      webSocket = new WebSocket(WS_URL);
+      webSocket.onopen = () => {
+        wsConnected = true;
+        wsStatus.textContent = '🟢 WebSocket リアルタイム受信中';
+        console.log('ws open');
+      };
+      webSocket.onmessage = (e) => {
+        try{
+          const data = JSON.parse(e.data);
+          // 現在のチャンネルと一致するか？ (post/clear/delete/destroyにchannelあり)
+          if(data.channel && data.channel !== currentChannel) return;
+          
+          if(data.type === 'post'){
+            // 新着投稿 → 再取得（確実）
+            fetchAndRender();
+          } else if(data.type === 'clear' || data.type === 'delete' || data.type === 'destroy'){
+            fetchAndRender();
+          }
+        } catch(er){}
+      };
+      webSocket.onclose = () => { wsConnected = false; wsStatus.textContent = '🔴 WebSocket切断'; setTimeout(connectWebSocket, 5000); };
+      webSocket.onerror = () => { wsStatus.textContent = '🔴 WebSocketエラー'; };
+    }
+
+    // ---------- チャンネル切り替え ----------
+    function switchChannel(channel){
+      currentChannel = channel;
+      tabBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.channel === channel);
+      });
+      fetchAndRender();
+    }
+
+    // ---------- アカウント / Webhook ----------
+    async function fetchMe(){
+      if(!bearerToken){ setStatus('トークン未設定', true); return; }
+      try{
+        const res = await fetch(`${BASE_API}/account/me`, { headers: authHeaders() });
+        if(!res.ok) throw new Error('認証失敗');
+        const me = await res.json();
+        accountMeDisplay.innerHTML = `<strong>${escapeHtml(me.username)}</strong> (ID: ${escapeHtml(me.bbs_id)}) 作成: ${me.created_at}`;
+      }catch(e){ accountMeDisplay.innerHTML = `<span class="error-message">取得失敗: ${e.message}</span>`; }
+    }
+
+    async function fetchWebhooks(){
+      if(!bearerToken){ webhookList.innerHTML = 'トークンが必要です'; return; }
+      try{
+        const res = await fetch(`${BASE_API}/webhooks`, { headers: authHeaders() });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error);
+        const hooks = data.webhooks || [];
+        if(hooks.length===0){ webhookList.innerHTML = '登録なし'; return; }
+        const items = hooks.map(h => `
+          <div style="border-bottom:1px solid #ccc; padding:6px 0; display:flex; gap:10px; align-items:center;">
+            <span>#${h.id} [${h.channel}] ${escapeHtml(h.url)}</span>
+            <button data-hook-id="${h.id}" class="delHookBtn" style="padding:2px 10px; font-size:0.8rem;">削除</button>
+            <button data-hook-id="${h.id}" class="testHookBtn" style="padding:2px 10px;">テスト</button>
+          </div>`).join('');
+        webhookList.innerHTML = items;
+        document.querySelectorAll('.delHookBtn').forEach(b => b.addEventListener('click', (e) => deleteWebhook(e.target.dataset.hookId)));
+        document.querySelectorAll('.testHookBtn').forEach(b => b.addEventListener('click', (e) => testWebhook(e.target.dataset.hookId)));
+      }catch(e){ webhookList.innerHTML = `エラー: ${e.message}`; }
+    }
+
+    async function deleteWebhook(id){
+      if(!bearerToken) return;
+      try{
+        await fetch(`${BASE_API}/webhooks/${id}`, { method: 'DELETE', headers: authHeaders() });
+        fetchWebhooks();
+      }catch(e){ alert('削除失敗'); }
+    }
+    async function testWebhook(id){
+      if(!bearerToken) return;
+      try{
+        const res = await fetch(`${BASE_API}/webhooks/${id}/test`, { method: 'POST', headers: authHeaders() });
+        if(res.ok) alert('テスト送信成功');
+        else alert('テスト失敗');
+      }catch(e){ alert('エラー'); }
+    }
+
+    async function registerWebhook(){
+      if(!bearerToken){ alert('トークン必要'); return; }
+      const url = webhookUrlInput.value.trim();
+      if(!url) return;
+      const channel = webhookChannelSelect.value;
+      try{
+        const res = await fetch(`${BASE_API}/webhooks`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ url, channel })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error);
+        webhookUrlInput.value = '';
+        fetchWebhooks();
+      }catch(e){ alert(`登録失敗: ${e.message}`); }
+    }
+
+    // ---------- イベント ----------
+    sendBtn.addEventListener('click', sendPost);
+    refreshBtn.addEventListener('click', fetchAndRender);
+    
+    tabBtns.forEach(btn => btn.addEventListener('click', () => {
+      switchChannel(btn.dataset.channel);
+    }));
+
+    applyTokenBtn.addEventListener('click', ()=>{
+      const t = accountTokenInput.value.trim();
+      bearerToken = t;
+      localStorage.setItem('bbs_bearer', t);
+      setStatus('トークン保存');
+      fetchMe();
+      fetchWebhooks();
+    });
+
+    fetchMeBtn.addEventListener('click', fetchMe);
+    registerWebhookBtn.addEventListener('click', registerWebhook);
+
+    // Webhook一覧更新ボタン代わり（トークン適用で自動呼び出し）
+    // 初期ロード
+    fetchAndRender();
+    connectWebSocket();
+    if(bearerToken) { fetchMe(); fetchWebhooks(); }
+
+    // Enterで送信 (Ctrl+Enter)
+    postContent.addEventListener('keydown', (e) => {
+      if(e.ctrlKey && e.key === 'Enter'){ sendPost(); e.preventDefault(); }
+    });
+
+    // トークン変更時にwebhook一覧
+    window.fetchWebhooks = fetchWebhooks;
+  })();
+</script>
+</body>
+</html>
