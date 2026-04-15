@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>掲示板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      background: #f5f5f7;
+      color: #222;
+    }
+    header {
+      background: #222;
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+    header small {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .topic {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      border-left: 4px solid #4b8df8;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+    .status {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .status span {
+      display: inline-block;
+      margin-right: 8px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eee;
+    }
+    .status span.active {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .posts {
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 0;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .post {
+      padding: 8px 14px 10px;
+      border-top: 1px solid #eee;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 8px;
+      row-gap: 2px;
+      font-size: 13px;
+    }
+    .post:first-child {
+      border-top: none;
+    }
+    .post-no {
+      font-weight: 600;
+      color: #555;
+      grid-row: 1 / span 2;
+      align-self: flex-start;
+      min-width: 3em;
+    }
+    .post-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 8px;
+    }
+    .post-name {
+      font-weight: 600;
+    }
+    .post-name span {
+      border-radius: 999px;
+      padding: 1px 6px;
+      background: #f0f0f0;
+    }
+    .post-id {
+      font-size: 11px;
+      color: #888;
+    }
+    .post-meta {
+      font-size: 11px;
+      color: #999;
+    }
+    .post-content {
+      white-space: pre-wrap;
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+    .post.deleted .post-content {
+      color: #aaa;
+      font-style: italic;
+    }
+    .post.deleted {
+      background: #fafafa;
+    }
+    .role-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    .role-1 { background: #e8f5e9; color: #2e7d32; }
+    .role-2 { background: #fff3e0; color: #ef6c00; }
+    .role-3 { background: #f3e5f5; color: #6a1b9a; }
+    .role-4 { background: #ffebee; color: #c62828; }
+
+    .form-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 24px;
+    }
+    .form-card h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .form-row label {
+      font-size: 12px;
+      color: #555;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 120px;
+    }
+    .form-row input,
+    .form-row textarea {
+      margin-top: 2px;
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .form-footer small {
+      font-size: 11px;
+      color: #777;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #1976d2;
+      color: #fff;
+      font-weight: 600;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+    .toolbar button {
+      padding: 4px 10px;
+      font-size: 12px;
+      background: #eee;
+      color: #333;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+    .toolbar button.primary {
+      background: #1976d2;
+      color: #fff;
+    }
+    .toolbar span {
+      opacity: 0.8;
+    }
+    .error {
+      color: #c62828;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .success {
+      color: #2e7d32;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .post {
+        grid-template-columns: auto 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>掲示板</h1>
+    <small>yuyuyu-made-bbs API クライアント</small>
+  </header>
+
+  <main>
+    <section class="form-card">
+      <h2>新規投稿</h2>
+      <form id="post-form">
+        <div class="form-row">
+          <label>
+            名前（必須・最大50文字）
+            <input type="text" name="name" required maxlength="50" />
+          </label>
+          <label>
+            パスワード（必須・ID生成に使用）
+            <input type="password" name="pass" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label style="flex: 1 1 100%;">
+            内容（必須・最大1000文字）
+            <textarea name="content" required maxlength="1000"></textarea>
+          </label>
+        </div>
+        <div class="form-footer">
+          <div>
+            <button type="submit" id="submit-btn">投稿する</button>
+          </div>
+          <small>
+            1秒に1回まで同じパスワードで投稿できます。<br />
+            NGワード・規制中の場合は投稿できません。
+          </small>
+        </div>
+        <div id="form-message"></div>
+      </form>
+    </section>
+
+    <section>
+      <div class="toolbar">
+        <button type="button" id="reload-btn" class="primary">再読み込み</button>
+        <span id="ws-status">WebSocket: 接続中…</span>
+      </div>
+      <div class="topic" id="topic">読み込み中…</div>
+      <div class="status" id="restriction"></div>
+      <div class="posts" id="posts"></div>
+    </section>
+  </main>
+
+  <script>
+    const BASE_URL = "https://yuyuyu-made-bbs-server.onrender.com";
+
+    const topicEl = document.getElementById("topic");
+    const postsEl = document.getElementById("posts");
+    const restrictionEl = document.getElementById("restriction");
+    const reloadBtn = document.getElementById("reload-btn");
+    const wsStatusEl = document.getElementById("ws-status");
+    const form = document.getElementById("post-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const formMessage = document.getElementById("form-message");
+
+    let posts = [];
+
+    function roleLabel(role) {
+      switch (role) {
+        case 1: return "スピーカー";
+        case 2: return "マネージャー";
+        case 3: return "サミット";
+        case 4: return "運営";
+        default: return "青ID";
+      }
+    }
+
+    function renderRestriction(r) {
+      if (!r) {
+        restrictionEl.textContent = "";
+        return;
+      }
+      const parts = [];
+      if (r.prevent) parts.push({ label: "青ID投稿禁止中", active: true });
+      if (r.restrict) parts.push({ label: "一部ID規制中", active: true });
+      if (r.stopActive) parts.push({ label: "/stop 発動中", active: true });
+      if (r.prohibitActive) parts.push({ label: "/prohibit 発動中", active: true });
+      if (parts.length === 0) {
+        restrictionEl.innerHTML = "<span>現在、特別な制限はありません。</span>";
+        return;
+      }
+      restrictionEl.innerHTML = parts
+        .map(p => `<span class="${p.active ? "active" : ""}">${p.label}</span>`)
+        .join("");
+    }
+
+    function renderPosts() {
+      postsEl.innerHTML = "";
+      if (!posts || posts.length === 0) {
+        postsEl.innerHTML = '<div class="post"><div class="post-no">-</div><div><div class="post-content">まだ投稿はありません。</div></div></div>';
+        return;
+      }
+      posts.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "post" + (p.deleted ? " deleted" : "");
+        const color = p.colorCode || "#444";
+        const roleClass = "role-" + (p.role || 0);
+        div.innerHTML = `
+          <div class="post-no">#${p.no}</div>
+          <div>
+            <div class="post-header">
+              <div class="post-name">
+                <span style="color:${color}; border:1px solid ${color}">${p.name || "名無し"}</span>
+              </div>
+              <div class="post-id">${p.id || ""}${p.addSuffix ? " " + p.addSuffix : ""}</div>
+              <div class="role-badge ${roleClass}">${roleLabel(p.role)}</div>
+            </div>
+            <div class="post-meta">${p.time || ""}${p.deleted ? "（削除済み）" : ""}</div>
+            <div class="post-content"></div>
+          </div>
+        `;
+        div.querySelector(".post-content").textContent = p.content || "";
+        postsEl.appendChild(div);
+      });
+    }
+
+    async function loadData() {
+      try {
+        reloadBtn.disabled = true;
+        reloadBtn.textContent = "読み込み中…";
+        const res = await fetch(BASE_URL + "/api");
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        topicEl.textContent = data.topic || "（トピックなし）";
+        renderRestriction(data.restriction);
+        posts = Array.isArray(data.posts) ? data.posts : [];
+        renderPosts();
+      } catch (e) {
+        topicEl.textContent = "読み込みに失敗しました。時間をおいて再度お試しください。";
+        restrictionEl.textContent = "";
+        postsEl.innerHTML = "";
+      } finally {
+        reloadBtn.disabled = false;
+        reloadBtn.textContent = "再読み込み";
+      }
+    }
+
+    reloadBtn.addEventListener("click", () => {
+      loadData();
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formMessage.textContent = "";
+      formMessage.className = "";
+      const formData = new FormData(form);
+      const name = formData.get("name").trim();
+      const pass = formData.get("pass").trim();
+      const content = formData.get("content").trim();
+      if (!name || !pass || !content) {
+        formMessage.textContent = "すべての項目を入力してください。";
+        formMessage.className = "error";
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = "送信中…";
+      try {
+        const res = await fetch(BASE_URL + "/api", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, pass, content })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          let msg = "投稿に失敗しました。";
+          if (res.status === 400) msg = "name / pass / content は必須です。";
+          else if (res.status === 429) msg = "同じパスワードでの連投は1秒に1回までです。";
+          else if (res.status === 403) msg = "権限不足・投稿禁止・NGワードなどで拒否されました。";
+          else if (res.status === 500) msg = "サーバーエラーが発生しました。";
+          if (data && data.message) msg += " (" + data.message + ")";
+          formMessage.textContent = msg;
+          formMessage.className = "error";
+        } else {
+          formMessage.textContent = data.message || "投稿に成功しました。";
+          formMessage.className = "success";
+          form.content.value = "";
+        }
+      } catch (err) {
+        formMessage.textContent = "通信エラーが発生しました。";
+        formMessage.className = "error";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "投稿する";
+      }
+    });
+
+    function setupWebSocket() {
+      try {
+        const ws = new WebSocket("wss://yuyuyu-made-bbs-server.onrender.com");
+        wsStatusEl.textContent = "WebSocket: 接続中…";
+
+        ws.onopen = () => {
+          wsStatusEl.textContent = "WebSocket: 接続済み（リアルタイム更新）";
+        };
+
+        ws.onclose = () => {
+          wsStatusEl.textContent = "WebSocket: 切断（数秒後に再接続します）";
+          setTimeout(setupWebSocket, 5000);
+        };
+
+        ws.onerror = () => {
+          wsStatusEl.textContent = "WebSocket: エラー（再接続待機中）";
+        };
+
+        ws.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data.channel !== "chat") return;
+            if (data.type === "post" && data.post) {
+              // 新着投稿を先頭に追加（API仕様は新しい順なので先頭に）
+              posts.unshift(data.post);
+              renderPosts();
+            } else if (data.type === "delete" && Array.isArray(data.nos)) {
+              const set = new Set(data.nos);
+              posts = posts.map(p => set.has(p.no) ? { ...p, deleted: true } : p);
+              renderPosts();
+            } else if (data.type === "clear" || data.type === "destroy") {
+              posts = [];
+              renderPosts();
+            }
+          } catch (err) {
+            console.error("WS parse error", err);
+          }
+        };
+      } catch (err) {
+        wsStatusEl.textContent = "WebSocket: 利用できません";
+      }
+    }
+
+    // 初期ロード
+    loadData();
+    setupWebSocket();
+  </script>
+</body>
+</html>
