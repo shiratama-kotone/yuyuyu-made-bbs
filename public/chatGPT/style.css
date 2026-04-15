@@ -1,0 +1,72 @@
+body {
+  font-family: sans-serif;
+  background: #0f172a;
+  color: #fff;
+  margin: 0;
+}
+
+.content {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #a78bfa;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input, textarea {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+}
+
+textarea {
+  resize: none;
+  height: 80px;
+}
+
+button {
+  background: #7c3aed;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #6d28d9;
+}
+
+.post {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  animation: fadeIn 0.3s;
+}
+
+.name {
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+.time {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
