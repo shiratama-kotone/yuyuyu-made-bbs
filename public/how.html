@@ -8,295 +8,375 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="clock.js"></script>
   <style>
-    .how-wrap { max-width: 800px; margin: 0 auto; }
-    h2 { font-size: 22px; margin: 28px 0 10px; border-left: 4px solid var(--accent); padding-left: 10px; color: var(--accent); }
-    h3 { font-size: 16px; margin: 18px 0 6px; color: var(--text); }
-    p, li { font-size: 14px; margin-bottom: 6px; line-height: 1.8; }
-    ul { padding-left: 20px; }
+    .wrap { max-width: 820px; margin: 0 auto; }
+    h2 { font-size: 20px; margin: 32px 0 10px; border-left: 4px solid var(--accent); padding-left: 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 6px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+    p, li { font-size: 14px; line-height: 1.9; margin-bottom: 5px; }
+    ul, ol { padding-left: 22px; margin-bottom: 8px; }
     code {
-      background: var(--bg-sub);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-family: monospace;
-      font-size: 13px;
-      color: var(--accent);
+      background: var(--bg-sub); border: 1px solid var(--border); border-radius: 4px;
+      padding: 1px 6px; font-family: monospace; font-size: 13px; color: var(--accent);
     }
-    table.cmd-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 10px 0 20px;
-      font-size: 13px;
+    .example {
+      background: var(--bg-sub); border: 1px solid var(--border); border-radius: 6px;
+      padding: 10px 14px; margin: 6px 0 10px; font-size: 13px; font-family: monospace;
+      color: var(--text); white-space: pre-wrap;
     }
-    table.cmd-table th {
-      background: var(--th-bg);
-      color: var(--th-text);
-      padding: 8px 10px;
-      text-align: left;
-    }
-    table.cmd-table td {
-      border-bottom: 1px solid var(--border);
-      padding: 8px 10px;
-      vertical-align: top;
-      background: var(--bg-card);
-    }
-    table.cmd-table tr:nth-child(even) td { background: var(--tr-even); }
+    table.t { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 16px; }
+    table.t th { background:var(--th-bg); color:var(--th-text); padding:8px 10px; text-align:left; }
+    table.t td { border-bottom:1px solid var(--border); padding:8px 10px; background:var(--bg-card); vertical-align:top; }
+    table.t tr:nth-child(even) td { background:var(--tr-even); }
     .badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 3px;
-      color: #fff;
-      white-space: nowrap;
+      display:inline-block; font-size:11px; font-weight:700; padding:1px 7px;
+      border-radius:3px; color:#fff; white-space:nowrap; vertical-align:middle;
     }
-    .badge-admin   { background: #cc0000; }
-    .badge-summit  { background: darkcyan; }
-    .badge-manager { background: #c06000; }
-    .badge-speaker { background: darkorange; }
-    .role-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+    .b-admin   { background:#cc0000; }
+    .b-summit  { background:darkcyan; }
+    .b-manager { background:#c06000; }
+    .b-speaker { background:darkorange; }
+    .b-all     { background:#666; }
+    .role-cards { display:flex; flex-wrap:wrap; gap:10px; margin: 10px 0 16px; }
     .role-card {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      background: var(--bg-card);
-      min-width: 160px;
-      flex: 1;
+      flex:1; min-width:140px; border:1px solid var(--border); border-radius:8px;
+      padding:10px 14px; background:var(--bg-card);
     }
-    .role-card .role-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-    .back-link { display: inline-block; margin-bottom: 20px; color: var(--accent); text-decoration: none; font-size: 14px; }
-    .back-link:hover { text-decoration: underline; }
+    .role-card .rn { font-weight:700; font-size:15px; margin-bottom:4px; }
+    .back-link { display:inline-block; margin-bottom:16px; color:var(--accent); text-decoration:none; font-size:13px; }
+    .note { font-size:12px; color:var(--text-sub); margin-top:4px; }
+    details { border:1px solid var(--border); border-radius:6px; margin-bottom:8px; }
+    details summary { padding:10px 14px; cursor:pointer; font-weight:700; font-size:14px; user-select:none; }
+    details[open] summary { border-bottom:1px solid var(--border); }
+    details .inner { padding:12px 14px; }
   </style>
 </head>
 <body>
-<div class="how-wrap">
-  <h1 style="font-size:32px;margin-bottom:8px;">使い方・コマンド一覧</h1>
+<div id="clock"></div>
+<div class="wrap">
   <a href="/" class="back-link">← 掲示板に戻る</a>
+  <h1 style="font-size:28px;margin-bottom:4px;">使い方・コマンド一覧</h1>
+  <p style="color:var(--text-sub);font-size:13px;margin-bottom:20px;">最終更新: 2025年8月31日</p>
 
   <!-- ========== 基本的な使い方 ========== -->
   <h2>基本的な使い方</h2>
+
+  <h3>投稿する</h3>
+  <ol>
+    <li>「名前」欄に表示したい名前を入力（最大50文字）</li>
+    <li>「パスワード」欄にパスワードを入力（これがあなたのIDを決める）</li>
+    <li>内容欄にメッセージを入力</li>
+    <li>「送信」ボタンを押す、またはShift+Enterで送信</li>
+  </ol>
+  <p class="note">※ 送信は1秒に1回まで。1000文字以内。</p>
+
+  <h3>パスワードとIDについて</h3>
+  <p>パスワードはログインに使うものではなく、<strong>あなたのIDを決める文字列</strong>です。同じパスワードを使えば常に同じIDになります。IDは <code>@XXXXXXX</code> の形式（7文字）で自動生成されます。</p>
+  <p>パスワードは他人に知られると、あなたのIDになりすまされます。</p>
+
+  <h3>改行について</h3>
+  <p>テキスト欄でEnterキーを押すと改行できます。Shift+Enterで送信されます（設定で逆にできます）。</p>
+
+  <h3>アンカーについて</h3>
+  <p><code>&gt;&gt;番号</code> で特定の投稿に返信マークを付けられます。クリックするとその投稿にスクロールします。</p>
+  <p>投稿番号を素早く2回タップ/クリックすると、内容欄に自動で <code>&gt;&gt;番号 </code> が挿入されます。</p>
+  <div class="example">&gt;&gt;42 それ面白いね！</div>
+
+  <h3>URLの自動変換</h3>
   <ul>
-    <li>名前とパスワードを入力して投稿できます。</li>
-    <li><b>パスワード</b>はあなたのIDを決めるものです。毎回同じパスワードを使えば同じIDになります。</li>
-    <li>IDは <code>@xxxxxxx</code> の形式（パスワードのハッシュ値）で自動生成されます。</li>
-    <li>投稿は1秒に1回まで。</li>
-    <li><code>&gt;&gt;番号</code> で特定の投稿にアンカーを付けられます。</li>
-    <li>URLは自動でリンクになります。画像URLは自動でサムネイル表示されます（タップで拡大）。</li>
-    <li>絵文字ボタン（😊）から絵文字を挿入できます。</li>
+    <li>URLを貼るとリンクになります</li>
+    <li>画像URL（jpg/png/gif等）は自動でサムネイル表示されます。タップで拡大。</li>
+    <li>YouTubeのURLは自動で動画プレイヤーになります（通常URL・Shorts両対応）</li>
+    <li>動画ファイル（mp4/webm等）も自動で再生プレイヤーになります</li>
   </ul>
+
+  <h3>絵文字</h3>
+  <p>😊ボタンから絵文字を選べます。テキストコードでも使えます。</p>
+  <p>例: <code>:)</code> <code>(think)</code> <code>(h)</code> <code>(y)</code> など</p>
+
+  <h3>サーバー切替</h3>
+  <p>「雑談」と「バトルスタジアム」の2つのチャンネルがあります。タブで切り替えられます。投稿先・トピックはそれぞれ独立しています。</p>
+
+  <!-- ========== 設定 ========== -->
+  <h2>設定（⚙️ボタン）</h2>
+  <p>右下の⚙️ボタンで設定パネルが開きます。設定はブラウザに保存され、すべてのページで共有されます。</p>
+  <table class="t">
+    <thead><tr><th>設定項目</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>テーマカラー</td><td>カラーピッカーでアクセントカラーを変更（ボタン・テーブルヘッダー等に反映）</td></tr>
+      <tr><td>フォント</td><td>M PLUS 1p / Kosugi Maru / Roboto / Sans Serif / Serif / Monospace / カスタム（フォントファイルアップロード）</td></tr>
+      <tr><td>フォントサイズ</td><td>10〜24pxの範囲で調整</td></tr>
+      <tr><td>コントラスト</td><td>50〜150%で調整</td></tr>
+      <tr><td>明るさ</td><td>30〜150%で調整</td></tr>
+      <tr><td>画像自動表示</td><td>オフにすると画像・動画・YouTube URLがリンクのまま表示</td></tr>
+      <tr><td>投稿通知</td><td>新着投稿時にブラウザ通知を送る</td></tr>
+      <tr><td>返信通知</td><td>自分の投稿にアンカー（&gt;&gt;番号）で返信されたときに通知</td></tr>
+      <tr><td>Enterで送信</td><td>オンにするとEnterで送信、Shift+Enterで改行（デフォルトは逆）</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ========== ダークモード ========== -->
+  <h2>ダークモード</h2>
+  <p>右下の🌙/☀️ボタンで切り替えられます。初期状態はシステムの設定に自動追従します。</p>
 
   <!-- ========== 権限 ========== -->
   <h2>権限一覧</h2>
-  <div class="role-row">
+  <div class="role-cards">
     <div class="role-card">
-      <div class="role-name" style="color:red;">運営</div>
-      <div style="font-size:12px;color:var(--text-sub);">IDが赤・太字で表示。すべてのコマンドが使用可能。</div>
+      <div class="rn" style="color:red;">運営（admin）</div>
+      <div style="font-size:12px;color:var(--text-sub);">IDが赤色。すべてのコマンドが使用可能。</div>
     </div>
     <div class="role-card">
-      <div class="role-name" style="color:darkcyan;">サミット</div>
-      <div style="font-size:12px;color:var(--text-sub);">IDがダークシアン。運営の代理でほぼすべてのコマンドが使用可能。</div>
+      <div class="rn" style="color:darkcyan;">サミット</div>
+      <div style="font-size:12px;color:var(--text-sub);">IDがダークシアン。運営以外のほぼすべてのコマンドが使用可能。</div>
     </div>
     <div class="role-card">
-      <div class="role-name" style="color:red;">マネージャー</div>
-      <div style="font-size:12px;color:var(--text-sub);">IDが赤色。ある程度のコマンドが使用可能。</div>
+      <div class="rn" style="color:red;">マネージャー</div>
+      <div style="font-size:12px;color:var(--text-sub);">IDが赤色。多くのコマンドが使用可能。</div>
     </div>
     <div class="role-card">
-      <div class="role-name" style="color:darkorange;">スピーカー</div>
-      <div style="font-size:12px;color:var(--text-sub);">IDが薄橙（オレンジ）。コマンドは使えません。</div>
+      <div class="rn" style="color:darkorange;">スピーカー</div>
+      <div style="font-size:12px;color:var(--text-sub);">IDがオレンジ。コマンドは使えないが規制の対象外。</div>
     </div>
     <div class="role-card">
-      <div class="role-name" style="color:#1a6fcf;">青ID</div>
-      <div style="font-size:12px;color:var(--text-sub);">IDが青色。初期権限。コマンドは使えません。各種規制がかかります。</div>
+      <div class="rn" style="color:#1a6fcf;">青ID（一般）</div>
+      <div style="font-size:12px;color:var(--text-sub);">IDが青色。初期権限。各種規制がかかる。</div>
     </div>
   </div>
 
-  <!-- ========== 投稿削除 ========== -->
-  <h2>投稿削除コマンド</h2>
-  <table class="cmd-table">
-    <thead><tr><th>コマンド</th><th>説明</th><th>権限</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>/del 番号</code></td>
-        <td>指定した番号の投稿を削除。複数指定可（スペース区切り）。<br>例: <code>/del 12 26</code></td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/destroy 文字列</code></td>
-        <td>指定した文字列またはIDを含む投稿を一括削除。複数指定可。<br>
-          色指定も可: <code>blue</code> 青ID・<code>darkorange</code> スピーカー・<code>red</code> マネージャー/運営・<code>darkcyan</code> サミット</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/clear</code></td>
-        <td>すべての投稿を削除（固定投稿no=0〜2は残る）。投稿番号もリセット。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- ========== コマンド詳細 ========== -->
+  <h2>コマンド詳細</h2>
+  <p>コマンドは内容欄に入力して送信します。実行後、コマンドのメッセージが投稿として残ります。</p>
 
-  <!-- ========== 投稿規制 ========== -->
-  <h2>投稿規制コマンド</h2>
-  <table class="cmd-table">
-    <thead><tr><th>コマンド</th><th>説明</th><th>権限</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>/NG 言葉</code></td>
-        <td>指定した言葉を青IDの投稿禁止ワードに登録。複数指定可。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/OK 言葉</code></td>
-        <td>NGワードを解除。複数指定可。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/prevent</code></td>
-        <td>解除されるまで青IDが<b>雑談</b>に投稿できなくする。<br>話題欄に「雑談での青IDの発言制限中」と表示。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/permit</code></td>
-        <td><code>/prevent</code> を解除。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/restrict</code></td>
-        <td>banされた青IDが全サーバーで投稿できなくなる。<br>話題欄に「青ID一部規制中」と表示。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/stop</code></td>
-        <td>3分間、青IDが全サーバーで投稿できなくなる。<br>話題欄に禁止終了時刻を表示。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/prohibit 時間</code></td>
-        <td>指定した時間、青IDが全サーバーで投稿できなくなる。<br>時間指定: <code>3h</code>（3時間）・<code>30m</code>（30分）・<code>2h30m</code>（2時間30分）<br>例: <code>/prohibit 1h30m</code><br>話題欄に禁止終了時刻を表示。</td>
-        <td><span class="badge badge-admin">運営</span>のみ</td>
-      </tr>
-      <tr>
-        <td><code>/release</code></td>
-        <td><code>/restrict</code>・<code>/stop</code>・<code>/prohibit</code> をすべて解除。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-    </tbody>
-  </table>
+  <details>
+    <summary>📌 投稿削除コマンド</summary>
+    <div class="inner">
+      <h3>/del 番号 [番号...]</h3>
+      <p>指定した番号の投稿を削除します。複数指定はスペース区切り。削除された投稿は「削除されました」に書き換えられます（番号は維持）。</p>
+      <div class="example">/del 42
+/del 10 11 12</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
 
-  <!-- ========== 権限操作 ========== -->
-  <h2>権限昇格コマンド</h2>
-  <table class="cmd-table">
-    <thead><tr><th>コマンド</th><th>説明</th><th>権限</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>/speaker ID</code></td>
-        <td>指定IDをスピーカーに昇格。複数指定可。<br>例: <code>/speaker yukibbs</code></td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/manager ID</code></td>
-        <td>指定IDをマネージャーに昇格。複数指定可。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/summit ID</code></td>
-        <td>指定IDをサミットに昇格。複数指定可。</td>
-        <td><span class="badge badge-admin">運営</span>のみ</td>
-      </tr>
-    </tbody>
-  </table>
+      <h3>/destroy 文字列 [...]</h3>
+      <p>指定した文字列を投稿内容・ID・名前に含む投稿をすべて一括削除します。複数指定可。</p>
+      <p>権限色でも削除できます:</p>
+      <ul>
+        <li><code>blue</code> — 青IDの全投稿</li>
+        <li><code>darkorange</code> — スピーカーの全投稿</li>
+        <li><code>red</code> — マネージャー・運営の全投稿</li>
+        <li><code>darkcyan</code> — サミットの全投稿</li>
+      </ul>
+      <div class="example">/destroy @AbCdEfG
+/destroy あいうえお
+/destroy blue
+/destroy あいうえお blue</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
 
-  <h2>権限降格コマンド</h2>
-  <table class="cmd-table">
-    <thead><tr><th>コマンド</th><th>説明</th><th>権限</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>/disspeaker ID</code></td>
-        <td>スピーカーを青IDに降格。複数指定可。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/dismanager ID</code></td>
-        <td>マネージャーをスピーカーに降格。複数指定可。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/dissummit ID</code></td>
-        <td>サミットをマネージャーに降格。複数指定可。</td>
-        <td><span class="badge badge-admin">運営</span>のみ</td>
-      </tr>
-      <tr>
-        <td><code>/disself</code></td>
-        <td>自分の権限を青IDにリセット。シード漏洩やアカウント移行時に使用。</td>
-        <td>全権限（自分のみ）</td>
-      </tr>
-    </tbody>
-  </table>
+      <h3>/clear</h3>
+      <p>そのサーバーの全投稿を削除します。固定投稿（no=0〜2）は残ります。投稿番号もリセットされます。</p>
+      <div class="example">/clear</div>
+      <p><span class="badge b-summit">サミット</span>以上</p>
+    </div>
+  </details>
 
-  <!-- ========== アカウント操作 ========== -->
-  <h2>アカウント操作コマンド</h2>
-  <table class="cmd-table">
-    <thead><tr><th>コマンド</th><th>説明</th><th>権限</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>/kill ID</code></td>
-        <td>指定IDを使用不可にする（再起動か<code>/revive</code>まで）。複数指定可。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/ban ID</code><br><code>/ban 投稿番号</code></td>
-        <td>指定IDまたは投稿番号のIDをban。<code>/restrict</code>作用中に全投稿を禁止。複数指定可。</td>
-        <td><span class="badge badge-summit">サミット</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/revive</code></td>
-        <td>すべてのkill・banを解除。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-    </tbody>
-  </table>
+  <details>
+    <summary>🔒 投稿規制コマンド</summary>
+    <div class="inner">
+      <h3>/NG 言葉 [...]</h3>
+      <p>青IDが使えないNGワードを登録します。複数同時登録可。</p>
+      <div class="example">/NG 悪い言葉
+/NG word1 word2 word3</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
 
-  <!-- ========== その他 ========== -->
-  <h2>その他のコマンド</h2>
-  <table class="cmd-table">
-    <thead><tr><th>コマンド</th><th>説明</th><th>権限</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>/topic 内容</code></td>
-        <td>「今の話題」を変更。雑談とバトルスタジアムで別々に管理。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/add ID 文字</code></td>
-        <td>指定IDのIDの後ろにマゼンタ色の文字を付与。<br>例: <code>/add yukibbs ★</code></td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/color #カラーコード ID</code></td>
-        <td>指定IDの名前の色を変更。HEX形式（#必要）。<br>例: <code>/color #ff6699 yukibbs</code></td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-      <tr>
-        <td><code>/instances</code><br><code>/instances URL</code></td>
-        <td>現在のインスタンスを閲覧・登録。</td>
-        <td><span class="badge badge-manager">マネージャー</span>以上</td>
-      </tr>
-    </tbody>
-  </table>
+      <h3>/OK 言葉 [...]</h3>
+      <p>NGワードを解除します。</p>
+      <div class="example">/OK 悪い言葉</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+
+      <h3>/prevent</h3>
+      <p>解除されるまで青IDが<strong>雑談</strong>に投稿できなくなります。話題欄に「雑談での青IDの発言制限中」と表示されます。</p>
+      <p><span class="badge b-summit">サミット</span>以上</p>
+
+      <h3>/permit</h3>
+      <p>/prevent を解除します。</p>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+
+      <h3>/restrict</h3>
+      <p>banされた青IDが全サーバーで投稿できなくなります。話題欄に「青ID一部規制中」と表示されます。/ban と組み合わせて使います。</p>
+      <p><span class="badge b-summit">サミット</span>以上</p>
+
+      <h3>/stop</h3>
+      <p>3分間、青IDが全サーバーで投稿できなくなります。話題欄に終了時刻が表示されます。</p>
+      <p><span class="badge b-summit">サミット</span>以上</p>
+
+      <h3>/prohibit 時間</h3>
+      <p>指定した時間、青IDが全サーバーで投稿できなくなります。</p>
+      <p>時間の指定方法:</p>
+      <ul>
+        <li><code>3h</code> — 3時間</li>
+        <li><code>30m</code> — 30分</li>
+        <li><code>2h30m</code> — 2時間30分</li>
+      </ul>
+      <div class="example">/prohibit 1h
+/prohibit 30m
+/prohibit 2h30m</div>
+      <p><span class="badge b-admin">運営</span>のみ</p>
+
+      <h3>/release</h3>
+      <p>/restrict・/stop・/prohibit をすべて解除します。/prevent は /permit で解除してください。</p>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>👑 権限管理コマンド</summary>
+    <div class="inner">
+      <h3>権限昇格: /speaker /manager /summit</h3>
+      <p>指定IDに権限を付与します。複数指定可。@は省略可。</p>
+      <table class="t">
+        <thead><tr><th>コマンド</th><th>付与権限</th><th>実行可能権限</th></tr></thead>
+        <tbody>
+          <tr><td><code>/speaker ID</code></td><td>スピーカー</td><td><span class="badge b-manager">マネージャー</span>以上</td></tr>
+          <tr><td><code>/manager ID</code></td><td>マネージャー</td><td><span class="badge b-summit">サミット</span>以上</td></tr>
+          <tr><td><code>/summit ID</code></td><td>サミット</td><td><span class="badge b-admin">運営</span>のみ</td></tr>
+        </tbody>
+      </table>
+      <div class="example">/speaker AbCdEfG
+/manager AbCdEfG BcDeFgH</div>
+
+      <h3>権限降格: /disspeaker /dismanager /dissummit</h3>
+      <table class="t">
+        <thead><tr><th>コマンド</th><th>降格後</th><th>実行可能権限</th></tr></thead>
+        <tbody>
+          <tr><td><code>/disspeaker ID</code></td><td>青ID</td><td><span class="badge b-manager">マネージャー</span>以上</td></tr>
+          <tr><td><code>/dismanager ID</code></td><td>スピーカー</td><td><span class="badge b-summit">サミット</span>以上</td></tr>
+          <tr><td><code>/dissummit ID</code></td><td>マネージャー</td><td><span class="badge b-admin">運営</span>のみ</td></tr>
+        </tbody>
+      </table>
+
+      <h3>/disself</h3>
+      <p>自分の権限を青IDにリセットします。シード（パスワード）漏洩時やアカウント移行時に使います。</p>
+      <p><span class="badge b-all">全権限ユーザー</span>（自分のみ）</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>🚫 アカウント停止コマンド</summary>
+    <div class="inner">
+      <h3>/kill ID [...]</h3>
+      <p>指定IDのアカウントを使用停止にします。/revive または再起動まで投稿できなくなります。複数指定可。</p>
+      <div class="example">/kill AbCdEfG
+/kill AbCdEfG BcDeFgH</div>
+      <p><span class="badge b-summit">サミット</span>以上</p>
+
+      <h3>/ban ID [...]  または  /ban 投稿番号 [...]</h3>
+      <p>/restrict 作用中に、指定IDの投稿を禁止します。投稿番号で指定するとその投稿者のIDをbanします。</p>
+      <div class="example">/ban AbCdEfG
+/ban 42
+/ban AbCdEfG BcDeFgH 100</div>
+      <p><span class="badge b-summit">サミット</span>以上</p>
+
+      <h3>/revive</h3>
+      <p>すべてのkillとbanを解除します。</p>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>🎨 見た目のカスタマイズコマンド</summary>
+    <div class="inner">
+      <h3>/color #カラーコード ID</h3>
+      <p>指定IDの名前の色をHEX形式で変更します。#が必要です。</p>
+      <div class="example">/color #ff6699 AbCdEfG
+/color #00bcd4 BcDeFgH</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+
+      <h3>/add ID 文字</h3>
+      <p>指定IDのIDの後ろにマゼンタ色の文字を付与します。称号のような使い方ができます。</p>
+      <div class="example">/add AbCdEfG ★MVP
+/add BcDeFgH 管理人</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>📋 その他のコマンド</summary>
+    <div class="inner">
+      <h3>/topic 内容</h3>
+      <p>「今の話題」を変更します。複数行可（最大10行）。絵文字コードも使えます。雑談とバトルスタジアムで別々のトピックを管理できます。</p>
+      <div class="example">/topic 今日のテーマ
+二行目もOK
+/topic 今日は :) の話をしよう！</div>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+
+      <h3>/instances [URL]</h3>
+      <p>現在のインスタンス情報を閲覧・登録します。</p>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+
+      <h3>/seedsearch</h3>
+      <p>ランダムなパスワードとIDのペアを生成して返します。投稿は行われません。</p>
+      <ul>
+        <li>マネージャー: 10組</li>
+        <li>サミット: 100組</li>
+        <li>運営: 200組</li>
+      </ul>
+      <p><span class="badge b-manager">マネージャー</span>以上</p>
+    </div>
+  </details>
 
   <!-- ========== 一括実行 ========== -->
-  <h2>一括実行について</h2>
-  <p>以下のコマンドはスペース区切りで複数の対象を一括指定できます：</p>
+  <h2>一括実行</h2>
+  <p>以下のコマンドはスペース区切りで複数の対象を指定できます:</p>
   <ul>
-    <li><code>/del 12 26 30</code> — 複数番号を一度に削除</li>
-    <li><code>/destroy yukibbs blue</code> — 複数条件を一度に削除</li>
-    <li><code>/NG 言葉1 言葉2</code> — 複数NGワードを一度に登録</li>
-    <li><code>/OK 言葉1 言葉2</code> — 複数NGワードを一度に解除</li>
-    <li><code>/speaker ID1 ID2</code> — 複数IDを一度に昇格</li>
-    <li><code>/kill ID1 ID2</code> / <code>/ban ID1 ID2</code> — 複数IDを一度に操作</li>
+    <li><code>/del</code> — <code>/del 10 11 12</code></li>
+    <li><code>/destroy</code> — <code>/destroy 名前 blue</code></li>
+    <li><code>/NG</code> / <code>/OK</code> — <code>/NG word1 word2</code></li>
+    <li>昇格・降格コマンド — <code>/speaker ID1 ID2 ID3</code></li>
+    <li><code>/kill</code> / <code>/ban</code> — <code>/kill ID1 ID2</code></li>
   </ul>
 
+  <!-- ========== 地雷・地震速報 ========== -->
+  <h2>特殊機能</h2>
+
+  <h3>地雷</h3>
+  <p>投稿が送信されるたびに、0.05%の確率でさーばーから「地雷踏んじゃったね…」というメッセージが返信されます。誰でも踏む可能性があります。</p>
+
+  <h3>地震速報</h3>
+  <p>地震が発生すると、P2P地震情報に基づいて雑談チャンネルに速報が投稿されます（約1分以内）。</p>
+  <div class="example">名前: 地震速報
+ID: EQALERT
+2025年8月31日15時30分に岩手県沖で震度4の地震が発生しました。
+マグニチュードは4.2です。
+これからも気をつけてください。</div>
+
+  <br>
+  <p><a href="api-use.html" style="color:var(--accent);">APIの使い方はこちら →</a></p>
   <br>
 </div>
+
+<button id="toggleBtn">🌙</button>
+<script>
+(function(){
+  function applyDark(dark) {
+    document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+    var btn=document.getElementById('toggleBtn'); if(btn) btn.textContent=dark?'☀️':'🌙';
+    localStorage.setItem('darkmode', dark?'true':'false');
+  }
+  var saved=localStorage.getItem('darkmode');
+  var pref=window.matchMedia('(prefers-color-scheme: dark)');
+  applyDark(saved!==null ? saved==='true' : pref.matches);
+  pref.addEventListener('change',function(e){ if(localStorage.getItem('darkmode')===null) applyDark(e.matches); });
+  document.getElementById('toggleBtn').addEventListener('click',function(){
+    applyDark(document.documentElement.getAttribute('data-theme')!=='dark');
+  });
+  // テーマカラー・フォント適用
+  var color = localStorage.getItem('bbs_themeColor') || '#7c57c2';
+  var r=parseInt(color.slice(1,3),16),g=parseInt(color.slice(3,5),16),b=parseInt(color.slice(5,7),16);
+  var tc = (r*0.299+g*0.587+b*0.114)<128 ? '#fff' : '#222';
+  document.documentElement.style.setProperty('--accent', color);
+  document.documentElement.style.setProperty('--th-bg',  color);
+  document.documentElement.style.setProperty('--th-text',tc);
+})();
+</script>
 </body>
 </html>
