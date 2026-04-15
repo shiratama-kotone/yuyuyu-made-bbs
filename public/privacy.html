@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="clock.js"></script>
+  <style>
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h2 { font-size: 17px; margin: 24px 0 8px; color: var(--accent); }
+    p, li { font-size: 14px; line-height: 1.9; margin-bottom: 6px; }
+    ul { padding-left: 20px; }
+    .back-link { display:inline-block; margin-bottom:16px; color:var(--accent); text-decoration:none; font-size:13px; }
+    .updated { font-size: 12px; color: var(--text-sub); margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+<div id="clock"></div>
+<div class="wrap">
+  <a href="/" class="back-link">← 掲示板に戻る</a>
+  <h1 style="font-size:28px;margin-bottom:6px;">プライバシーポリシー</h1>
+  <p class="updated">最終更新日：2025年8月31日</p>
+
+  <p>本掲示板（以下「本サービス」）は、ユーザーのプライバシーを尊重し、以下のポリシーに従って情報を取り扱います。</p>
+
+  <h2>第1条（収集する情報）</h2>
+  <p>本サービスでは、以下の情報を収集することがあります。</p>
+  <ul>
+    <li><strong>投稿内容</strong>：名前・投稿テキスト・投稿日時</li>
+    <li><strong>ハッシュID</strong>：パスワードを一方向ハッシュ化した識別子（パスワード自体は保存しません）</li>
+    <li><strong>アカウント情報</strong>：ユーザー名・掲示板ID（アカウント登録時）</li>
+    <li><strong>アクセスログ</strong>：IPアドレス・アクセス日時（サーバーログとして自動記録）</li>
+    <li><strong>Cookie・localStorage</strong>：表示設定（テーマカラー・フォント等）の保存に使用</li>
+  </ul>
+
+  <h2>第2条（情報の利用目的）</h2>
+  <ul>
+    <li>掲示板サービスの提供・運営</li>
+    <li>不正利用の調査・防止</li>
+    <li>サービスの改善・機能追加</li>
+  </ul>
+
+  <h2>第3条（第三者提供）</h2>
+  <p>以下の場合を除き、収集した情報を第三者に提供しません。</p>
+  <ul>
+    <li>法令に基づく開示請求があった場合</li>
+    <li>ユーザー本人の同意がある場合</li>
+    <li>本サービスの運営に必要なシステム提供者（NeonDB等）への提供</li>
+  </ul>
+
+  <h2>第4条（Webhookについて）</h2>
+  <p>Webhookを登録した場合、投稿発生時に登録されたURLへ投稿情報（投稿番号・名前・ID・内容・権限・日時・チャンネル）が送信されます。送信先のURLの管理はユーザー自身の責任で行ってください。</p>
+
+  <h2>第5条（Cookieとlocalストレージ）</h2>
+  <p>本サービスはCookieおよびlocalStorageを使用して表示設定を保存します。ブラウザの設定によりこれらを無効にすることができますが、一部機能が正常に動作しない場合があります。</p>
+
+  <h2>第6条（セキュリティ）</h2>
+  <p>パスワードはSHA-256ハッシュ化処理のみを経て識別子（ID）に変換されます。パスワード原文は本サービスのサーバーに保存されません。ただし、ご自身のパスワード管理はユーザー自身の責任で行ってください。</p>
+
+  <h2>第7条（ポリシーの変更）</h2>
+  <p>本ポリシーは予告なく変更されることがあります。変更後も本サービスを利用し続けた場合、変更後のポリシーに同意したものとみなします。</p>
+
+  <br>
+  <p><a href="terms.html" style="color:var(--accent);">利用規約</a></p>
+  <br>
+</div>
+<button id="toggleBtn">🌙</button>
+<script>
+(function(){
+  function applyDark(dark) {
+    document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+    var btn=document.getElementById('toggleBtn'); if(btn) btn.textContent=dark?'☀️':'🌙';
+    localStorage.setItem('darkmode', dark?'true':'false');
+  }
+  var saved=localStorage.getItem('darkmode');
+  var pref=window.matchMedia('(prefers-color-scheme: dark)');
+  applyDark(saved!==null ? saved==='true' : pref.matches);
+  pref.addEventListener('change',function(e){ if(localStorage.getItem('darkmode')===null) applyDark(e.matches); });
+  document.getElementById('toggleBtn').addEventListener('click',function(){
+    applyDark(document.documentElement.getAttribute('data-theme')!=='dark');
+  });
+  var color = localStorage.getItem('bbs_themeColor') || '#7c57c2';
+  document.documentElement.style.setProperty('--accent', color);
+})();
+</script>
+</body>
+</html>
