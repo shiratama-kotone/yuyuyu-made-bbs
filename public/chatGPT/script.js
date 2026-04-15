@@ -1,97 +1,107 @@
-var API = "https://yuyuyu-made-bbs-server.onrender.com/api";
-var WS = "wss://yuyuyu-made-bbs-server.onrender.com";
+const API = "https://yuyuyu-made-bbs-server.onrender.com";
+const WS = "wss://yuyuyu-made-bbs-server.onrender.com";
 
-var postsDiv = document.getElementById("posts");
+var postsEl = document.getElementById("posts");
 
-// 初期読み込み
-async function loadPosts() {
-  var res = await fetch(API);
-  var data = await res.json();
+// 保存
+name.value = localStorage.name || "";
+pass.value = localStorage.pass || "";
 
-  postsDiv.innerHTML = "";
-  data.posts.forEach(addPost);
+name.oninput = () => localStorage.name = name.value;
+pass.oninput = () => localStorage.pass = pass.value;
+
+// URLリンク化
+function linkify(text){
+  return text
+    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="text-blue-400 underline">$1</a>')
+    .replace(/\n/g,"<br>");
 }
 
-// 投稿追加描画
-function addPost(post, prepend) {
-  var div = document.createElement("div");
-  div.className = "post";
+// roleバッジ
+function roleBadge(role){
+  if(role>=4) return `<span class="badge bg-red-500">Admin</span>`;
+  if(role>=3) return `<span class="badge bg-cyan-500">Summit</span>`;
+  if(role>=2) return `<span class="badge bg-purple-500">Mgr</span>`;
+  return "";
+}
 
-  var content = escapeHtml(post.content);
-  content = autoLink(content);
+// 投稿描画
+function render(post){
+  if(post.deleted) return;
+
+  var div = document.createElement("div");
+  div.className = "post bg-slate-800 p-3 rounded shadow";
+  div.id = "p"+post.no;
 
   div.innerHTML = `
-    <div class="name">${post.name || "名無し"}</div>
-    <div>${content}</div>
-    <div class="time">${new Date(post.created_at).toLocaleString()}</div>
+    <div class="flex justify-between text-sm mb-1">
+      <span style="color:${post.colorCode||'#fff'}">
+        ${post.name}
+      </span>
+      ${roleBadge(post.role)}
+    </div>
+
+    <div class="text-xs text-gray-400 mb-1">
+      No.${post.no} ${post.id} ${post.time}
+    </div>
+
+    <div class="text-sm">
+      ${linkify(post.content)}
+    </div>
   `;
 
-  if (prepend) {
-    postsDiv.prepend(div);
-  } else {
-    postsDiv.appendChild(div);
-  }
+  postsEl.prepend(div);
 }
 
-// 投稿送信
-async function sendPost() {
-  var name = document.getElementById("name").value;
-  var pass = document.getElementById("pass").value;
-  var content = document.getElementById("contentInput").value;
+// 初期ロード
+async function load(){
+  var res = await fetch(API+"/api");
+  var data = await res.json();
 
-  if (!content) return;
+  topic.textContent = data.topic;
 
-  await fetch(API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: name,
-      pass: pass,
-      content: content
+  postsEl.innerHTML = "";
+  data.posts.forEach(render);
+}
+load();
+
+// 投稿
+async function send(){
+  if(!name.value || !pass.value || !content.value) return;
+
+  await fetch(API+"/api",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:name.value,
+      pass:pass.value,
+      content:content.value
     })
   });
 
-  localStorage.setItem("name", name);
-  localStorage.setItem("pass", pass);
-
-  document.getElementById("contentInput").value = "";
+  content.value="";
 }
 
 // WebSocket
 var ws = new WebSocket(WS);
 
-ws.onmessage = function(e) {
-  var data = JSON.parse(e.data);
+ws.onmessage = (msg)=>{
+  var data = JSON.parse(msg.data);
 
-  if (data.channel === "chat" && data.type === "post") {
-    addPost(data.post, true);
+  if(data.channel !== "chat") return;
+
+  if(data.type==="post"){
+    render(data.post);
   }
-};
 
-// HTMLエスケープ
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, function(m) {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[m];
-  });
-}
+  if(data.type==="delete"){
+    data.nos.forEach(n=>{
+      var el = document.getElementById("p"+n);
+      if(el) el.remove();
+    });
+  }
 
-// URL自動リンク
-function autoLink(text) {
-  return text.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank">$1</a>'
-  );
-}
-
-// 保存データ復元
-window.onload = function() {
-  document.getElementById("name").value = localStorage.getItem("name") || "";
-  document.getElementById("pass").value = localStorage.getItem("pass") || "";
-  loadPosts();
+  if(data.type==="clear" || data.type==="destroy"){
+    postsEl.innerHTML="";
+  }
 };
