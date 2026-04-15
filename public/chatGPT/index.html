@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>掲示板</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="https://cdn.glitch.global/b063afd9-f3c5-4a81-a445-da854de0fa7a/yuyuyu-new-visual.png">
+</head>
+
+<body>
+<div id="header"></div>
+
+<div class="content">
+  <h1>掲示板</h1>
+
+  <div class="form">
+    <input id="name" placeholder="名前">
+    <input id="pass" placeholder="パスワード">
+    <textarea id="contentInput" placeholder="本文"></textarea>
+    <button onclick="sendPost()">投稿</button>
+  </div>
+
+  <div id="posts"></div>
+</div>
+
+<div id="footer"></div>
+<script src="script.js"></script>
+</body>
+</html>
