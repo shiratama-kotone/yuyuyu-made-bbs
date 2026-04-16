@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>掲示板マナーガイドライン</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="clock.js"></script>
+
+<style>
+.wrap { max-width:720px; margin:0 auto; padding:20px; }
+
+.back-link {
+  display:inline-block;
+  margin-bottom:16px;
+  color:var(--accent);
+  text-decoration:none;
+  font-size:13px;
+}
+
+details {
+  margin-bottom:12px;
+  border:1px solid var(--accent);
+  border-radius:10px;
+  overflow:hidden;
+}
+
+summary {
+  cursor:pointer;
+  padding:10px;
+  font-weight:bold;
+  background:rgba(0,0,0,0.05);
+}
+
+details[open] summary {
+  border-bottom:1px solid var(--accent);
+}
+
+.inner { padding:10px 15px; }
+
+p {
+  font-size:14px;
+  line-height:1.9;
+  margin-bottom:8px;
+}
+
+h2 {
+  font-size:18px;
+  margin:30px 0 10px;
+  color:var(--accent);
+  border-bottom:1px solid var(--accent);
+  display:inline-block;
+}
+
+.footer-info {
+  text-align:right;
+  margin-top:50px;
+  border-top:1px dashed #ccc;
+  padding-top:20px;
+}
+
+.updated {
+  font-size:12px;
+  color:var(--text-sub);
+}
+
+#toggleBtn {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+}
+
+.established {
+  text-align:right;
+  font-size:12px;
+  color:var(--text-sub);
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="clock"></div>
+
+<div class="wrap">
+
+<a href="/" class="back-link">← 掲示板に戻る</a>
+
+<p>
+このガイドラインは、安心して使える掲示板にするためのルールです。<br>
+厳しすぎるものではなく、少しだけ思いやりを持つための目安です。
+</p>
+
+<!-- 第1〜7 -->
+<details open>
+<summary>第1〜7条（基本ルール）</summary>
+<div class="inner">
+
+<h2>第1条（個人情報）</h2>
+<p>他人の個人情報を許可なく投稿することは禁止です。</p>
+<p>ネット上の情報は広がりやすく削除も困難です。</p>
+<p>軽い気持ちでもトラブルになる可能性があります。</p>
+<p>自分の情報も慎重に扱ってください。</p>
+<p>公開範囲を必ず意識してください。</p>
+
+<h2>第2条（発言マナー）</h2>
+<p>暴言や誹謗中傷は禁止です。</p>
+<p>文字だけのやり取りは誤解が生まれやすいです。</p>
+<p>冗談でも強く伝わることがあります。</p>
+<p>相手の気持ちを考えて発言してください。</p>
+<p>落ち着いた言葉を心がけてください。</p>
+
+<h2>第3条（荒らし）</h2>
+<p>掲示板の流れを乱す行為は禁止です。</p>
+<p>意味のない連投やスパムも対象です。</p>
+<p>他人の利用を妨げる行為は避けてください。</p>
+<p>繰り返すと荒らしと判断されます。</p>
+<p>全体の雰囲気維持に協力してください。</p>
+
+<h2>第4条（負荷）</h2>
+<p>短時間の大量投稿は禁止です。</p>
+<p>サーバー負荷の原因になります。</p>
+<p>意図しなくても影響が出る場合があります。</p>
+<p>適度な間隔で利用してください。</p>
+<p>安定運用のためのルールです。</p>
+
+<h2>第5条（対応）</h2>
+<p>違反投稿は運営判断で削除されます。</p>
+<p>制限や対応が行われる場合があります。</p>
+<p>基準は公開されない場合があります。</p>
+<p>状況により対応は変わります。</p>
+<p>安全維持のための措置です。</p>
+
+<h2>第6条（利用）</h2>
+<p>この掲示板は自由に使えます。</p>
+<p>過度に緊張する必要はありません。</p>
+<p>最低限のマナーだけ守ってください。</p>
+<p>気軽な利用を歓迎しています。</p>
+<p>安心して投稿してください。</p>
+
+<h2>第7条（なりすまし）</h2>
+<p>他人になりすます行為は禁止です。</p>
+<p>誤解を招く名前も控えてください。</p>
+<p>混同はトラブルになります。</p>
+<p>明確に区別できる場合は問題ありません。</p>
+<p>分かりやすさを重視してください。</p>
+
+</div>
+</details>
+
+<!-- 第8〜14 -->
+<details>
+<summary>第8〜14条（雰囲気）</summary>
+<div class="inner">
+
+<h2>第8条（宣伝）</h2>
+<p>宣伝は可能ですが空気を読んでください。</p>
+<p>連投や宣伝のみの投稿は禁止です。</p>
+<p>流れを壊さないようにしてください。</p>
+<p>節度ある利用をお願いします。</p>
+<p>周囲への配慮が必要です。</p>
+
+<h2>第9条（ネタバレ）</h2>
+<p>ネタバレには配慮してください。</p>
+<p>事前に分かる工夫をしてください。</p>
+<p>突然の投稿は避けてください。</p>
+<p>他人の楽しみを奪わないでください。</p>
+<p>思いやりを持って投稿してください。</p>
+
+<h2>第10条（空気）</h2>
+<p>場の雰囲気に合わせてください。</p>
+<p>流れを無視すると浮きます。</p>
+<p>自然な交流を意識してください。</p>
+<p>強制ではありません。</p>
+<p>快適な環境作りに協力してください。</p>
+
+<h2>第11条（立ち位置）</h2>
+<p>このルールは目安です。</p>
+<p>強制ではありません。</p>
+<p>より良い環境のための指針です。</p>
+<p>柔軟に運用されます。</p>
+<p>参考として利用してください。</p>
+
+<h2>第12条（配慮）</h2>
+<p>軽い発言でも人を傷つけます。</p>
+<p>言葉は強く伝わる場合があります。</p>
+<p>特定の人を軽視しないでください。</p>
+<p>相手の立場を考えてください。</p>
+<p>安心できる環境を意識してください。</p>
+
+<h2>第13条（場所）</h2>
+<p>気軽に書き込める場所です。</p>
+<p>無理に明るくする必要はありません。</p>
+<p>そのままの気持ちで大丈夫です。</p>
+<p>受け止める環境を大切にしています。</p>
+<p>自由に利用してください。</p>
+
+<h2>第14条（法律）</h2>
+<p>日本の法律を守ってください。</p>
+<p>ネットでも現実と同じです。</p>
+<p>判断に迷う場合は慎重にしてください。</p>
+<p>問題行為は避けてください。</p>
+<p>常識的に利用してください。</p>
+
+</div>
+</details>
+
+<!-- 第15〜33 -->
+<details>
+<summary>第15〜33条（詳細）</summary>
+<div class="inner">
+
+<h2>第15条（著作権）</h2>
+<p>投稿の著作権は投稿者にあります。</p>
+<p>無断転載は控えてください。</p>
+<p>権利侵害に注意してください。</p>
+<p>運営表示に利用される場合があります。</p>
+<p>適切に扱ってください。</p>
+
+<h2>第16条（センシティブ）</h2>
+<p>過度な表現は禁止です。</p>
+<p>閲覧者への配慮が必要です。</p>
+<p>不快な内容は控えてください。</p>
+<p>表現には注意してください。</p>
+<p>安心できる環境を守ってください。</p>
+
+<h2>第17条（AI）</h2>
+<p>AI生成コンテンツは投稿可能です。</p>
+<p>誤解防止のため注記してください。</p>
+<p>人間作品との区別を意識してください。</p>
+<p>透明性を保ってください。</p>
+<p>適切に利用してください。</p>
+
+<h2>第18条（情報）</h2>
+<p>デマの投稿は禁止です。</p>
+<p>不確かな情報は避けてください。</p>
+<p>事実確認をしてください。</p>
+<p>混乱防止のためです。</p>
+<p>責任ある投稿をお願いします。</p>
+
+<h2>第19条（思想）</h2>
+<p>過度な勧誘は禁止です。</p>
+<p>対立を避けてください。</p>
+<p>冷静な議論を心がけてください。</p>
+<p>トラブル防止のためです。</p>
+<p>配慮をお願いします。</p>
+
+<h2>第20条（差別）</h2>
+<p>差別的発言は禁止です。</p>
+<p>誰かを傷つける内容は控えてください。</p>
+<p>意図しなくても問題になります。</p>
+<p>慎重に表現してください。</p>
+<p>安全な場を守ってください。</p>
+
+<h2>第21条（マルチポスト）</h2>
+<p>同じ内容を何度も投稿する行為は禁止です。</p>
+<p>掲示板の流れを壊す原因になります。</p>
+<p>必要以上の繰り返し投稿は控えてください。</p>
+<p>他の利用者の閲覧を妨げる可能性があります。</p>
+<p>適切な投稿間隔を意識してください。</p>
+
+<h2>第22条（外部操作）</h2>
+<p>外部ツールや自動化による不正投稿は禁止です。</p>
+<p>意図的な操作で場を乱す行為は対象になります。</p>
+<p>公平性を損なう行為は控えてください。</p>
+<p>正常な利用環境を維持するためのルールです。</p>
+<p>安全な運営のためご協力ください。</p>
+
+<h2>第23条（連続投稿）</h2>
+<p>短時間での連続投稿は禁止です。</p>
+<p>サーバー負荷や流れの乱れの原因になります。</p>
+<p>意図しない場合でも制限対象になることがあります。</p>
+<p>投稿間隔を少し空けてください。</p>
+<p>全体の快適さを優先してください。</p>
+
+<h2>第24条（長文投稿）</h2>
+<p>長文投稿は可能ですが配慮が必要です。</p>
+<p>読みやすさを意識して改行してください。</p>
+<p>一方的に長すぎる投稿は避けてください。</p>
+<p>他の人の閲覧負担を考えてください。</p>
+<p>見やすい構成を心がけてください。</p>
+
+<h2>第25条（削除対応）</h2>
+<p>投稿は運営判断で削除される場合があります。</p>
+<p>すべての削除理由は公開されないことがあります。</p>
+<p>公平性と安全性のための対応です。</p>
+<p>個別の対応内容は異なる場合があります。</p>
+<p>あらかじめご了承ください。</p>
+
+<h2>第26条（運営への対応）</h2>
+<p>運営への過度な要求や攻撃は禁止です。</p>
+<p>正常な運営を妨げる行為は対象になります。</p>
+<p>冷静なコミュニケーションをお願いします。</p>
+<p>建設的な意見は歓迎されます。</p>
+<p>適切な距離感を保ってください。</p>
+
+<h2>第27条（自治行為）</h2>
+<p>ユーザー同士の過度な注意や制裁行為は禁止です。</p>
+<p>いわゆる自治行為はトラブルの原因になります。</p>
+<p>問題があれば運営に任せてください。</p>
+<p>過剰な正義感は控えてください。</p>
+<p>穏やかな環境維持を優先してください。</p>
+
+<h2>第28条（ガイドライン変更）</h2>
+<p>本ガイドラインは予告なく変更される場合があります。</p>
+<p>変更後も利用を続けることで同意とみなされます。</p>
+<p>最新の内容を確認するようお願いします。</p>
+<p>必要に応じて更新されます。</p>
+<p>柔軟な運用を前提としています。</p>
+
+<h2>第29条（推奨環境）</h2>
+<p>Chromiumベースのブラウザを推奨します。</p>
+<p>環境によっては正常に動作しない場合があります。</p>
+<p>快適な利用のための推奨です。</p>
+<p>最新ブラウザの使用をおすすめします。</p>
+<p>動作安定性のための案内です。</p>
+
+<h2>第30条（アフィリエイト）</h2>
+<p>アフィリエイトとは成果報酬型リンクの仕組みです。</p>
+<p>リンク経由で報酬が発生する場合があります。</p>
+<p>宣伝目的の過度な投稿は禁止です。</p>
+<p>掲示板の公平性を保つための制限です。</p>
+<p>スパム防止にご協力ください。</p>
+
+<h2>第31条（オフ会・取引）</h2>
+<p>ユーザー間の金銭取引は自己責任です。</p>
+<p>運営はトラブルに関与できません。</p>
+<p>慎重な判断をお願いします。</p>
+<p>リスクを理解した上で利用してください。</p>
+<p>安全を最優先してください。</p>
+
+<h2>第32条（外部での言及）</h2>
+<p>他掲示板での過度な比較や言及は禁止です。</p>
+<p>誤解やトラブルの原因になります。</p>
+<p>それぞれの場の文化を尊重してください。</p>
+<p>不要な対立を避けるためのルールです。</p>
+<p>配慮ある行動をお願いします。</p>
+
+<h2>第33条（お問い合わせ）</h2>
+<p>お問い合わせは以下のメールアドレスまでお願いします。</p>
+<p>すべての連絡に返信できるとは限りません。</p>
+<p>内容は運営が確認します。</p>
+<p>簡潔にまとめて送ってください。</p>
+<p>
+<a href="mailto:shiratama_kotone@outlook.com">
+shiratama_kotone@outlook.com
+</a>
+</p>
+
+</div>
+</details>
+
+<div class="footer-info">
+<p class="updated">最終更新日：2026年4月16日</p>
+</div>
+
+<div class="established">
+2026年4月16日　制定
+</div>
+
+</div>
+
+<button id="toggleBtn">🌙</button>
+
+<script>
+(function(){
+  function applyDark(dark){
+    document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+    var btn=document.getElementById('toggleBtn');
+    if(btn) btn.textContent=dark?'☀️':'🌙';
+    localStorage.setItem('darkmode', dark?'true':'false');
+  }
+
+  var saved=localStorage.getItem('darkmode');
+  var pref=window.matchMedia('(prefers-color-scheme: dark)');
+  applyDark(saved!==null ? saved==='true' : pref.matches);
+
+  pref.addEventListener('change',function(e){
+    if(localStorage.getItem('darkmode')===null) applyDark(e.matches);
+  });
+
+  document.getElementById('toggleBtn').addEventListener('click',function(){
+    applyDark(document.documentElement.getAttribute('data-theme')!=='dark');
+  });
+
+  var color = localStorage.getItem('bbs_themeColor') || '#7c57c2';
+  document.documentElement.style.setProperty('--accent', color);
+})();
+</script>
+
+</body>
+</html>
