@@ -10,65 +10,71 @@
   <link rel="stylesheet" href="style.css">
   <script src="clock.js"></script>
   <style>
-    .wrap { max-width: 720px; margin: 0 auto; }
-    h2 { font-size: 17px; margin: 24px 0 8px; color: var(--accent); }
-    p, li { font-size: 14px; line-height: 1.9; margin-bottom: 6px; }
-    ul { padding-left: 20px; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 20px; }
+    h2 { font-size: 18px; margin: 30px 0 10px; color: var(--accent); border-bottom: 1px solid var(--accent); display: inline-block; }
+    p, li { font-size: 14px; line-height: 1.9; margin-bottom: 8px; }
+    ul { padding-left: 20px; list-style-type: '・'; }
     .back-link { display:inline-block; margin-bottom:16px; color:var(--accent); text-decoration:none; font-size:13px; }
-    .updated { font-size: 12px; color: var(--text-sub); margin-bottom: 20px; }
+    .footer-info { text-align: right; margin-top: 50px; border-top: 1px dashed #ccc; padding-top: 20px; }
+    .updated { font-size: 12px; color: var(--text-sub); }
+    .terms-link { font-size: 14px; margin-bottom: 5px; display: block; text-decoration: none; color: var(--accent); }
   </style>
 </head>
 <body>
 <div id="clock"></div>
 <div class="wrap">
   <a href="/" class="back-link">← 掲示板に戻る</a>
-  <h1 style="font-size:28px;margin-bottom:6px;">プライバシーポリシー</h1>
-  <p class="updated">最終更新日：2025年8月31日</p>
+  <h1 style="font-size:26px;margin-bottom:20px;">プライバシーポリシー：私たちの「秘密保持」について</h1>
 
-  <p>本掲示板（以下「本サービス」）は、ユーザーのプライバシーを尊重し、以下のポリシーに従って情報を取り扱います。</p>
+  <p>皆様、いつも当掲示板をご利用いただき、誠にありがとうございます。<br>
+  私たちは、皆様のプライバシーを「道端に落ちている綺麗な石」よりも大切に扱うことを誓います。少々お堅い話になりますが、どうぞリラックスしてお読みください。</p>
 
-  <h2>第1条（収集する情報）</h2>
-  <p>本サービスでは、以下の情報を収集することがあります。</p>
+  <h2>第1条（お預かりする情報の正体）</h2>
+  <p>当サービスでは、円滑な運営のために以下の情報を「こっそり、かつ厳重に」収集することがあります。</p>
   <ul>
-    <li><strong>投稿内容</strong>：名前・投稿テキスト・投稿日時</li>
-    <li><strong>ハッシュID</strong>：パスワードを一方向ハッシュ化した識別子（パスワード自体は保存しません）</li>
-    <li><strong>アカウント情報</strong>：ユーザー名・掲示板ID（アカウント登録時）</li>
-    <li><strong>アクセスログ</strong>：IPアドレス・アクセス日時（サーバーログとして自動記録）</li>
-    <li><strong>Cookie・localStorage</strong>：表示設定（テーマカラー・フォント等）の保存に使用</li>
+    <li><strong>皆様の魂の叫び</strong>：お名前、投稿本文、そして投稿時の切ない時刻など。</li>
+    <li><strong>ハッシュ化されたID</strong>：パスワードは「SHA-256」という高性能なシュレッダーにかけます。原文はどこにも残りませんのでご安心ください。</li>
+    <li><strong>デジタルの足跡</strong>：IPアドレスやアクセス日時を記録します。これは、万が一「おいた」をする方が現れた際の調査用です。</li>
+    <li><strong>お好みの記憶</strong>：「ダークモード派だ！」といった皆様のこだわりを、Cookie等で大切に保管します。</li>
   </ul>
 
-  <h2>第2条（情報の利用目的）</h2>
+  <h2>第2条（情報の使い道）</h2>
+  <p>収集した情報は、以下の高尚な目的以外には使用いたしません。</p>
   <ul>
-    <li>掲示板サービスの提供・運営</li>
-    <li>不正利用の調査・防止</li>
-    <li>サービスの改善・機能追加</li>
+    <li>掲示板を平和に運営し、皆様に快適な空間を提供するため。</li>
+    <li>サービスのバグを見つけ出し、開発者が夜通し修正に励むため。</li>
+    <li>不正利用という名の「嵐」から、この平穏な村を守り抜くため。</li>
   </ul>
 
-  <h2>第3条（第三者提供）</h2>
-  <p>以下の場合を除き、収集した情報を第三者に提供しません。</p>
+  <h2>第3条（情報の第三者提供）</h2>
+  <p>私たちは、皆様のデータを安易に他所へ売り飛ばしたりはいたしません。ただし、以下の場合を除きます。</p>
   <ul>
-    <li>法令に基づく開示請求があった場合</li>
-    <li>ユーザー本人の同意がある場合</li>
-    <li>本サービスの運営に必要なシステム提供者（NeonDB等）への提供</li>
+    <li>正義の味方（警察・裁判所等）から、法的な手続きを経て要請があった場合。</li>
+    <li>システムを支える影の功労者（NeonDB等のプロバイダ）に協力をお願いする場合。</li>
   </ul>
 
-  <h2>第4条（Webhookについて）</h2>
-  <p>Webhookを登録した場合、投稿発生時に登録されたURLへ投稿情報（投稿番号・名前・ID・内容・権限・日時・チャンネル）が送信されます。送信先のURLの管理はユーザー自身の責任で行ってください。</p>
+  <h2>第4条（Webhookの取り扱いについて）</h2>
+  <p>Webhook機能を使いこなす「玄人」の皆様へ。登録されたURLには投稿情報が飛んでいきます。その送信先が「安全な場所」かどうかは、皆様自身の鋭い眼光で管理をお願いいたします。</p>
 
-  <h2>第5条（Cookieとlocalストレージ）</h2>
-  <p>本サービスはCookieおよびlocalStorageを使用して表示設定を保存します。ブラウザの設定によりこれらを無効にすることができますが、一部機能が正常に動作しない場合があります。</p>
+  <h2>第5条（CookieとlocalStorageの付き合い方）</h2>
+  <p>これらは、皆様のブラウザに住まう「記憶の執事」です。彼らを解雇（無効化）することも可能ですが、その場合、掲示板が毎回「初対面のような態度」をとることになりますので、あらかじめご了承ください。</p>
 
-  <h2>第6条（セキュリティ）</h2>
-  <p>パスワードはSHA-256ハッシュ化処理のみを経て識別子（ID）に変換されます。パスワード原文は本サービスのサーバーに保存されません。ただし、ご自身のパスワード管理はユーザー自身の責任で行ってください。</p>
+  <h2>第6条（セキュリティの誇り）</h2>
+  <p>私たちはパスワードをそのまま保存しません。しかし、皆様がパスワードを「123456」にするなどして第三者に突破されることまでは防げません。ご自身の鍵（パスワード）の管理は、くれぐれも自己責任でお願いいたします。</p>
 
-  <h2>第7条（ポリシーの変更）</h2>
-  <p>本ポリシーは予告なく変更されることがあります。変更後も本サービスを利用し続けた場合、変更後のポリシーに同意したものとみなします。</p>
+  <h2>第7条（お約束の更新）</h2>
+  <p>本ポリシーは、時代の波に合わせて予告なくリニューアルすることがあります。改訂後も知らぬ顔で使い続けていただいた場合、新しいルールに「喜んで同意した」ものとみなさせていただきます。</p>
 
-  <br>
-  <p><a href="terms.html" style="color:var(--accent);">利用規約</a></p>
-  <br>
+  <div class="footer-info">
+    <a href="terms.html" class="terms-link">利用規約はこちら</a>
+    <p class="updated">
+      2026年4月15日　制定<br>
+      2026年4月16日　改定</p>
+  </div>
 </div>
+
 <button id="toggleBtn">🌙</button>
+
 <script>
 (function(){
   function applyDark(dark) {
