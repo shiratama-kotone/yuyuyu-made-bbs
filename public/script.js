@@ -17,6 +17,8 @@ function switchServer(key) {
   if (topicEl) topicEl.textContent = '今の話題：';
   var banner = document.getElementById('restrictionBanner');
   if (banner) { banner.textContent = ''; banner.style.display = 'none'; }
+  latestNo = 0;
+  isFirstLoad = true;
   updatePostsList();
 }
 
@@ -84,7 +86,6 @@ var Settings = {
     if (wrap) {
       wrap.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
     }
-  }
 };
 
 function shadeColor(hex, pct) {
@@ -375,6 +376,8 @@ function connectWS() {
           }
         }
       } else if (data.type === 'clear' || data.type === 'delete' || data.type === 'destroy') {
+        latestNo = 0;
+        isFirstLoad = true;
         updatePostsList();
       }
     } catch(err) { console.error(err); }
@@ -404,9 +407,17 @@ async function apiRequest(endpoint, options) {
   }
 }
 
-async function loadData() {
-  var d = await apiRequest(apiEndpoint());
-  return { posts: d.posts||[], topic: d.topic||'', restriction: d.restriction||{} };
+async function loadData(params) {
+  var qs = '';
+  if (params) {
+    var parts = [];
+    if (params.after  !== undefined) parts.push('after='  + params.after);
+    if (params.before !== undefined) parts.push('before=' + params.before);
+    if (params.limit  !== undefined) parts.push('limit='  + params.limit);
+    if (parts.length) qs = '?' + parts.join('&');
+  }
+  var d = await apiRequest(apiEndpoint() + qs);
+  return { posts: d.posts||[], topic: d.topic||'', restriction: d.restriction||{}, total: d.total||0 };
 }
 
 async function createPost(postData) {
@@ -449,7 +460,7 @@ function displayPost(post) {
   var nameStyle = color ? ' style="color:' + escapeHtml(color) + ';"' : '';
 
   tr.innerHTML =
-    '<td><a href="#post-' + no + '" class="post-no-link">' + no + '</a></td>' +
+    '<td><a href="#" class="post-no-link" data-no="' + no + '">' + no + '</a></td>' +
     '<td>' +
       '<div class="info-name"' + nameStyle + '>' + name + '</div>' +
       (id ? '<div class="info-id ' + idClass + '">' + id + (add ? ' <span class="info-add">' + add + '</span>' : '') + '</div>' : '') +
@@ -459,26 +470,52 @@ function displayPost(post) {
 }
 
 var isUpdating = false;
+var latestNo = 0; // 現在表示中の最新投稿番号
+var isFirstLoad = true;
+
 async function updatePostsList() {
   if (isUpdating) return;
   var tbody = document.querySelector('#postsTable tbody');
   if (!tbody) return;
   try {
     isUpdating = true;
-    if (tbody.children.length === 0) tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
-    var data = await loadData();
-    updateTopic(data.topic);
-    updateRestrictionBanner(data.restriction);
-    tbody.innerHTML = '';
-    if (!data.posts || !data.posts.length) {
-      tbody.innerHTML = '<tr><td colspan="3">投稿がありません</td></tr>';
-      return;
+
+    if (isFirstLoad) {
+      // 初回: 最新50件を取得
+      tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
+      var data = await loadData({ limit: 50 });
+      updateTopic(data.topic);
+      updateRestrictionBanner(data.restriction);
+      tbody.innerHTML = '';
+      if (!data.posts || !data.posts.length) {
+        tbody.innerHTML = '<tr><td colspan="3">投稿がありません</td></tr>';
+      } else {
+        data.posts.forEach(function(p) { tbody.appendChild(displayPost(p)); });
+        latestNo = data.posts[0].no; // 先頭が最新
+      }
+      isFirstLoad = false;
+    } else {
+      // 差分取得: latestNoより新しいものだけ
+      var data = await loadData({ after: latestNo });
+      // topic・restriction は常に更新
+      updateTopic(data.topic);
+      updateRestrictionBanner(data.restriction);
+      if (data.posts && data.posts.length > 0) {
+        // 新着を先頭に追加
+        data.posts.forEach(function(p) {
+          var existing = document.getElementById('post-' + p.no);
+          if (!existing) {
+            tbody.insertBefore(displayPost(p), tbody.firstChild);
+          }
+        });
+        latestNo = data.posts[0].no;
+      }
     }
-    data.posts.forEach(function(p) { tbody.appendChild(displayPost(p)); });
   } catch(e) {
     console.error(e);
-    if (!tbody.children.length || tbody.innerHTML.indexOf('読み込み中')!==-1)
+    if (isFirstLoad && tbody.innerHTML.indexOf('読み込み中') !== -1) {
       tbody.innerHTML = '<tr><td colspan="3" style="color:red;">読み込み失敗</td></tr>';
+    }
   } finally {
     isUpdating = false;
   }
@@ -507,10 +544,10 @@ function initAnchorScroll() {
   document.addEventListener('click', function(e) {
     var link = e.target.closest('.post-no-link');
     if (!link) return;
-    var no = link.textContent.trim();
+    e.preventDefault(); // URLにハッシュを付けない
+    var no = link.dataset.no;
     var now = Date.now();
     if (lastTap.no === no && now - lastTap.time < 400) {
-      // ダブルタップ判定
       var inp = document.getElementById('content');
       if (!inp) return;
       var insert = '>>' + no + ' ';
