@@ -88,12 +88,30 @@
       <tr><td><span class="method delete">DELETE</span></td><td><code>/webhooks/:id</code></td><td><span class="auth">Bearer</span></td><td>Webhook削除</td></tr>
       <tr><td><span class="method post">POST</span></td><td><code>/webhooks/:id/test</code></td><td><span class="auth">Bearer</span></td><td>Webhookテスト送信</td></tr>
       <tr><td><span class="method get">GET</span></td><td><code>/seedsearch?pass=</code></td><td>不要</td><td>シードID生成（マネージャー以上）</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/stats</code></td><td>不要</td><td>サーバー統計情報</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/stats/top-posters</code></td><td>不要</td><td>投稿者ランキング（上位10件）</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/status</code></td><td>不要</td><td>規制状態・トピック・NGワード一覧</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/user/:id</code></td><td>不要</td><td>IDの情報取得（権限・色・投稿数等）</td></tr>
       <tr><td><span class="method get">GET</span></td><td><code>/health</code></td><td>不要</td><td>サーバー死活確認</td></tr>
     </tbody>
   </table>
 
   <!-- ========== GET /api ========== -->
   <h2>データ取得 <code>GET /api</code></h2>
+  <h3>クエリパラメータ</h3>
+  <table class="t">
+    <thead><tr><th>パラメータ</th><th>型</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>limit</code></td><td>number</td><td>取得件数（デフォルト50、最大200）</td></tr>
+      <tr><td><code>after</code></td><td>number</td><td>差分取得: このno以降の新着のみ返す</td></tr>
+      <tr><td><code>before</code></td><td>number</td><td>ページング: このnoより前の投稿を取得</td></tr>
+    </tbody>
+  </table>
+  <h3>使用例</h3>
+  <pre>GET /api                      # 最新50件
+GET /api?limit=100            # 最新100件
+GET /api?after=500            # no=500より新しい投稿のみ（差分取得）
+GET /api?before=500&limit=50  # no=500より前の50件（ページング）</pre>
   <h3>レスポンス</h3>
   <pre>{
   "topic": "今の話題（複数行も可）",
@@ -285,6 +303,55 @@ ws.onmessage = (e) => {
   <p>レスポンス: <code>{ "seeds": [ { "pass": "a1b2c3d4", "id": "@AbCdEfG" }, ... ] }</code></p>
   <p>生成数: マネージャー10件 / サミット100件 / 運営200件</p>
 
+  <!-- ========== 統計API ========== -->
+  <h2>統計API <code>GET /stats</code></h2>
+  <pre>{
+  "posts":          { "chat": 123, "battle": 45 },  // 削除済みを除く投稿数
+  "accounts":       12,                             // 登録アカウント数
+  "ng_words":       3,                              // NGワード数
+  "roles":          { "admin": 1, "summit": 2, "manager": 3, "speaker": 5 },
+  "ws_connections": 7,                              // 現在のWebSocket接続数
+  "uptime_seconds": 3600                            // サーバー稼働秒数
+}</pre>
+
+  <h2>投稿者ランキング <code>GET /stats/top-posters</code></h2>
+  <pre>GET /stats/top-posters            # 雑談のランキング
+GET /stats/top-posters?channel=battle  # バトルスタジアム</pre>
+  <pre>{
+  "ranking": [
+    { "id": "@AbCdEfG", "role": 2, "post_count": 150 },
+    ...
+  ]
+}</pre>
+
+  <h2>規制・状態情報 <code>GET /status</code></h2>
+  <pre>{
+  "restriction": { ...restrictionオブジェクト... },
+  "topics":    { "chat": "今の話題", "battle": "バトルスタジアム" },
+  "ng_words":  ["word1", "word2"],
+  "ban_count": 2,
+  "kill_count": 1
+}</pre>
+
+  <h2>ユーザー情報 <code>GET /user/:id</code></h2>
+  <pre>GET /user/AbCdEfG    # @は省略可</pre>
+  <pre>{
+  "id":         "@AbCdEfG",
+  "role":       2,         // 権限レベル
+  "colorCode":  "#ff6699", // 名前色（未設定はnull）
+  "addSuffix":  "★MVP",   // IDサフィックス（未設定はnull）
+  "post_count": 42,        // 雑談の投稿数
+  "is_banned":  false,
+  "is_killed":  false
+}</pre>
+
+  <h3>🧪 ユーザー情報テスト</h3>
+  <div class="test-box">
+    <input type="text" id="u-id" placeholder="ID（@AbCdEfG）または AbCdEfG">
+    <button class="run" onclick="testUser()">GET 実行</button>
+    <div class="result" id="r-user"></div>
+  </div>
+
   <br>
   <p><a href="how.html" style="color:var(--accent);">コマンド一覧はこちら →</a></p>
   <br>
@@ -344,7 +411,15 @@ async function testPost() {
   } catch(e){show('r-post',{error:e.message});}
 }
 
-async function testWebhook() {
+async function testUser() {
+  var id=document.getElementById('u-id').value.trim();
+  if(!id){show('r-user',{error:'IDを入力してください'});return;}
+  try {
+    var r=await fetch(SERVER+'/user/'+encodeURIComponent(id));
+    show('r-user',await r.json());
+  } catch(e){show('r-user',{error:e.message});}
+}
+
   var token=document.getElementById('wt-token').value.trim();
   var url=document.getElementById('wt-url').value.trim();
   var ch=document.getElementById('wt-ch').value;
