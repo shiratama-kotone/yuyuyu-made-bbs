@@ -17,72 +17,73 @@
   </script>
 </head>
 <body>
-<div id="main-wrap">
 
-  <h1 class="rainbow">掲示板</h1>
-  <p class="desc">
-    新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものです。<br>
-    今の話題に勇気を出して参加してみましょう！！！<br>
-    猫派だけ下ネタOKだよ<br>
-    全数字垢がほしいならパスワードを7かなんかにしとけください(<span class="rainbow" style="font-size:13px;">@7902699</span>)<br>
-    IDが<span style="color:red;">赤い</span>人はゆゆゆが選んだ人(運営)です。
-  </p>
-
-  <div class="nav-links">
-    <a href="how.html" target="_blank">使い方</a>
-    <a href="api-use.html" target="_blank">API</a>
-    <a href="account.html" target="_blank">アカウント</a>
-    <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
-    <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
-    <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
-    <a href="terms.html" target="_blank">利用規約</a>
-    <a href="privacy.html" target="_blank">プライバシーポリシー</a>
-  </div>
-
+  <!-- fixed要素はmain-wrapの外 -->
   <div id="clock"></div>
-
-  <div class="server-tabs">
-    <button id="tab-chat" class="active" onclick="switchServer('chat')">雑談</button>
-    <button id="tab-battle" onclick="switchServer('battle')">バトルスタジアム</button>
-  </div>
-
-  <form id="postForm" onsubmit="return false;">
-    <textarea id="content" placeholder="内容（Enterで改行 / Shift+Enterで送信）"></textarea>
-    <div class="form-row">
-      <input type="text"     id="name"     placeholder="名前">
-      <input type="password" id="password" placeholder="パスワード">
-      <button id="emojiBtn"  type="button">😊</button>
-      <button type="submit"  id="submitBtn">送信</button>
-    </div>
-  </form>
-
-  <h3 id="currentTopic">今の話題：</h3>
-  <div id="restrictionBanner"></div>
-
-  <div class="table-wrap">
-    <table id="postsTable">
-      <colgroup>
-        <col class="col-no">
-        <col class="col-info">
-        <col class="col-content">
-      </colgroup>
-      <thead>
-        <tr>
-          <th>番号</th>
-          <th>名前 / ID</th>
-          <th>投稿</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div id="overlay"></div>
-
   <button id="toggleBtn">🌙</button>
   <button id="settingsBtn">⚙️</button>
+  <div id="overlay"></div>
 
-</div><!-- #main-wrap -->
+  <!-- filterを当てるラッパー（fixed要素を含まない） -->
+  <div id="main-wrap">
+
+    <h1 class="rainbow">掲示板</h1>
+    <p class="desc">
+      新規さんへ、先ずは挨拶をしましょう。パスワードは自分のIDを決めるものです。<br>
+      今の話題に勇気を出して参加してみましょう！！！<br>
+      <s>全数字垢がほしいならパスワードを7かなんかにしとけください(<span class="rainbow" style="font-size:13px;">@7902699</span>)</s>
+    </p>
+
+    <div class="nav-links">
+      <a href="how.html" target="_blank">使い方</a>
+      <a href="api-use.html" target="_blank">API</a>
+      <a href="account.html" target="_blank">アカウント</a>
+      <a href="emoji-copy.html" target="_blank">絵文字一覧</a>
+      <a href="youtube.html" target="_blank">ゆーちゅーぶ</a>
+      <a href="cw-read.html" target="_blank">Chatwork既読ツール</a>
+      <a href="guideline.html" target="_blank">ガイドライン</a>
+      <a href="terms.html" target="_blank">利用規約</a>
+      <a href="privacy.html" target="_blank">プライバシーポリシー</a>
+    </div>
+
+    <div class="server-tabs">
+      <button id="tab-chat" class="active" onclick="switchServer('chat')">雑談</button>
+      <button id="tab-battle" onclick="switchServer('battle')">バトルスタジアム</button>
+    </div>
+
+    <form id="postForm" onsubmit="return false;">
+      <textarea id="content" placeholder="内容（Enterで改行 / Shift+Enterで送信）"></textarea>
+      <div class="form-row">
+        <input type="text"     id="name"     placeholder="名前">
+        <input type="password" id="password" placeholder="パスワード">
+        <button id="emojiBtn"  type="button">😊</button>
+        <button type="submit"  id="submitBtn">送信</button>
+      </div>
+    </form>
+
+    <h3 id="currentTopic">今の話題：</h3>
+    <div id="restrictionBanner"></div>
+
+    <div class="table-wrap">
+      <table id="postsTable">
+        <colgroup>
+          <col class="col-no">
+          <col class="col-info">
+          <col class="col-content">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>番号</th>
+            <th>名前 / ID</th>
+            <th>投稿</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div><!-- #main-wrap -->
+
   <script src="script.js"></script>
 </body>
 </html>
