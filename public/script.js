@@ -86,7 +86,6 @@ var Settings = {
     if (wrap) {
       wrap.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
     }
-  }
 };
 
 function shadeColor(hex, pct) {
@@ -159,7 +158,7 @@ var EMOJI_MAP = {
 // ユーティリティ
 // =====================
 var inverted = false;
-var myId = null;
+var myId = null; // 自分のID（パスワードから計算）
 
 function updateClock() {
   var el = document.getElementById('clock');
@@ -195,6 +194,7 @@ function autoLinkUrls(text) {
   });
 }
 
+// アンカー >>番号
 function autoLinkAnchors(text) {
   if (!text) return '';
   return text.replace(/&gt;&gt;(\d+)/g, function(_, num) {
@@ -204,6 +204,7 @@ function autoLinkAnchors(text) {
 
 function escapeForRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
+// SHA-256 → Base64 → 英数字のみ → 7文字
 function bufToBase64(buf) {
   return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
 }
@@ -228,15 +229,18 @@ function convertImageUrls(text) {
   var imageExts = /\.(jpe?g|png|gif|webp|bmp|svg)(\?[^\s<>"]*)?$/i;
   var videoExts = /\.(mp4|webm|ogg|mov)(\?[^\s<>"]*)?$/i;
   return text.replace(/<a href="([^"]+)"[^>]*>[^<]+<\/a>/g, function(tag, href) {
+    // YouTube（通常・Short）
     var ytMatch = href.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
     if (ytMatch) {
       return '<div class="embed-wrap"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] +
         '" frameborder="0" allowfullscreen loading="lazy" style="width:100%;max-width:480px;height:270px;border-radius:8px;"></iframe></div>';
     }
+    // 画像
     if (imageExts.test(href)) {
       return '<a href="#" class="img-link" data-src="' + escapeHtml(href) + '">' +
         '<img src="' + escapeHtml(href) + '" alt="画像" class="post-img"></a>';
     }
+    // 動画
     if (videoExts.test(href)) {
       return '<video src="' + escapeHtml(href) + '" controls style="max-width:100%;max-height:300px;border-radius:8px;display:block;margin:4px 0;"></video>';
     }
@@ -312,6 +316,7 @@ var NotificationManager = {
 };
 function showMessage(text, type) { NotificationManager.show(text||'', type||'success'); }
 
+// ブラウザ通知
 function sendBrowserNotif(title, body) {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'granted') {
@@ -323,13 +328,15 @@ function sendBrowserNotif(title, body) {
 // WebSocket
 // =====================
 var wsReconnectTimer = null;
-var lastPostNos = {};
+var lastPostNos = {}; // channel -> Set of known nos
 
 function connectWS() {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
   ws = new WebSocket(WS_URL);
 
-  ws.onopen = function() { clearTimeout(wsReconnectTimer); };
+  ws.onopen = function() {
+    clearTimeout(wsReconnectTimer);
+  };
 
   ws.onmessage = function(e) {
     try {
@@ -338,24 +345,33 @@ function connectWS() {
 
       if (data.type === 'post') {
         var post = data.post;
+        // テーブルに追加
         var tbody = document.querySelector('#postsTable tbody');
         if (tbody) {
           var existing = document.getElementById('post-' + post.no);
           if (!existing) {
             var tr = displayPost(post);
             tbody.insertBefore(tr, tbody.firstChild);
+
+            // ブラウザ通知
             if (Settings.get('notifyAll') === 'true') {
               sendBrowserNotif('新着投稿', post.name + ': ' + (post.content || '').slice(0, 50));
             }
+            // アンカー通知
             if (Settings.get('notifyAnchor') === 'true' && myId && post.id !== myId) {
-              var anchors = (post.content.match(/>>(\d+)/g) || []);
-              anchors.forEach(function(a) {
-                var no = parseInt(a.replace('>>',''));
-                var targetRow = document.getElementById('post-' + no);
-                if (targetRow && targetRow.dataset.id === myId) {
-                  sendBrowserNotif('返信が来ました', post.name + ': ' + post.content.slice(0,50));
-                }
-              });
+              var anchorPattern = new RegExp('>>' + (lastPostNos[currentServer] || ''), 'g');
+              if (post.content && myId) {
+                // 自分の投稿番号を含むアンカーがあれば通知
+                // 簡易的に：投稿内に>>数字があって、その番号の投稿が自分のものかチェック
+                var anchors = (post.content.match(/>>(\d+)/g) || []);
+                anchors.forEach(function(a) {
+                  var no = parseInt(a.replace('>>',''));
+                  var targetRow = document.getElementById('post-' + no);
+                  if (targetRow && targetRow.dataset.id === myId) {
+                    sendBrowserNotif('返信が来ました', post.name + ': ' + post.content.slice(0,50));
+                  }
+                });
+              }
             }
           }
         }
@@ -367,7 +383,9 @@ function connectWS() {
     } catch(err) { console.error(err); }
   };
 
-  ws.onclose = function() { wsReconnectTimer = setTimeout(connectWS, 3000); };
+  ws.onclose = function() {
+    wsReconnectTimer = setTimeout(connectWS, 3000);
+  };
   ws.onerror = function() { ws.close(); };
 }
 
@@ -441,18 +459,29 @@ function displayPost(post) {
   var idClass = getIdClass(post);
   var nameStyle = color ? ' style="color:' + escapeHtml(color) + ';"' : '';
 
+  // verifiedバッジ
+  var badge = post.verified
+    ? '<img src="https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/refs/heads/main/assets/Twitter_Verified_Badge.svg.png" alt="✓" style="width:1em;height:1em;vertical-align:middle;margin-left:3px;">'
+    : '';
+
+  // DMリンク（ログイン済みユーザー同士）
+  var dmLink = '';
+  if (post.verified && post.dm_id) {
+    dmLink = ' <a href="dm.html#' + escapeHtml(post.dm_id) + '" class="dm-link" title="DMを送る">💬</a>';
+  }
+
   tr.innerHTML =
     '<td><a href="#" class="post-no-link" data-no="' + no + '">' + no + '</a></td>' +
     '<td>' +
-      '<div class="info-name"' + nameStyle + '>' + name + '</div>' +
-      (id ? '<div class="info-id ' + idClass + '">' + id + (add ? ' <span class="info-add">' + add + '</span>' : '') + '</div>' : '') +
+      '<div class="info-name"' + nameStyle + '>' + name + badge + '</div>' +
+      (id ? '<div class="info-id ' + idClass + '">' + id + (add ? ' <span class="info-add">' + add + '</span>' : '') + dmLink + '</div>' : '') +
     '</td>' +
     '<td class="post-content">' + content + '</td>';
   return tr;
 }
 
 var isUpdating = false;
-var latestNo = 0;
+var latestNo = 0; // 現在表示中の最新投稿番号
 var isFirstLoad = true;
 
 async function updatePostsList() {
@@ -461,7 +490,9 @@ async function updatePostsList() {
   if (!tbody) return;
   try {
     isUpdating = true;
+
     if (isFirstLoad) {
+      // 初回: 最新50件を取得
       tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
       var data = await loadData({ limit: 50 });
       updateTopic(data.topic);
@@ -471,14 +502,17 @@ async function updatePostsList() {
         tbody.innerHTML = '<tr><td colspan="3">投稿がありません</td></tr>';
       } else {
         data.posts.forEach(function(p) { tbody.appendChild(displayPost(p)); });
-        latestNo = data.posts[0].no;
+        latestNo = data.posts[0].no; // 先頭が最新
       }
       isFirstLoad = false;
     } else {
+      // 差分取得: latestNoより新しいものだけ
       var data = await loadData({ after: latestNo });
+      // topic・restriction は常に更新
       updateTopic(data.topic);
       updateRestrictionBanner(data.restriction);
       if (data.posts && data.posts.length > 0) {
+        // 新着を先頭に追加
         data.posts.forEach(function(p) {
           var existing = document.getElementById('post-' + p.no);
           if (!existing) {
@@ -499,9 +533,10 @@ async function updatePostsList() {
 }
 
 // =====================
-// 各種初期化関数
+// アンカースクロール & ダブルタップアンカー挿入
 // =====================
 function initAnchorScroll() {
+  // アンカーリンクのスクロール
   document.addEventListener('click', function(e) {
     var a = e.target.closest('.anchor-link');
     if (!a) return;
@@ -515,11 +550,12 @@ function initAnchorScroll() {
     }
   });
 
+  // 投稿番号のダブルタップ/ダブルクリックでアンカー挿入
   var lastTap = { no: null, time: 0 };
   document.addEventListener('click', function(e) {
     var link = e.target.closest('.post-no-link');
     if (!link) return;
-    e.preventDefault();
+    e.preventDefault(); // URLにハッシュを付けない
     var no = link.dataset.no;
     var now = Date.now();
     if (lastTap.no === no && now - lastTap.time < 400) {
@@ -537,6 +573,9 @@ function initAnchorScroll() {
   });
 }
 
+// =====================
+// 画像モーダル
+// =====================
 function initImageModal() {
   var modal = document.createElement('div');
   modal.id = 'img-modal';
@@ -557,6 +596,9 @@ function initImageModal() {
   });
 }
 
+// =====================
+// 絵文字パネル
+// =====================
 function createEmojiPanel() {
   var panel = document.createElement('div'); panel.id = 'emoji-panel';
   document.body.appendChild(panel);
@@ -578,6 +620,9 @@ function createEmojiPanel() {
   return panel;
 }
 
+// =====================
+// 設定パネル
+// =====================
 function buildSettingsPanel() {
   var panel = document.createElement('div');
   panel.id = 'settings-panel';
@@ -587,11 +632,13 @@ function buildSettingsPanel() {
       <button id="settings-close">&times;</button>
     </div>
     <div class="settings-body">
+
       <label class="settings-label">テーマカラー</label>
       <div style="display:flex;gap:8px;align-items:center;">
         <input type="color" id="s-color" value="${Settings.get('themeColor')}">
         <span id="s-color-val" style="font-size:12px;">${Settings.get('themeColor')}</span>
       </div>
+
       <label class="settings-label">フォント</label>
       <select id="s-font">
         <option value="mplus">M PLUS 1p（デフォルト）</option>
@@ -606,29 +653,50 @@ function buildSettingsPanel() {
         <input type="file" id="s-font-file" accept=".ttf,.otf,.woff,.woff2">
         <span id="s-font-file-name" style="font-size:11px;color:var(--text-sub);"></span>
       </div>
+
       <label class="settings-label">フォントサイズ: <span id="s-fontsize-val">${Settings.get('fontSize')}px</span></label>
       <input type="range" id="s-fontsize" min="10" max="24" value="${Settings.get('fontSize')}">
+
       <label class="settings-label">コントラスト: <span id="s-contrast-val">${Settings.get('contrast')}%</span></label>
       <input type="range" id="s-contrast" min="50" max="150" value="${Settings.get('contrast')}">
+
       <label class="settings-label">明るさ: <span id="s-brightness-val">${Settings.get('brightness')}%</span></label>
       <input type="range" id="s-brightness" min="30" max="150" value="${Settings.get('brightness')}">
-      <div class="settings-row"><label>画像自動表示</label><input type="checkbox" id="s-autoimage" ${Settings.get('autoImage')==='true'?'checked':''}></div>
-      <div class="settings-row"><label>投稿通知</label><input type="checkbox" id="s-notify-all" ${Settings.get('notifyAll')==='true'?'checked':''}></div>
-      <div class="settings-row"><label>返信通知（アンカー）</label><input type="checkbox" id="s-notify-anchor" ${Settings.get('notifyAnchor')==='true'?'checked':''}></div>
-      <div class="settings-row"><label>Enterで送信</label><input type="checkbox" id="s-enter-send" ${Settings.get('enterSend')==='true'?'checked':''}></div>
-      <button id="s-reset" style="margin-top:12px;width:100%;">設定をリセット</button>
-    </div>`;
+
+      <div class="settings-row">
+        <label>画像自動表示</label>
+        <input type="checkbox" id="s-autoimage" ${Settings.get('autoImage')==='true'?'checked':''}>
+      </div>
+      <div class="settings-row">
+        <label>投稿通知</label>
+        <input type="checkbox" id="s-notify-all" ${Settings.get('notifyAll')==='true'?'checked':''}>
+      </div>
+      <div class="settings-row">
+        <label>返信通知（アンカー）</label>
+        <input type="checkbox" id="s-notify-anchor" ${Settings.get('notifyAnchor')==='true'?'checked':''}>
+      </div>
+      <div class="settings-row">
+        <label>Enterで送信（通常はShift+Enter）</label>
+        <input type="checkbox" id="s-enter-send" ${Settings.get('enterSend')==='true'?'checked':''}>
+      </div>
+
+      <button id="s-reset" style="margin-top:12px;width:100%;background:var(--bg-sub);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px;">設定をリセット</button>
+    </div>
+  `;
   document.body.appendChild(panel);
 
+  // フォント選択
   var fontSel = document.getElementById('s-font');
-  var uploadWrap = document.getElementById('s-font-upload-wrap');
   fontSel.value = Settings.get('font');
+  var uploadWrap = document.getElementById('s-font-upload-wrap');
   fontSel.addEventListener('change', function() {
     uploadWrap.style.display = this.value === 'custom' ? 'block' : 'none';
     Settings.set('font', this.value);
     Settings.apply();
   });
+  if (fontSel.value === 'custom') uploadWrap.style.display = 'block';
 
+  // フォントアップロード
   document.getElementById('s-font-file').addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
@@ -638,19 +706,22 @@ function buildSettingsPanel() {
       var style = document.createElement('style');
       style.textContent = "@font-face { font-family: '" + fontName + "'; src: url('" + ev.target.result + "'); }";
       document.head.appendChild(style);
-      localStorage.setItem('bbs_customFontName', fontName);
+      setCookie('bbs_customFontName', fontName, 365);
+      document.getElementById('s-font-file-name').textContent = fontName;
       Settings.set('font', 'custom');
       Settings.apply();
     };
     reader.readAsDataURL(file);
   });
 
+  // カラー
   document.getElementById('s-color').addEventListener('input', function() {
     document.getElementById('s-color-val').textContent = this.value;
     Settings.set('themeColor', this.value);
     Settings.apply();
   });
 
+  // スライダー
   function bindSlider(id, key, valId) {
     var el = document.getElementById(id);
     el.addEventListener('input', function() {
@@ -663,10 +734,13 @@ function buildSettingsPanel() {
   bindSlider('s-contrast',   'contrast',   's-contrast-val');
   bindSlider('s-brightness', 'brightness', 's-brightness-val');
 
+  // チェックボックス
   function bindCheck(id, key) {
     document.getElementById(id).addEventListener('change', function() {
       Settings.set(key, this.checked ? 'true' : 'false');
-      if (this.checked && (key==='notifyAll'||key==='notifyAnchor')) Notification.requestPermission();
+      if ((key === 'notifyAll' || key === 'notifyAnchor') && this.checked) {
+        if (Notification.permission === 'default') Notification.requestPermission();
+      }
     });
   }
   bindCheck('s-autoimage',     'autoImage');
@@ -674,31 +748,39 @@ function buildSettingsPanel() {
   bindCheck('s-notify-anchor', 'notifyAnchor');
   bindCheck('s-enter-send',    'enterSend');
 
+  // リセット
   document.getElementById('s-reset').addEventListener('click', function() {
-    Object.keys(Settings.defaults).forEach(k => localStorage.removeItem('bbs_' + k));
+    Object.keys(Settings.defaults).forEach(function(k) {
+      localStorage.removeItem('bbs_' + k);
+    });
     location.reload();
   });
-  document.getElementById('settings-close').addEventListener('click', () => panel.classList.remove('open'));
+
+  // 閉じる
+  document.getElementById('settings-close').addEventListener('click', function() {
+    panel.classList.remove('open');
+  });
 }
 
 // =====================
-// 初期化実行
+// 初期化
 // =====================
 document.addEventListener('DOMContentLoaded', function() {
   Settings.apply();
+
+  var toggleBtn    = document.getElementById('toggleBtn');
+  var postForm     = document.getElementById('postForm');
+  var contentInput = document.getElementById('content');
+  var emojiBtn     = document.getElementById('emojiBtn');
+  var submitBtn    = document.getElementById('submitBtn');
+  var settingsBtn  = document.getElementById('settingsBtn');
+
   NotificationManager.init();
   initAnchorScroll();
   initImageModal();
   buildSettingsPanel();
 
-  var toggleBtn = document.getElementById('toggleBtn');
-  var postForm = document.getElementById('postForm');
-  var contentInput = document.getElementById('content');
-  var emojiBtn = document.getElementById('emojiBtn');
-  var submitBtn = document.getElementById('submitBtn');
-  var settingsBtn = document.getElementById('settingsBtn');
   var emojiPanel = createEmojiPanel();
-
   if (emojiBtn) {
     emojiBtn.addEventListener('click', function(e) {
       e.preventDefault();
@@ -711,63 +793,104 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  document.addEventListener('click', (e) => {
-    if (emojiPanel && !emojiPanel.contains(e.target) && e.target !== emojiBtn) emojiPanel.style.display = 'none';
+  document.addEventListener('click', function(e) {
+    if (emojiPanel && !emojiPanel.contains(e.target) && e.target !== emojiBtn)
+      emojiPanel.style.display = 'none';
   });
 
-  if (settingsBtn) settingsBtn.addEventListener('click', () => document.getElementById('settings-panel').classList.toggle('open'));
+  // 設定ボタン
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', function() {
+      document.getElementById('settings-panel').classList.toggle('open');
+    });
+  }
 
+  // ダークモード（システム追従・localStorage保存）
   function applyDark(dark) {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     if (toggleBtn) toggleBtn.textContent = dark ? '☀️' : '🌙';
     inverted = dark;
     localStorage.setItem('darkmode', dark ? 'true' : 'false');
   }
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
   var savedDark = localStorage.getItem('darkmode');
-  applyDark(savedDark !== null ? savedDark === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches);
-  if (toggleBtn) toggleBtn.addEventListener('click', () => applyDark(!inverted));
+  applyDark(savedDark !== null ? savedDark === 'true' : prefersDark.matches);
+  prefersDark.addEventListener('change', function(e) {
+    if (localStorage.getItem('darkmode') === null) applyDark(e.matches);
+  });
+  if (toggleBtn) toggleBtn.addEventListener('click', function() { applyDark(!inverted); });
 
+  // 名前・パスワード復元
   var savedName = getCookie('bbsUserName'), savedPass = getCookie('bbsUserPassword');
   if (savedName) { var ne=document.getElementById('name'); if(ne) ne.value=savedName; }
   if (savedPass) {
     var pe=document.getElementById('password'); if(pe) pe.value=savedPass;
-    calcId(savedPass).then(id => myId = id);
+    calcId(savedPass).then(function(id) { myId = id; });
   }
-  var passEl = document.getElementById('password');
-  if (passEl) passEl.addEventListener('input', function() { calcId(this.value).then(id => myId = id); });
 
-  if (postForm) {
-    postForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var content = (contentInput ? contentInput.value : '').trim();
-      var name = (document.getElementById('name') ? document.getElementById('name').value : '').trim();
-      var password = (document.getElementById('password') ? document.getElementById('password').value : '');
-      if (!content || !name || !password) { showMessage('入力漏れがあります','error'); return; }
-      try {
-        if (submitBtn) { submitBtn.disabled=true; submitBtn.textContent='中...'; }
-        var resp = await createPost({ name, content, password });
-        setCookie('bbsUserName', name); setCookie('bbsUserPassword', password);
-        if (contentInput) contentInput.value = '';
-        showMessage(resp.message || '投稿完了');
-      } catch(err) {
-        showMessage('失敗しました','error');
-      } finally {
-        if (submitBtn) { submitBtn.disabled=false; submitBtn.textContent='送信'; }
-      }
+  // パスワード変更時にmyId更新
+  var passEl = document.getElementById('password');
+  if (passEl) {
+    passEl.addEventListener('input', function() {
+      if (!this.value) { myId = null; return; }
+      calcId(this.value).then(function(id) { myId = id; });
     });
+  }
+
+  // 投稿フォーム
+  if (postForm) {
+    // Enterで送信 / Shift+Enterで改行
     if (contentInput) {
       contentInput.addEventListener('keydown', function(e) {
+        var enterSend = Settings.get('enterSend') === 'true';
         if (e.key === 'Enter') {
-          var send = Settings.get('enterSend') === 'true';
-          if ((send && !e.shiftKey) || (!send && e.shiftKey)) {
-            e.preventDefault(); postForm.dispatchEvent(new Event('submit'));
+          if (enterSend && !e.shiftKey) {
+            e.preventDefault();
+            postForm.dispatchEvent(new Event('submit'));
+          } else if (!enterSend && e.shiftKey) {
+            e.preventDefault();
+            postForm.dispatchEvent(new Event('submit'));
           }
         }
       });
     }
+
+    postForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var content  = (contentInput ? contentInput.value : '').trim();
+      var name     = (document.getElementById('name')     ? document.getElementById('name').value     : '').trim();
+      var password = (document.getElementById('password') ? document.getElementById('password').value : '');
+      if (!content || !name || !password) { showMessage('全ての項目を入力してください','error'); return; }
+      if (content.length > 1000) { showMessage('内容は1000文字以内で','error'); return; }
+      if (name.length > 50)      { showMessage('名前は50文字以内で','error'); return; }
+      try {
+        if (submitBtn) { submitBtn.disabled=true; submitBtn.textContent='送信中...'; }
+        var resp = await createPost({ name, content, password });
+        setCookie('bbsUserName', name); setCookie('bbsUserPassword', password);
+        if (contentInput) contentInput.value = '';
+        showMessage(resp && resp.message ? resp.message : '投稿しました');
+      } catch(err) {
+        var msg = '送信失敗';
+        if (err.message && err.message.indexOf('429')!==-1) msg='投稿が速すぎます';
+        else if (err.message && err.message.indexOf('403')!==-1) msg='投稿が禁止されています';
+        showMessage(msg,'error');
+      } finally {
+        if (submitBtn) { submitBtn.disabled=false; submitBtn.textContent='送信'; }
+      }
+    });
   }
 
+  // 初回読み込み
   updatePostsList();
+
+  // WebSocket接続（ポーリングは廃止）
   connectWS();
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { connectWS(); updatePostsList(); } });
+
+  // visibilitychange時に再接続＆更新
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) { connectWS(); updatePostsList(); }
+  });
+
+  window.addEventListener('error', function(e){ console.error(e.error||e); });
+  window.addEventListener('unhandledrejection', function(e){ console.error(e.reason||e); });
 });
