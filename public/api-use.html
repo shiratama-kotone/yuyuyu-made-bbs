@@ -82,7 +82,12 @@
       <tr><td><span class="method post">POST</span></td><td><code>/api/battle</code></td><td>不要</td><td>バトルスタジアムに投稿 / コマンド実行</td></tr>
       <tr><td><span class="method post">POST</span></td><td><code>/account/register</code></td><td>不要</td><td>アカウント作成</td></tr>
       <tr><td><span class="method post">POST</span></td><td><code>/account/login</code></td><td>不要</td><td>ログイン（トークン再発行）</td></tr>
-      <tr><td><span class="method get">GET</span></td><td><code>/account/me</code></td><td><span class="auth">Bearer</span></td><td>自分の情報取得</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/account/me</code></td><td><span class="auth">Bearer / Cookie</span></td><td>自分の情報取得</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/account/apikey</code></td><td><span class="auth">Bearer</span></td><td>現在のAPIキー取得</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/account/apikey</code></td><td><span class="auth">Bearer</span></td><td>APIキー発行・再発行</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/dm/users</code></td><td><span class="auth">Bearer / X-Api-Key</span></td><td>DMユーザー検索・会話済み一覧</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/dm/:dm_id</code></td><td><span class="auth">Bearer / X-Api-Key</span></td><td>DM履歴取得</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/dm/:dm_id</code></td><td><span class="auth">Bearer / X-Api-Key</span></td><td>DM送信</td></tr>
       <tr><td><span class="method get">GET</span></td><td><code>/webhooks</code></td><td><span class="auth">Bearer</span></td><td>Webhook一覧取得</td></tr>
       <tr><td><span class="method post">POST</span></td><td><code>/webhooks</code></td><td><span class="auth">Bearer</span></td><td>Webhook登録</td></tr>
       <tr><td><span class="method delete">DELETE</span></td><td><code>/webhooks/:id</code></td><td><span class="auth">Bearer</span></td><td>Webhook削除</td></tr>
@@ -302,6 +307,72 @@ ws.onmessage = (e) => {
   <pre>GET /seedsearch?pass=あなたのパスワード</pre>
   <p>レスポンス: <code>{ "seeds": [ { "pass": "a1b2c3d4", "id": "@AbCdEfG" }, ... ] }</code></p>
   <p>生成数: マネージャー10件 / サミット100件 / 運営200件</p>
+
+  <!-- ========== APIキー ========== -->
+  <h2>APIキー</h2>
+  <p>Bearer tokenの代わりに <code>X-Api-Key</code> ヘッダーまたは <code>?api_key=</code> クエリで認証できます。</p>
+  <pre>// ヘッダー認証
+X-Api-Key: bbs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+// クエリ認証
+GET /dm/users?api_key=bbs_xxxxxxxx</pre>
+
+  <h3><span class="method post">POST</span> /account/apikey — 発行・再発行</h3>
+  <pre>Authorization: Bearer &lt;token&gt;</pre>
+  <p>レスポンス: <code>{ "api_key": "bbs_xxxxxxxx..." }</code></p>
+  <p class="note">※ 再発行すると古いキーは即座に無効になります。</p>
+
+  <!-- ========== DM ========== -->
+  <h2>DM（ダイレクトメッセージ）</h2>
+  <p>アカウント登録時に9桁のDM IDが発行されます。このIDを使って他のユーザーとDMできます。</p>
+  <p>認証には Bearer token または APIキー（X-Api-Keyヘッダー）が使えます。</p>
+
+  <h3><span class="method get">GET</span> /dm/users — ユーザー検索・会話済み一覧</h3>
+  <pre>// 検索（ユーザー名・掲示板ID・DM IDで部分一致）
+GET /dm/users?q=yukibbs
+
+// 会話したことがあるユーザーの一覧（クエリなし）
+GET /dm/users</pre>
+  <pre>{
+  "users": [
+    { "username": "yukibbs", "bbs_id": "@AbCdEfG", "dm_id": "123456789" }
+  ]
+}</pre>
+
+  <h3><span class="method get">GET</span> /dm/:dm_id — DM履歴取得</h3>
+  <pre>GET /dm/123456789         # 最新50件（新しい順→古い順）
+GET /dm/123456789?limit=100
+GET /dm/123456789?before=42  # id=42より前のメッセージ（ページング）</pre>
+  <pre>{
+  "room_id": "123456789_987654321",
+  "peer":    { "username": "yukibbs", "bbs_id": "@AbCdEfG", "dm_id": "123456789" },
+  "messages": [
+    {
+      "id":         1,
+      "room_id":    "123456789_987654321",
+      "sender_dm":  "987654321",   // 送信者のDM ID
+      "content":    "こんにちは",
+      "time":       "2025-08-31T15:30:00.000Z"
+    }
+  ]
+}</pre>
+
+  <h3><span class="method post">POST</span> /dm/:dm_id — DM送信</h3>
+  <pre>POST /dm/123456789
+Content-Type: application/json
+
+{
+  "content": "こんにちは！"   // 必須 最大1000文字
+}</pre>
+
+  <h3>DMのWebSocketイベント</h3>
+  <p>DM送信時、WebSocketで以下が配信されます（接続中の全クライアント）:</p>
+  <pre>{
+  "type":    "dm",
+  "room_id": "123456789_987654321",
+  "message": { ...messageオブジェクト... }
+}</pre>
+  <p>room_idに自分のDM IDが含まれているかチェックして受信を絞り込んでください。</p>
 
   <!-- ========== 統計API ========== -->
   <h2>統計API <code>GET /stats</code></h2>
