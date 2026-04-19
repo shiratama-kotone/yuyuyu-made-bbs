@@ -86,7 +86,8 @@ var Settings = {
     if (wrap) {
       wrap.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
     }
-};
+  } // ← 修正箇所1: メソッドを閉じる
+}; // ← 修正箇所2: オブジェクトを閉じる
 
 function shadeColor(hex, pct) {
   var r = parseInt(hex.slice(1,3),16);
@@ -359,19 +360,14 @@ function connectWS() {
             }
             // アンカー通知
             if (Settings.get('notifyAnchor') === 'true' && myId && post.id !== myId) {
-              var anchorPattern = new RegExp('>>' + (lastPostNos[currentServer] || ''), 'g');
-              if (post.content && myId) {
-                // 自分の投稿番号を含むアンカーがあれば通知
-                // 簡易的に：投稿内に>>数字があって、その番号の投稿が自分のものかチェック
-                var anchors = (post.content.match(/>>(\d+)/g) || []);
-                anchors.forEach(function(a) {
-                  var no = parseInt(a.replace('>>',''));
-                  var targetRow = document.getElementById('post-' + no);
-                  if (targetRow && targetRow.dataset.id === myId) {
-                    sendBrowserNotif('返信が来ました', post.name + ': ' + post.content.slice(0,50));
-                  }
-                });
-              }
+              var anchors = (post.content.match(/>>(\d+)/g) || []);
+              anchors.forEach(function(a) {
+                var no = parseInt(a.replace('>>',''));
+                var targetRow = document.getElementById('post-' + no);
+                if (targetRow && targetRow.dataset.id === myId) {
+                  sendBrowserNotif('返信が来ました', post.name + ': ' + post.content.slice(0,50));
+                }
+              });
             }
           }
         }
