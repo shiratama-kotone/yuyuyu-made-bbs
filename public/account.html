@@ -75,6 +75,7 @@
       <div class="tabs">
         <div class="tab active" onclick="showTab('me')">マイページ</div>
         <div class="tab" onclick="showTab('webhook')">Webhook</div>
+        <div class="tab" onclick="showTab('apikey')">APIキー</div>
       </div>
 
       <!-- マイページ -->
@@ -82,6 +83,7 @@
         <div class="me-info">
           <div><span>ユーザー名：</span><strong id="me-username"></strong></div>
           <div><span>掲示板ID：</span><strong id="me-bbsid"></strong></div>
+          <div><span>DM ID：</span><strong id="me-dmid"></strong> <a href="dm.html" style="font-size:12px;color:var(--accent);">DMを開く</a></div>
           <div><span>登録日：</span><span id="me-created"></span></div>
         </div>
         <div style="margin-top:14px;">
@@ -108,6 +110,18 @@
         <button class="btn" onclick="addWebhook()">登録</button>
         <div id="wh-msg" class="msg"></div>
         <div id="wh-list" style="margin-top:16px;"></div>
+      </div>
+
+      <!-- APIキー -->
+      <div id="tab-apikey" class="tab-content">
+        <p style="font-size:13px;margin-bottom:12px;color:var(--text-sub);">APIキーはX-Api-Keyヘッダーで認証に使用できます。再発行すると古いキーは無効になります。</p>
+        <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:4px;">現在のAPIキー</div>
+        <div class="token-box" id="apikey-box">未発行</div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button class="copy-btn" onclick="copyApiKey()">コピー</button>
+          <button class="copy-btn" onclick="issueApiKey()" style="color:var(--accent);border-color:var(--accent);">発行 / 再発行</button>
+        </div>
+        <div id="apikey-msg" class="msg"></div>
       </div>
     </div>
   </div>
@@ -197,13 +211,14 @@ function showMsg(id, text, ok) {
   el.textContent = text; el.className = 'msg ' + (ok ? 'msg-ok' : 'msg-err'); el.style.display = 'block';
 }
 function showTab(name) {
-  ['me','webhook'].forEach(function(t) {
+  ['me','webhook','apikey'].forEach(function(t) {
     document.getElementById('tab-'+t).classList.toggle('active', t===name);
   });
   document.querySelectorAll('#loggedIn .tab').forEach(function(t,i) {
-    t.classList.toggle('active', ['me','webhook'][i]===name);
+    t.classList.toggle('active', ['me','webhook','apikey'][i]===name);
   });
   if (name === 'webhook') loadWebhooks();
+  if (name === 'apikey')  loadApiKey();
 }
 function showAuthTab(name) {
   ['login','register'].forEach(function(t) {
@@ -260,6 +275,7 @@ async function loadMe() {
     var d = await r.json();
     document.getElementById('me-username').textContent = d.username;
     document.getElementById('me-bbsid').textContent    = d.bbs_id;
+    document.getElementById('me-dmid').textContent     = d.dm_id || '未割当';
     document.getElementById('me-created').textContent  = new Date(d.created_at).toLocaleString('ja-JP');
     document.getElementById('me-token').textContent    = token;
     document.getElementById('loggedOut').style.display = 'none';
@@ -278,7 +294,28 @@ function copyToken() {
   navigator.clipboard.writeText(t).then(function() { alert('コピーしました'); });
 }
 
-async function loadWebhooks() {
+async function loadApiKey() {
+  var r = await fetch(SERVER+'/account/apikey', { headers:{'Authorization':'Bearer '+getToken()} });
+  var d = await r.json();
+  document.getElementById('apikey-box').textContent = d.api_key || '未発行';
+}
+
+async function issueApiKey() {
+  var r = await fetch(SERVER+'/account/apikey', { method:'POST', headers:{'Authorization':'Bearer '+getToken()} });
+  var d = await r.json();
+  if (d.api_key) {
+    document.getElementById('apikey-box').textContent = d.api_key;
+    showMsg('apikey-msg', '発行しました', true);
+  } else {
+    showMsg('apikey-msg', d.error||'エラー', false);
+  }
+}
+
+function copyApiKey() {
+  var t = document.getElementById('apikey-box').textContent;
+  if (t === '未発行') return;
+  navigator.clipboard.writeText(t).then(function() { alert('コピーしました'); });
+}
   var r = await fetch(SERVER+'/webhooks', { headers:{'Authorization':'Bearer '+getToken()} });
   var d = await r.json();
   var list = document.getElementById('wh-list');
