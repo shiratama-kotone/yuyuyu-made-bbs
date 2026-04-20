@@ -303,40 +303,24 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
 }
 #settings-panel.open { right: 0; }
 
-/* ニュースヘッダー全体のスタイル */
-.news-header {
-  background-color: #c0392b;
-  color: white;
+.emergency-ticker {
+  background-color: #000; /* 黒背景 */
+  overflow: hidden;
+  white-space: nowrap;
   padding: 10px 0;
   width: 100%;
 }
 
-.site-name {
-  text-align: center;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-/* 流れる文字のコンテナ */
-.ticker-wrap {
-  background-color: #000;
-  overflow: hidden;
-  white-space: nowrap;
-  padding: 5px 0;
-}
-
-/* 流れる文字本体 */
-.ticker-content {
+.ticker-text {
   display: inline-block;
-  padding-left: 100%;
+  padding-left: 100%; /* 右端から開始 */
+  color: #ff0; /* 黄色文字 */
   font-weight: bold;
-  color: #ff0;
-  animation: ticker-anim 20s linear infinite;
+  font-size: 1.2rem;
+  animation: scroll-left 25s linear infinite;
 }
 
-/* アニメーション設定 */
-@keyframes ticker-anim {
+@keyframes scroll-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-100%); }
 }
