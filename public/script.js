@@ -249,12 +249,88 @@ function convertImageUrls(text) {
   });
 }
 
+function convertMarkdown(s) {
+  // 複数行コードブロック（```...```）
+  s = s.replace(/```([^`]*?)```/gs, function(_, code) {
+    return '<pre style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;font-family:monospace;font-size:13px;white-space:pre-wrap;margin:4px 0;">' + code.replace(/\n/g, '<br>') + '</pre>';
+  });
+
+  // インラインコード（`...`）
+  s = s.replace(/`([^`]+?)`/g, function(_, code) {
+    return '<code style="background:var(--bg-sub);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-family:monospace;font-size:13px;">' + code + '</code>';
+  });
+
+  // 複数行引用（>>> から空行まで）
+  s = s.replace(/((?:^|<br>)&gt;&gt;&gt; )([\s\S]*?)(?=<br><br>|$)/g, function(_, _prefix, body) {
+    var inner = body.replace(/^<br>/, '');
+    return '<blockquote style="border-left:4px solid var(--border);margin:4px 0;padding:4px 10px;color:var(--text-sub);">' + inner + '</blockquote>';
+  });
+
+  // 1行引用（> ）
+  s = s.replace(/(^|<br>)&gt; (.+?)(?=<br>|$)/g, function(_, br, body) {
+    return br + '<blockquote style="border-left:4px solid var(--border);margin:4px 0;padding:4px 10px;color:var(--text-sub);">' + body + '</blockquote>';
+  });
+
+  // 見出し
+  s = s.replace(/(^|<br>)### (.+?)(?=<br>|$)/g, function(_, br, body) {
+    return br + '<h5 style="font-size:13px;font-weight:700;margin:4px 0;">' + body + '</h5>';
+  });
+  s = s.replace(/(^|<br>)## (.+?)(?=<br>|$)/g, function(_, br, body) {
+    return br + '<h4 style="font-size:15px;font-weight:700;margin:4px 0;">' + body + '</h4>';
+  });
+  s = s.replace(/(^|<br>)# (.+?)(?=<br>|$)/g, function(_, br, body) {
+    return br + '<h3 style="font-size:18px;font-weight:700;margin:4px 0;">' + body + '</h3>';
+  });
+
+  // サブテキスト
+  s = s.replace(/(^|<br>)-# (.+?)(?=<br>|$)/g, function(_, br, body) {
+    return br + '<span style="font-size:11px;color:var(--text-sub);">' + body + '</span>';
+  });
+
+  // リスト（インデント: 先頭2スペース）
+  s = s.replace(/(^|<br>)(  )[*-] (.+?)(?=<br>|$)/g, function(_, br, _indent, body) {
+    return br + '<ul style="margin:0 0 0 28px;padding:0;list-style:circle;"><li>' + body + '</li></ul>';
+  });
+  s = s.replace(/(^|<br>)[*-] (.+?)(?=<br>|$)/g, function(_, br, body) {
+    return br + '<ul style="margin:0 0 0 14px;padding:0;"><li>' + body + '</li></ul>';
+  });
+
+  // []()リンク
+  s = s.replace(/\[([^\]]+?)\]\((https?:\/\/[^\)]+?)\)/g, function(_, text, url) {
+    return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + text + '</a>';
+  });
+
+  // スポイラー（||...||）
+  s = s.replace(/\|\|(.+?)\|\|/g, function(_, inner) {
+    return '<span class="spoiler" style="background:#2a2a2a;color:#2a2a2a;border-radius:3px;padding:0 3px;cursor:pointer;" onclick="this.style.color=\'#e8e8e8\';">' + inner + '</span>';
+  });
+
+  // 太字斜体（***...***）
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+
+  // 太字（**...**）
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // アンダーライン（__...__）
+  s = s.replace(/__(.+?)__/g, '<u>$1</u>');
+
+  // 斜体（*...* または _..._）
+  s = s.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  s = s.replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, '<em>$1</em>');
+
+  // 取り消し線（~~...~~）
+  s = s.replace(/~~(.+?)~~/g, '<del>$1</del>');
+
+  return s;
+}
+
 function processContent(content) {
   var s = escapeHtml(content || '');
   s = s.replace(/\n/g, '<br>');
   s = autoLinkUrls(s);
   s = convertImageUrls(s);
   s = autoLinkAnchors(s);
+  s = convertMarkdown(s); 
   s = convertEmojis(s);
   return s;
 }
