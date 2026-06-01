@@ -300,9 +300,9 @@ function convertMarkdown(s) {
     return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + text + '</a>';
   });
 
-  // スポイラー（||...||）
+// スポイラー（||...||）
   s = s.replace(/\|\|(.+?)\|\|/g, function(_, inner) {
-    return '<span class="spoiler" style="background:#2a2a2a;color:#2a2a2a;border-radius:3px;padding:0 3px;cursor:pointer;" onclick="this.style.color=\'#e8e8e8\';">' + inner + '</span>';
+    return '<span class="spoiler">' + inner + '</span>';
   });
 
   // 太字斜体（***...***）
@@ -838,6 +838,9 @@ function buildSettingsPanel() {
 // 初期化
 // =====================
 document.addEventListener('DOMContentLoaded', function() {
+
+  
+  
   Settings.apply();
 
   var toggleBtn    = document.getElementById('toggleBtn');
@@ -869,6 +872,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (emojiPanel && !emojiPanel.contains(e.target) && e.target !== emojiBtn)
       emojiPanel.style.display = 'none';
   });
+
+  // スポイラークリック
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('spoiler')) {
+    e.target.classList.add('revealed');
+  }
+});
 
   // 設定ボタン
   if (settingsBtn) {
