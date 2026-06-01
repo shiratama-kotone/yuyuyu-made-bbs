@@ -69,7 +69,6 @@
   <a href="/" class="back-link">← 掲示板に戻る</a>
   <h1 style="font-size:28px;margin-bottom:16px;" class="rainbow">アカウント</h1>
 
-  <!-- ログイン済みUI -->
   <div id="loggedIn" style="display:none;">
     <div class="card">
       <div class="tabs">
@@ -78,7 +77,6 @@
         <div class="tab" onclick="showTab('apikey')">APIキー</div>
       </div>
 
-      <!-- マイページ -->
       <div id="tab-me" class="tab-content active">
         <div class="me-info">
           <div><span>ユーザー名：</span><strong id="me-username"></strong></div>
@@ -94,7 +92,6 @@
         <button class="btn btn-sub" style="margin-top:16px;" onclick="logout()">ログアウト</button>
       </div>
 
-      <!-- Webhook -->
       <div id="tab-webhook" class="tab-content">
         <div class="field">
           <label>Webhook URL</label>
@@ -112,7 +109,6 @@
         <div id="wh-list" style="margin-top:16px;"></div>
       </div>
 
-      <!-- APIキー -->
       <div id="tab-apikey" class="tab-content">
         <p style="font-size:13px;margin-bottom:12px;color:var(--text-sub);">APIキーはX-Api-Keyヘッダーで認証に使用できます。再発行すると古いキーは無効になります。</p>
         <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:4px;">現在のAPIキー</div>
@@ -126,7 +122,6 @@
     </div>
   </div>
 
-  <!-- 未ログインUI -->
   <div id="loggedOut">
     <div class="card">
       <div class="tabs">
@@ -134,7 +129,6 @@
         <div class="tab" onclick="showAuthTab('register')">アカウント作成</div>
       </div>
 
-      <!-- ログイン -->
       <div id="auth-login" class="tab-content active">
         <div class="field">
           <label>掲示板パスワード</label>
@@ -148,10 +142,9 @@
         <div id="login-msg" class="msg"></div>
       </div>
 
-      <!-- アカウント作成 -->
       <div id="auth-register" class="tab-content">
         <div class="field">
-          <label>ユーザー名（英数字・_　3〜20文字）</label>
+          <label>ユーザー名（英数字・_ 3〜20文字）</label>
           <input type="text" id="reg-username" placeholder="my_name">
         </div>
         <div class="field">
@@ -316,6 +309,9 @@ function copyApiKey() {
   if (t === '未発行') return;
   navigator.clipboard.writeText(t).then(function() { alert('コピーしました'); });
 }
+
+// === 修正：関数の宣言漏れを修正しました ===
+async function loadWebhooks() {
   var r = await fetch(SERVER+'/webhooks', { headers:{'Authorization':'Bearer '+getToken()} });
   var d = await r.json();
   var list = document.getElementById('wh-list');
