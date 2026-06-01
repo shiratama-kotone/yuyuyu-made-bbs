@@ -252,12 +252,12 @@ function convertImageUrls(text) {
 function convertMarkdown(s) {
   // 複数行コードブロック（```...```）
   s = s.replace(/```([^`]*?)```/gs, function(_, code) {
-    return '<pre style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;font-family:monospace;white-space:pre-wrap;margin:4px 0;">' + code.replace(/\n/g, '<br>') + '</pre>';
+    return '<pre class="code-block" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;margin:4px 0;">' + code.replace(/\n/g, '<br>') + '</pre>';
   });
 
   // インラインコード（`...`）
   s = s.replace(/`([^`]+?)`/g, function(_, code) {
-    return '<code style="background:var(--bg-sub);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-family:monospace;">' + code + '</code>';
+    return '<pre class="code-block" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;margin:4px 0;">' + code.replace(/\n/g, '<br>') + '</pre>';
   });
 
   // 複数行引用（>>> から空行まで）
