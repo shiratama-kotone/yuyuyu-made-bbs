@@ -332,6 +332,11 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
   color: #e8e8e8;
 }
 
+pre.code-block, code.code-inline {
+  font-family: monospace;
+  font-size: var(--font-size);
+}
+
 @keyframes scroll-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-100%); }
