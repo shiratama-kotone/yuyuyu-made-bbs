@@ -250,15 +250,6 @@ function convertImageUrls(text) {
 }
 
 function convertMarkdown(s) {
-  // 複数行コードブロック（```...```）
-  s = s.replace(/```([^`]*?)```/gs, function(_, code) {
-    return '<pre class="code-block" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;margin:4px 0;">' + code.replace(/\n/g, '<br>') + '</pre>';
-  });
-
-  // インラインコード（`...`）
-  s = s.replace(/`([^`]+?)`/g, function(_, code) {
-    return '<pre class="code-block" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;margin:4px 0;">' + code.replace(/\n/g, '<br>') + '</pre>';
-  });
 
   // 複数行引用（>>> から空行まで）
   s = s.replace(/((?:^|<br>)&gt;&gt;&gt; )([\s\S]*?)(?=<br><br>|$)/g, function(_, _prefix, body) {
@@ -325,13 +316,31 @@ function convertMarkdown(s) {
 }
 
 function processContent(content) {
-  var s = escapeHtml(content || '');
+  var s = content || '';
+  var blocks = [];
+  function stash(html) {
+    var key = '\x00' + blocks.length + '\x00';
+    blocks.push(html);
+    return key;
+  }
+
+  // コードブロックだけ先に退避（中身をescapeHtmlして保護）
+  s = s.replace(/```([\s\S]*?)```/g, function(_, code) {
+    return stash('<pre class="code-block" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;margin:4px 0;">' + escapeHtml(code) + '</pre>');
+  });
+  s = s.replace(/`([^`]+?)`/g, function(_, code) {
+    return stash('<code class="code-inline" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:3px;padding:1px 5px;">' + escapeHtml(code) + '</code>');
+  });
+
+  s = escapeHtml(s);
   s = s.replace(/\n/g, '<br>');
-  s = convertMarkdown(s); 
+  s = convertMarkdown(s);
   s = autoLinkUrls(s);
   s = convertImageUrls(s);
   s = autoLinkAnchors(s);
   s = convertEmojis(s);
+
+  s = s.replace(/\x00(\d+)\x00/g, function(_, i) { return blocks[parseInt(i)]; });
   return s;
 }
 
