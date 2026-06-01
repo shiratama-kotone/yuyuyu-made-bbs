@@ -320,6 +320,18 @@ p.desc { font-size: 13px; margin-bottom: 14px; line-height: 1.9; color: var(--te
   animation: scroll-left 25s linear infinite;
 }
 
+.spoiler {
+  background: #2a2a2a;
+  color: #2a2a2a;
+  border-radius: 3px;
+  padding: 0 3px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.spoiler.revealed {
+  color: #e8e8e8;
+}
+
 @keyframes scroll-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-100%); }
