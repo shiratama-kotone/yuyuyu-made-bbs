@@ -327,10 +327,10 @@ function convertMarkdown(s) {
 function processContent(content) {
   var s = escapeHtml(content || '');
   s = s.replace(/\n/g, '<br>');
+  s = convertMarkdown(s); 
   s = autoLinkUrls(s);
   s = convertImageUrls(s);
   s = autoLinkAnchors(s);
-  s = convertMarkdown(s); 
   s = convertEmojis(s);
   return s;
 }
