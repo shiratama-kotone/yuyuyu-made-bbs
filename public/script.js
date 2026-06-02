@@ -259,13 +259,13 @@ function convertMarkdown(s) {
 
   // 見出し
   s = s.replace(/(^|<br>)### (.+?)(?=<br>|$)/g, function(_, br, body) {
-    return br + '<h5 style="font-size:13px;font-weight:700;margin:4px 0;">' + body + '</h5>';
+    return br + '<span style="font-size:1em;font-weight:700;display:block;margin:4px 0;">' + body + '</span>';
   });
   s = s.replace(/(^|<br>)## (.+?)(?=<br>|$)/g, function(_, br, body) {
-    return br + '<h4 style="font-size:15px;font-weight:700;margin:4px 0;">' + body + '</h4>';
+    return br + '<span style="font-size:1.5em;font-weight:700;display:block;margin:4px 0;">' + body + '</span>';
   });
   s = s.replace(/(^|<br>)# (.+?)(?=<br>|$)/g, function(_, br, body) {
-    return br + '<h3 style="font-size:18px;font-weight:700;margin:4px 0;">' + body + '</h3>';
+    return br + '<span style="font-size:2em;font-weight:700;display:block;margin:4px 0;">' + body + '</span>';
   });
 
   // サブテキスト
