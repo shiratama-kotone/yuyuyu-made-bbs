@@ -281,11 +281,6 @@ function convertMarkdown(s) {
     return br + '<ul style="margin:0 0 0 14px;padding:0;"><li>' + body + '</li></ul>';
   });
 
-  // []()リンク
-  s = s.replace(/\[([^\]]+?)\]\((https?:\/\/[^\)]+?)\)/g, function(_, text, url) {
-    return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + text + '</a>';
-  });
-
   // スポイラー（||...||）
   s = s.replace(/\|\|(.+?)\|\|/g, function(_, inner) {
     return '<span class="spoiler">' + inner + '</span>';
@@ -325,6 +320,11 @@ function processContent(content) {
   });
   s = s.replace(/`([^`]+?)`/g, function(_, code) {
     return stash('<code class="code-inline" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:3px;padding:1px 5px;">' + escapeHtml(code) + '</code>');
+  });
+
+  // []()リンクも退避（autoLinkUrlsに二重処理されないように）
+  s = s.replace(/\[([^\]]+?)\]\((https?:\/\/[^\)]+?)\)/g, function(_, text, url) {
+    return stash('<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(text) + '</a>');
   });
 
   s = escapeHtml(s);
