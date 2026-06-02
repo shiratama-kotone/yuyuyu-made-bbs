@@ -573,9 +573,9 @@ async function updatePostsList() {
     isUpdating = true;
 
     if (isFirstLoad) {
-      // 初回: 最新50件を取得
+      // 初回
       tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
-      var data = await loadData({ limit: 50 });
+      var data = await loadData();
       updateTopic(data.topic);
       updateRestrictionBanner(data.restriction);
       tbody.innerHTML = '';
