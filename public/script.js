@@ -73,8 +73,13 @@ var Settings = {
       mono:       "monospace",
     };
     var customFont = localStorage.getItem('bbs_customFontName');
-    if (font === 'custom' && customFont) {
-      document.documentElement.style.setProperty('--font', "'" + customFont + "', sans-serif");
+    var customFontData = localStorage.getItem('bbs_customFontData');
+    if (font === 'custom' && customFont && customFontData) {
+      var f = new FontFace(customFont, 'url(' + customFontData + ')');
+      f.load().then(function(lf) {
+        document.fonts.add(lf);
+        document.documentElement.style.setProperty('--font', "'" + customFont + "', sans-serif");
+      }).catch(function(){});
     } else {
       document.documentElement.style.setProperty('--font', fontMap[font] || fontMap.mplus);
     }
@@ -884,13 +889,18 @@ function buildSettingsPanel() {
     var reader = new FileReader();
     reader.onload = function(ev) {
       var fontName = file.name.replace(/\.[^.]+$/, '');
-      var style = document.createElement('style');
-      style.textContent = "@font-face { font-family: '" + fontName + "'; src: url('" + ev.target.result + "'); }";
-      document.head.appendChild(style);
-      setCookie('bbs_customFontName', fontName, 365);
-      document.getElementById('s-font-file-name').textContent = fontName;
-      Settings.set('font', 'custom');
-      Settings.apply();
+      var font = new FontFace(fontName, 'url(' + ev.target.result + ')');
+      font.load().then(function(loadedFont) {
+        document.fonts.add(loadedFont);
+        localStorage.setItem('bbs_customFontName', fontName);
+        localStorage.setItem('bbs_customFontData', ev.target.result);
+        setCookie('bbs_customFontName', fontName, 365);
+        document.getElementById('s-font-file-name').textContent = fontName;
+        Settings.set('font', 'custom');
+        Settings.apply();
+      }).catch(function(err) {
+        console.error('フォント読み込み失敗:', err);
+      });
     };
     reader.readAsDataURL(file);
   });
