@@ -18,6 +18,8 @@ function switchServer(key) {
   var banner = document.getElementById('restrictionBanner');
   if (banner) { banner.textContent = ''; banner.style.display = 'none'; }
   latestNo = 0;
+  oldestNo = null;
+  hasMore = true;
   isFirstLoad = true;
   updatePostsList();
 }
@@ -45,7 +47,6 @@ var Settings = {
   },
   set: function(key, value) {
     localStorage.setItem('bbs_' + key, value);
-    // Cookieにも保存（後方互換）
     setCookie('bbs_' + key, value, 365);
   },
   apply: function() {
@@ -55,7 +56,6 @@ var Settings = {
     var contrast   = this.get('contrast');
     var brightness = this.get('brightness');
 
-    // テーマカラー
     var r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
     var textColor = (r*0.299 + g*0.587 + b*0.114) < 128 ? '#ffffff' : '#222222';
     document.documentElement.style.setProperty('--accent',      color);
@@ -64,7 +64,6 @@ var Settings = {
     document.documentElement.style.setProperty('--th-bg',       color);
     document.documentElement.style.setProperty('--th-text',     textColor);
 
-    // フォント
     var fontMap = {
       mplus:      "'M PLUS 1p', sans-serif",
       kosugimaru: "'Kosugi Maru', sans-serif",
@@ -81,13 +80,12 @@ var Settings = {
     }
 
     document.documentElement.style.setProperty('--font-size', fontSize + 'px');
-    // filterはbodyに当てるとposition:fixedが崩れるので#main-wrapに適用
     var wrap = document.getElementById('main-wrap');
     if (wrap) {
       wrap.style.filter = 'contrast(' + contrast + '%) brightness(' + brightness + '%)';
     }
-  } // ← 修正箇所1: メソッドを閉じる
-}; // ← 修正箇所2: オブジェクトを閉じる
+  }
+};
 
 function shadeColor(hex, pct) {
   var r = parseInt(hex.slice(1,3),16);
@@ -159,7 +157,7 @@ var EMOJI_MAP = {
 // ユーティリティ
 // =====================
 var inverted = false;
-var myId = null; // 自分のID（パスワードから計算）
+var myId = null;
 
 function updateClock() {
   var el = document.getElementById('clock');
@@ -195,7 +193,6 @@ function autoLinkUrls(text) {
   });
 }
 
-// アンカー >>番号
 function autoLinkAnchors(text) {
   if (!text) return '';
   return text.replace(/&gt;&gt;(\d+)/g, function(_, num) {
@@ -205,7 +202,6 @@ function autoLinkAnchors(text) {
 
 function escapeForRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-// SHA-256 → Base64 → 英数字のみ → 7文字
 function bufToBase64(buf) {
   return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
 }
@@ -230,18 +226,15 @@ function convertImageUrls(text) {
   var imageExts = /\.(jpe?g|png|gif|webp|bmp|svg)(\?[^\s<>"]*)?$/i;
   var videoExts = /\.(mp4|webm|ogg|mov)(\?[^\s<>"]*)?$/i;
   return text.replace(/<a href="([^"]+)"[^>]*>[^<]+<\/a>/g, function(tag, href) {
-    // YouTube（通常・Short）
     var ytMatch = href.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
     if (ytMatch) {
       return '<div class="embed-wrap"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] +
         '" frameborder="0" allowfullscreen loading="lazy" style="width:100%;max-width:480px;height:270px;border-radius:8px;"></iframe></div>';
     }
-    // 画像
     if (imageExts.test(href)) {
       return '<a href="#" class="img-link" data-src="' + escapeHtml(href) + '">' +
         '<img src="' + escapeHtml(href) + '" alt="画像" class="post-img"></a>';
     }
-    // 動画
     if (videoExts.test(href)) {
       return '<video src="' + escapeHtml(href) + '" controls style="max-width:100%;max-height:300px;border-radius:8px;display:block;margin:4px 0;"></video>';
     }
@@ -249,8 +242,10 @@ function convertImageUrls(text) {
   });
 }
 
+// =====================
+// Markdown変換
+// =====================
 function convertMarkdown(s) {
-
   // 複数行引用（>>> から空行まで）
   s = s.replace(/((?:^|<br>)&gt;&gt;&gt; )([\s\S]*?)(?=<br><br>|$)/g, function(_, _prefix, body) {
     var inner = body.replace(/^<br>/, '');
@@ -291,7 +286,7 @@ function convertMarkdown(s) {
     return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + text + '</a>';
   });
 
-// スポイラー（||...||）
+  // スポイラー（||...||）
   s = s.replace(/\|\|(.+?)\|\|/g, function(_, inner) {
     return '<span class="spoiler">' + inner + '</span>';
   });
@@ -324,7 +319,7 @@ function processContent(content) {
     return key;
   }
 
-  // コードブロックだけ先に退避（中身をescapeHtmlして保護）
+  // コードブロックを先に退避（中身をescapeHtmlして保護）
   s = s.replace(/```([\s\S]*?)```/g, function(_, code) {
     return stash('<pre class="code-block" style="background:var(--bg-sub);border:1px solid var(--border);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;margin:4px 0;">' + escapeHtml(code) + '</pre>');
   });
@@ -340,6 +335,7 @@ function processContent(content) {
   s = autoLinkAnchors(s);
   s = convertEmojis(s);
 
+  // プレースホルダーを戻す
   s = s.replace(/\x00(\d+)\x00/g, function(_, i) { return blocks[parseInt(i)]; });
   return s;
 }
@@ -402,7 +398,6 @@ var NotificationManager = {
 };
 function showMessage(text, type) { NotificationManager.show(text||'', type||'success'); }
 
-// ブラウザ通知
 function sendBrowserNotif(title, body) {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'granted') {
@@ -414,7 +409,6 @@ function sendBrowserNotif(title, body) {
 // WebSocket
 // =====================
 var wsReconnectTimer = null;
-var lastPostNos = {}; // channel -> Set of known nos
 
 function connectWS() {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
@@ -431,19 +425,18 @@ function connectWS() {
 
       if (data.type === 'post') {
         var post = data.post;
-        // テーブルに追加
         var tbody = document.querySelector('#postsTable tbody');
         if (tbody) {
           var existing = document.getElementById('post-' + post.no);
           if (!existing) {
             var tr = displayPost(post);
             tbody.insertBefore(tr, tbody.firstChild);
+            // latestNoを更新
+            if (post.no > latestNo) latestNo = post.no;
 
-            // ブラウザ通知
             if (Settings.get('notifyAll') === 'true') {
               sendBrowserNotif('新着投稿', post.name + ': ' + (post.content || '').slice(0, 50));
             }
-            // アンカー通知
             if (Settings.get('notifyAnchor') === 'true' && myId && post.id !== myId) {
               var anchors = (post.content.match(/>>(\d+)/g) || []);
               anchors.forEach(function(a) {
@@ -458,6 +451,8 @@ function connectWS() {
         }
       } else if (data.type === 'clear' || data.type === 'delete' || data.type === 'destroy') {
         latestNo = 0;
+        oldestNo = null;
+        hasMore = true;
         isFirstLoad = true;
         updatePostsList();
       }
@@ -540,12 +535,10 @@ function displayPost(post) {
   var idClass = getIdClass(post);
   var nameStyle = color ? ' style="color:' + escapeHtml(color) + ';"' : '';
 
-  // verifiedバッジ
   var badge = post.verified
     ? '<img src="https://raw.githubusercontent.com/shiratama-kotone/yuyuyu-made-bbs/refs/heads/main/assets/Twitter_Verified_Badge.svg.png" alt="✓" style="width:1em;height:1em;vertical-align:middle;margin-left:3px;">'
     : '';
 
-  // DMリンク（ログイン済みユーザー同士）
   var dmLink = '';
   if (post.verified && post.dm_id) {
     dmLink = ' <a href="dm.html#' + escapeHtml(post.dm_id) + '" class="dm-link" title="DMを送る">💬</a>';
@@ -561,9 +554,15 @@ function displayPost(post) {
   return tr;
 }
 
+// =====================
+// 投稿一覧更新・無限スクロール
+// =====================
 var isUpdating = false;
-var latestNo = 0; // 現在表示中の最新投稿番号
+var latestNo = 0;   // 表示中の最新投稿no
+var oldestNo = null; // 表示中の最古投稿no（追加読み込み用）
+var hasMore = true;  // まだ読み込めるか
 var isFirstLoad = true;
+var LOAD_LIMIT = 50; // 1回の取得件数
 
 async function updatePostsList() {
   if (isUpdating) return;
@@ -573,27 +572,33 @@ async function updatePostsList() {
     isUpdating = true;
 
     if (isFirstLoad) {
-      // 初回
+      // 初回: 最新50件を取得
       tbody.innerHTML = '<tr><td colspan="3">読み込み中...</td></tr>';
-      var data = await loadData();
+      var data = await loadData({ limit: LOAD_LIMIT });
       updateTopic(data.topic);
       updateRestrictionBanner(data.restriction);
       tbody.innerHTML = '';
       if (!data.posts || !data.posts.length) {
         tbody.innerHTML = '<tr><td colspan="3">投稿がありません</td></tr>';
+        hasMore = false;
       } else {
         data.posts.forEach(function(p) { tbody.appendChild(displayPost(p)); });
-        latestNo = data.posts[0].no; // 先頭が最新
+        latestNo = data.posts[0].no;
+        oldestNo = data.posts[data.posts.length - 1].no;
+        // 取得件数がLOAD_LIMIT未満なら全件取得済み
+        hasMore = data.posts.length >= LOAD_LIMIT;
       }
       isFirstLoad = false;
+
+      // ローディングインジケーターを末尾に追加
+      updateLoadingIndicator();
+
     } else {
       // 差分取得: latestNoより新しいものだけ
       var data = await loadData({ after: latestNo });
-      // topic・restriction は常に更新
       updateTopic(data.topic);
       updateRestrictionBanner(data.restriction);
       if (data.posts && data.posts.length > 0) {
-        // 新着を先頭に追加
         data.posts.forEach(function(p) {
           var existing = document.getElementById('post-' + p.no);
           if (!existing) {
@@ -613,11 +618,102 @@ async function updatePostsList() {
   }
 }
 
+// 追加読み込み（古い投稿を末尾に追加）
+var isLoadingMore = false;
+
+async function loadMorePosts() {
+  if (isLoadingMore || !hasMore || oldestNo === null) return;
+  var tbody = document.querySelector('#postsTable tbody');
+  if (!tbody) return;
+
+  try {
+    isLoadingMore = true;
+    // ローディング表示
+    var indicator = document.getElementById('load-more-indicator');
+    if (indicator) indicator.textContent = '読み込み中...';
+
+    var data = await loadData({ before: oldestNo, limit: LOAD_LIMIT });
+    if (!data.posts || !data.posts.length) {
+      hasMore = false;
+    } else {
+      // ローディングインジケーターの前に挿入
+      var indicator = document.getElementById('load-more-indicator');
+      data.posts.forEach(function(p) {
+        var existing = document.getElementById('post-' + p.no);
+        if (!existing) {
+          var tr = displayPost(p);
+          if (indicator) {
+            tbody.insertBefore(tr, indicator.closest('tr'));
+          } else {
+            tbody.appendChild(tr);
+          }
+        }
+      });
+      oldestNo = data.posts[data.posts.length - 1].no;
+      hasMore = data.posts.length >= LOAD_LIMIT;
+    }
+  } catch(e) {
+    console.error(e);
+  } finally {
+    isLoadingMore = false;
+    updateLoadingIndicator();
+  }
+}
+
+// ローディングインジケーターの更新
+function updateLoadingIndicator() {
+  var tbody = document.querySelector('#postsTable tbody');
+  if (!tbody) return;
+
+  var existing = document.getElementById('load-more-indicator');
+  if (!hasMore) {
+    // 全件読み込み済みなら削除
+    if (existing) existing.closest('tr').remove();
+    return;
+  }
+
+  if (!existing) {
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.colSpan = 3;
+    td.id = 'load-more-indicator';
+    td.style.cssText = 'text-align:center;padding:12px;color:var(--text-sub);font-size:13px;';
+    td.textContent = 'スクロールで続きを読み込む';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  } else {
+    existing.textContent = 'スクロールで続きを読み込む';
+  }
+}
+
+// =====================
+// Intersection Observer（無限スクロール）
+// =====================
+function initInfiniteScroll() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && hasMore && !isLoadingMore) {
+        loadMorePosts();
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // テーブルの末尾を監視
+  var tableWrap = document.querySelector('.table-wrap');
+  if (tableWrap) {
+    // ダミー要素をtable-wrapの末尾に追加して監視
+    var sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.height = '1px';
+    tableWrap.appendChild(sentinel);
+    observer.observe(sentinel);
+  }
+}
+
 // =====================
 // アンカースクロール & ダブルタップアンカー挿入
 // =====================
 function initAnchorScroll() {
-  // アンカーリンクのスクロール
   document.addEventListener('click', function(e) {
     var a = e.target.closest('.anchor-link');
     if (!a) return;
@@ -631,12 +727,11 @@ function initAnchorScroll() {
     }
   });
 
-  // 投稿番号のダブルタップ/ダブルクリックでアンカー挿入
   var lastTap = { no: null, time: 0 };
   document.addEventListener('click', function(e) {
     var link = e.target.closest('.post-no-link');
     if (!link) return;
-    e.preventDefault(); // URLにハッシュを付けない
+    e.preventDefault();
     var no = link.dataset.no;
     var now = Date.now();
     if (lastTap.no === no && now - lastTap.time < 400) {
@@ -650,6 +745,13 @@ function initAnchorScroll() {
       lastTap = { no: null, time: 0 };
     } else {
       lastTap = { no: no, time: now };
+    }
+  });
+
+  // スポイラークリック
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('spoiler')) {
+      e.target.classList.add('revealed');
     }
   });
 }
@@ -766,7 +868,6 @@ function buildSettingsPanel() {
   `;
   document.body.appendChild(panel);
 
-  // フォント選択
   var fontSel = document.getElementById('s-font');
   fontSel.value = Settings.get('font');
   var uploadWrap = document.getElementById('s-font-upload-wrap');
@@ -777,7 +878,6 @@ function buildSettingsPanel() {
   });
   if (fontSel.value === 'custom') uploadWrap.style.display = 'block';
 
-  // フォントアップロード
   document.getElementById('s-font-file').addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
@@ -795,14 +895,12 @@ function buildSettingsPanel() {
     reader.readAsDataURL(file);
   });
 
-  // カラー
   document.getElementById('s-color').addEventListener('input', function() {
     document.getElementById('s-color-val').textContent = this.value;
     Settings.set('themeColor', this.value);
     Settings.apply();
   });
 
-  // スライダー
   function bindSlider(id, key, valId) {
     var el = document.getElementById(id);
     el.addEventListener('input', function() {
@@ -815,7 +913,6 @@ function buildSettingsPanel() {
   bindSlider('s-contrast',   'contrast',   's-contrast-val');
   bindSlider('s-brightness', 'brightness', 's-brightness-val');
 
-  // チェックボックス
   function bindCheck(id, key) {
     document.getElementById(id).addEventListener('change', function() {
       Settings.set(key, this.checked ? 'true' : 'false');
@@ -829,7 +926,6 @@ function buildSettingsPanel() {
   bindCheck('s-notify-anchor', 'notifyAnchor');
   bindCheck('s-enter-send',    'enterSend');
 
-  // リセット
   document.getElementById('s-reset').addEventListener('click', function() {
     Object.keys(Settings.defaults).forEach(function(k) {
       localStorage.removeItem('bbs_' + k);
@@ -837,7 +933,6 @@ function buildSettingsPanel() {
     location.reload();
   });
 
-  // 閉じる
   document.getElementById('settings-close').addEventListener('click', function() {
     panel.classList.remove('open');
   });
@@ -847,9 +942,6 @@ function buildSettingsPanel() {
 // 初期化
 // =====================
 document.addEventListener('DOMContentLoaded', function() {
-
-  
-  
   Settings.apply();
 
   var toggleBtn    = document.getElementById('toggleBtn');
@@ -882,21 +974,12 @@ document.addEventListener('DOMContentLoaded', function() {
       emojiPanel.style.display = 'none';
   });
 
-  // スポイラークリック
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('spoiler')) {
-    e.target.classList.add('revealed');
-  }
-});
-
-  // 設定ボタン
   if (settingsBtn) {
     settingsBtn.addEventListener('click', function() {
       document.getElementById('settings-panel').classList.toggle('open');
     });
   }
 
-  // ダークモード（システム追従・localStorage保存）
   function applyDark(dark) {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     if (toggleBtn) toggleBtn.textContent = dark ? '☀️' : '🌙';
@@ -911,7 +994,6 @@ document.addEventListener('click', function(e) {
   });
   if (toggleBtn) toggleBtn.addEventListener('click', function() { applyDark(!inverted); });
 
-  // 名前・パスワード復元
   var savedName = getCookie('bbsUserName'), savedPass = getCookie('bbsUserPassword');
   if (savedName) { var ne=document.getElementById('name'); if(ne) ne.value=savedName; }
   if (savedPass) {
@@ -919,7 +1001,6 @@ document.addEventListener('click', function(e) {
     calcId(savedPass).then(function(id) { myId = id; });
   }
 
-  // パスワード変更時にmyId更新
   var passEl = document.getElementById('password');
   if (passEl) {
     passEl.addEventListener('input', function() {
@@ -928,9 +1009,7 @@ document.addEventListener('click', function(e) {
     });
   }
 
-  // 投稿フォーム
   if (postForm) {
-    // Enterで送信 / Shift+Enterで改行
     if (contentInput) {
       contentInput.addEventListener('keydown', function(e) {
         var enterSend = Settings.get('enterSend') === 'true';
@@ -974,7 +1053,10 @@ document.addEventListener('click', function(e) {
   // 初回読み込み
   updatePostsList();
 
-  // WebSocket接続（ポーリングは廃止）
+  // 無限スクロール初期化
+  initInfiniteScroll();
+
+  // WebSocket接続
   connectWS();
 
   // visibilitychange時に再接続＆更新
